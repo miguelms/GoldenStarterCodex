@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  package-and-release:
+    name: Package Starter & Publish Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run verification checks before packaging
+        run: |
+          npm run typecheck
+          npm run lint
+          npm run check:mobile
+          npm run check:agents
+          npm run test:unit
+        env:
+          EXPO_NO_TELEMETRY: "1"
+
+      - name: Validate web standalone build
+        run: npm run build:web
+        env:
+          NEXT_PRIVATE_STANDALONE: "true"
+
+      - name: Package starter distribution archives
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          PACKAGE_NAME="careflow-homecare-v${VERSION}"
+          mkdir -p release-artifacts
+
+          # Package git archive in tar.gz and zip formats
+          git archive --format=tar.gz --prefix="${PACKAGE_NAME}/" HEAD -o "release-artifacts/${PACKAGE_NAME}.tar.gz"
+          git archive --format=zip --prefix="${PACKAGE_NAME}/" HEAD -o "release-artifacts/${PACKAGE_NAME}.zip"
+
+          # Generate SHA256 checksums
+          cd release-artifacts
+          sha256sum "${PACKAGE_NAME}.tar.gz" "${PACKAGE_NAME}.zip" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          cd ..
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-distribution-artifacts
+          path: release-artifacts/
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: CareFlow HomeCare ${{ github.ref_name }}
+          files: |
+            release-artifacts/*.tar.gz
+            release-artifacts/*.zip
+            release-artifacts/SHA256SUMS.txt
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

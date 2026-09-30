@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: careflow
+      POSTGRES_USER: careflow
+      POSTGRES_PASSWORD: careflow
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careflow -d careflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - careflow_pgdata:/var/lib/postgresql
+
+volumes:
+  careflow_pgdata:

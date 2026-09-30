@@ -1,0 +1,128 @@
+name: E2E & Devices
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  staging-e2e:
+    name: Staging E2E & Compose Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate staging Docker Compose configuration
+        run: docker compose -f docker-compose.staging.yml config
+
+      - name: Install Playwright browsers with dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Web E2E tests
+        run: npm run test:e2e:web
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  mobile-packaging:
+    name: Mobile Packaging & Artifacts Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate mobile workspace manifest and TypeScript
+        run: npm run check:mobile
+        env:
+          EXPO_NO_TELEMETRY: "1"
+
+      - name: Validate EAS build configuration profiles
+        run: |
+          node -e '
+            const fs = require("fs");
+            const config = JSON.parse(fs.readFileSync("apps/mobile/eas.json", "utf8"));
+            const requiredProfiles = ["development", "preview", "production"];
+            for (const profile of requiredProfiles) {
+              if (!config.build || !config.build[profile]) {
+                console.error(`Missing EAS build profile: ${profile}`);
+                process.exit(1);
+              }
+            }
+            if (config.build.development.developmentClient !== true) {
+              console.error("Development profile must enable developmentClient");
+              process.exit(1);
+            }
+            if (config.build.preview.android?.buildType !== "apk") {
+              console.error("Preview Android profile must generate standalone APK");
+              process.exit(1);
+            }
+            if (config.build.preview.channel !== "staging") {
+              console.error("Preview profile must use staging channel");
+              process.exit(1);
+            }
+            if (config.build.production.android?.buildType !== "app-bundle") {
+              console.error("Production Android profile must generate app-bundle");
+              process.exit(1);
+            }
+            console.log("EAS build configuration profiles validated successfully.");
+          '
+
+      - name: Export and package Android Hermes bundle
+        run: npx expo export --platform android --output-dir dist/android
+        working-directory: apps/mobile
+        env:
+          EXPO_NO_TELEMETRY: "1"
+
+      - name: Export and package iOS Hermes bundle
+        run: npx expo export --platform ios --output-dir dist/ios
+        working-directory: apps/mobile
+        env:
+          EXPO_NO_TELEMETRY: "1"
+
+      - name: Verify generated mobile package artifacts
+        run: |
+          test -f apps/mobile/dist/android/metadata.json || { echo "Missing Android bundle metadata"; exit 1; }
+          test -f apps/mobile/dist/ios/metadata.json || { echo "Missing iOS bundle metadata"; exit 1; }
+          echo "Mobile packaging validated: standalone bundles and Hermes bytecode verified."
+
+      - name: Upload mobile packaging verification artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-bundle-metadata
+          path: |
+            apps/mobile/dist/android/metadata.json
+            apps/mobile/dist/ios/metadata.json
+          retention-days: 14

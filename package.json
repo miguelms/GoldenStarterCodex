@@ -1,0 +1,60 @@
+{
+  "name": "golden-starter-v2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Golden Starter V2 — Enterprise Monorepo Skeleton (Next.js 16 + React 19 + Expo 57 + Drizzle ORM + PostgreSQL 18 + Better-Auth + Zod contracts)",
+  "workspaces": [
+    "apps/mobile",
+    "packages/contracts"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "build:web": "next build --webpack",
+    "test:e2e:web": "playwright test",
+    "check:mobile": "node scripts/check-mobile.mjs && npm --workspace @starter/mobile run typecheck",
+    "check:agents": "node scripts/validate-antigravity-agents.mjs",
+    "audit:ci": "npm audit --audit-level=high",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1143.0",
+    "@starter/contracts": "*",
+    "@tailwindcss/postcss": "4.1.0",
+    "better-auth": "1.7.5",
+    "dotenv": "16.4.7",
+    "drizzle-orm": "0.45.2",
+    "next": "16.3.5",
+    "pino": "9.6.0",
+    "postgres": "3.4.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.10.5",
+    "@types/react": "19.0.3",
+    "@types/react-dom": "19.0.2",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.5",
+    "prettier": "3.4.2",
+    "tailwindcss": "4.1.0",
+    "typescript": "5.7.2",
+    "vitest": "2.1.9"
+  }
+}

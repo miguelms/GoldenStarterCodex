@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "golden-starter-v2",
+  "displayName": "Golden Starter V2",
+  "version": "2.0.0",
+  "description": "Manifiesto canónico de Golden Starter V2 — Monorepo Web & Mobile multi-tenant, arquitectura desacoplada, Spec-Driven Development (SDD) y catálogo de agentes Antigravity",
+  "base_ref": "v2.0.0-canonical",
+  "architecture": {
+    "framework": "Monorepo Next.js 16 (App Router) + Expo 57 (React Native) + Drizzle ORM + PostgreSQL 18 + Better-Auth + Zod contracts",
+    "web": {
+      "framework": "Next.js",
+      "version": "16.3.5",
+      "router": "App Router",
+      "react": "19.2.0",
+      "styling": "Tailwind CSS 4.1.0"
+    },
+    "mobile": {
+      "framework": "Expo SDK",
+      "version": "57.0.24",
+      "runtime": "React Native 0.86.3",
+      "navigation": "Expo Router 57.0.22",
+      "engine": "Hermes"
+    },
+    "database": {
+      "engine": "PostgreSQL",
+      "version": "18",
+      "image": "postgres:18-alpine",
+      "orm": "Drizzle ORM 0.45.2",
+      "kit": "Drizzle Kit 0.31.10"
+    },
+    "auth": {
+      "provider": "Better-Auth",
+      "version": "1.7.5"
+    },
+    "contracts": {
+      "validation": "Zod",
+      "version": "4.6.5",
+      "workspace": "packages/contracts"
+    },
+    "storage": {
+      "provider": "Hybrid (Local / AWS S3)",
+      "client": "@aws-sdk/client-s3"
+    },
+    "workspaces": [
+      "apps/mobile",
+      "packages/contracts"
+    ],
+    "runtimes": {
+      "node": ">=24 <25",
+      "npm": ">=11 <12"
+    }
+  },
+  "certified_capabilities": [
+    {
+      "id": "CAP-001",
+      "name": "Multi-tenant estricto (organizationId)",
+      "description": "Aislamiento lógico obligatorio por organizationId en esquemas relacionales, modelos Drizzle, consultas SQL y autorización por objeto en Route Handlers.",
+      "evidence_files": [
+        "src/db/schema.ts",
+        "packages/contracts/src/index.ts",
+        "src/server/auth.ts"
+      ]
+    },
+    {
+      "id": "CAP-002",
+      "name": "Contratos Tipados Puros Compartidos",
+      "description": "Esquemas Zod canónicos en packages/contracts compartidos sin acoplamiento entre Web (Next.js 16) y Mobile (Expo 57).",
+      "evidence_files": [
+        "packages/contracts/src/index.ts",
+        "packages/contracts/package.json"
+      ]
+    },
+    {
+      "id": "CAP-003",
+      "name": "Sync Offline Idempotente con Outbox",
+      "description": "Sincronización tolerante a desconexión mediante tabla y cola outbox con clientEventId (UUIDv4) y deduplicación en servidor.",
+      "evidence_files": [
+        "src/domain/sync.ts",
+        "src/app/api/sync/route.ts",
+        "tests/unit/sync.test.ts"
+      ]
+    },
+    {
+      "id": "CAP-004",
+      "name": "Gestión y Aislamiento de Dispositivos",
+      "description": "Control de ciclo de vida de dispositivos, detección de pérdidas o robos y cuarentena automática de eventos provenientes de dispositivos revocados.",
+      "evidence_files": [
+        "src/domain/devices.ts",
+        "src/app/api/devices/[id]/revoke/route.ts",
+        "tests/unit/lost-device.test.ts"
+      ]
+    },
+    {
+      "id": "CAP-005",
+      "name": "Almacenamiento Desacoplado con Defensa Traversal",
+      "description": "Capa de almacenamiento que conmuta entre disco local (desarrollo) y AWS S3 (producción) con sanitización de safeKey contra path traversal.",
+      "evidence_files": [
+        "src/lib/storage.ts",
+        "src/lib/server-env.ts"
+      ]
+    },
+    {
+      "id": "CAP-006",
+      "name": "Observabilidad Segura con Redacción de Secretos",
+      "description": "Logger estructurado que detecta y redacta automáticamente contraseñas, tokens y llaves privadas antes de persistir en log o tabla error_logs.",
+      "evidence_files": [
+        "src/lib/error-logger.ts",
+        "src/db/schema.ts"
+      ]
+    }
+  ]
+}

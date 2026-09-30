@@ -1,0 +1,17 @@
+{
+  "name": "@starter/mobile",
+  "version": "2.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@starter/contracts": "*",
+    "expo": "57.0.24",
+    "expo-router": "57.0.22",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
+  }
+}

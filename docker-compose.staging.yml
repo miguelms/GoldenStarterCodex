@@ -1,0 +1,41 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: starter-web:staging
+    container_name: starter_web_staging
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://staging_user:staging_secure_password_2026!@db:5432/starter_staging
+      - BETTER_AUTH_SECRET=staging_super_secret_auth_key_minimum_32_characters_long!
+      - BETTER_AUTH_URL=http://localhost:3000
+      - STORAGE_PROVIDER=local
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18-alpine
+    container_name: starter_db_staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: starter_staging
+      POSTGRES_USER: staging_user
+      POSTGRES_PASSWORD: staging_secure_password_2026!
+    ports:
+      - "5432:5432"
+    volumes:
+      - starter_staging_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U staging_user -d starter_staging"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  starter_staging_data:
+    name: starter_staging_data

@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "task_id": "T-001-example",
+  "run_id": "example-only",
+  "agent_id": "qa-agent",
+  "evaluated_ref": "example-snapshot-not-an-actual-project",
+  "status": "BLOCKED",
+  "verdict": "BLOCKED",
+  "summary": "Ejemplo: falta runner nativo; no se ha verificado Android/iOS.",
+  "files_changed": [],
+  "deliverables": [],
+  "checks": [
+    {
+      "id": "native-smoke",
+      "required": true,
+      "status": "NOT_RUN",
+      "method": "Runner nativo previsto en QUALITY",
+      "exit_code": null,
+      "artifact": null,
+      "reason": "Entorno nativo no disponible en este ejemplo."
+    }
+  ],
+  "blockers": ["Falta entorno nativo de test."],
+  "next_action": "Configurar runner, instalar build candidato y ejecutar el check requerido."
+}
