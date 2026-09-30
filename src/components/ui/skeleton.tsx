@@ -1,24 +1,24 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 
 export function Skeleton({
-  className = "",
+  className,
   style,
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-}) {
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`animate-pulse rounded bg-[#E2E8F0] ${className}`}
+      className={cn("animate-pulse rounded-md bg-slate-200", className)}
       style={style}
       aria-hidden="true"
+      {...props}
     />
   );
 }
 
 export function CardSkeleton() {
   return (
-    <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between pb-4">
         <Skeleton className="h-6 w-1/3" />
         <Skeleton className="h-6 w-20" />
@@ -38,7 +38,7 @@ export function CardSkeleton() {
 
 export function TableRowSkeleton() {
   return (
-    <div className="flex items-center justify-between border-b border-[#E2E8F0] p-4">
+    <div className="flex items-center justify-between border-b border-slate-200 p-4">
       <div className="flex items-center gap-3">
         <Skeleton className="h-5 w-5 rounded" />
         <div className="space-y-2">

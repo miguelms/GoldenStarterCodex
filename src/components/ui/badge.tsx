@@ -1,29 +1,55 @@
-import React from "react";
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
-export type BadgeVariant = "teal" | "slate" | "danger" | "warning" | "success" | "info" | "neutral";
+const badgeVariants = cva(
+  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-slate-900 text-slate-50 shadow hover:bg-slate-900/80",
+        secondary:
+          "border-transparent bg-slate-100 text-slate-900 hover:bg-slate-100/80",
+        destructive:
+          "border-transparent bg-red-500 text-slate-50 shadow hover:bg-red-500/80",
+        outline: "text-slate-950 border-slate-200",
+        teal: "bg-teal-500/10 text-teal-700 border-teal-500/30",
+        slate: "bg-slate-900/10 text-slate-900 border-slate-900/20",
+        danger: "bg-red-50 text-red-700 border-red-200",
+        warning: "bg-amber-50 text-amber-700 border-amber-200",
+        success: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        info: "bg-sky-50 text-sky-700 border-sky-200",
+        neutral: "bg-slate-100 text-slate-700 border-slate-200",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
 
-interface BadgeProps {
-  children: React.ReactNode;
-  variant?: BadgeVariant;
-  className?: string;
-}
+export type BadgeVariant =
+  | "default"
+  | "secondary"
+  | "destructive"
+  | "outline"
+  | "teal"
+  | "slate"
+  | "danger"
+  | "warning"
+  | "success"
+  | "info"
+  | "neutral";
 
-export function Badge({ children, variant = "neutral", className = "" }: BadgeProps) {
-  const variantStyles: Record<BadgeVariant, string> = {
-    teal: "bg-[#0D9488]/10 text-[#0D9488] border-[#0D9488]/30",
-    slate: "bg-[#0B1C30]/10 text-[#0B1C30] border-[#0B1C30]/20",
-    danger: "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]/30",
-    warning: "bg-[#FEF3C7] text-[#D97706] border-[#D97706]/30",
-    success: "bg-[#F5FFF6] text-[#10B981] border-[#10B981]/30",
-    info: "bg-[#E0F2FE] text-[#0284C7] border-[#0284C7]/30",
-    neutral: "bg-slate-100 text-slate-700 border-slate-200",
-  };
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
 
+function Badge({ className, variant, ...props }: BadgeProps) {
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${variantStyles[variant]} ${className}`}
-    >
-      {children}
-    </span>
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
   );
 }
+
+export { Badge, badgeVariants };
