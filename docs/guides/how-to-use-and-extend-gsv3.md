@@ -6,26 +6,22 @@ Esta guía contiene las instrucciones operativas completas para instanciar nueva
 
 ## 🚀 ¿Cómo usar GoldenStarterV3 para una nueva app?
 
-Tienes dos alternativas según tu flujo de trabajo: crear un proyecto independiente en otra carpeta o alternar ramas en este repositorio.
-
-### Opción A: Crear una carpeta nueva clonando la rama (Recomendada para producción)
+La rama principal **`main`** de este repositorio es el **Golden Starter canónico** (100% agnóstico y libre de lógica de un negocio específico).
 
 Para iniciar una nueva aplicación en una carpeta limpia (por ejemplo `MiNuevaApp`):
 
 ```bash
-# 1. Clonas directamente la rama limpia en el destino que desees:
-# (Puedes usar la ruta local o la URL de GitHub una vez subido)
-git clone -b GoldenStarterV3 /Users/mm/Downloads/m-work/Projects/customAgents/Rstate-GSv2 /Users/mm/Downloads/m-work/Projects/customAgents/MiNuevaApp
-# O desde GitHub:
-# git clone -b GoldenStarterV3 git@github.com:miguelms/GoldenStarterV3.git /ruta/a/MiNuevaApp
+# 1. Clonas el repositorio directamente en el destino que desees:
+git clone git@github.com:miguelms/GoldenStarterV3.git /ruta/a/MiNuevaApp
+# O desde tu ruta local si estás en la misma máquina:
+# git clone /Users/mm/Downloads/m-work/Projects/customAgents/Rstate-GSv2 /ruta/a/MiNuevaApp
 
-# 2. Entras a la nueva aplicación
-cd /Users/mm/Downloads/m-work/Projects/customAgents/MiNuevaApp
+# 2. Entras a la carpeta de la nueva aplicación:
+cd /ruta/a/MiNuevaApp
 
-# 3. (Opcional) Desvinculas el repositorio origen para crear tu propio repositorio Git nuevo:
+# 3. Desvinculas el repositorio origen para crear tu propio repositorio Git nuevo:
 git remote remove origin
-git checkout -b main
-git remote add origin git@github.com:tu-usuario/mi-nueva-app.git
+# git remote add origin git@github.com:tu-usuario/mi-nueva-app.git
 
 # 4. Instalas dependencias
 npm install
@@ -38,38 +34,21 @@ npm run dev
 ```
 
 > [!TIP]
-> Al clonar la rama `GoldenStarterV3`, la nueva aplicación parte de un estado **100% limpio**: sin tablas de bienes raíces, sin lógica residual, pero con toda la arquitectura lista (BFF, Auth, Drizzle, Shadcn UI, microservicio de IA, contratos compartidos y los 17 agentes de Antigravity).
-
----
-
-### Opción B: Cambiar entre el Starter Virgen y Bienes Raíces en este mismo repo
-
-Si estás trabajando dentro de esta misma carpeta (`Rstate-GSv2`):
-
-```bash
-# Para trabajar en el Starter Virgen V3 (para empezar otra app o mejorar la plantilla):
-git checkout GoldenStarterV3
-
-# Para volver a la app de Bienes Raíces (CIP - Captador Inteligente de Propiedades):
-git checkout main
-```
-
-**Resumen de ramas en este repositorio:**
-- `main`: Contiene la aplicación completa de Bienes Raíces (CIP), con captura de inmuebles, dictado por voz, carga a S3, persistencia en PostgreSQL 18 y pruebas E2E con Playwright.
-- `GoldenStarterV3`: Contiene la plantilla pura, agnóstica a cualquier dominio de negocio, lista para clonarse o evolucionar.
+> Al clonar la rama `main`, la nueva aplicación parte de un estado **100% limpio**: sin tablas de bienes raíces, sin lógica residual, pero con toda la arquitectura lista (BFF, Auth, Drizzle, Shadcn UI, microservicio de IA, contratos compartidos y los 17 agentes de Antigravity).
 
 ---
 
 ## 🔄 ¿Cómo seguir mejorando GoldenStarterV3? (Metodología y Pasos)
 
-Para que GoldenStarterV3 siga evolucionando como una plantilla de clase mundial sin contaminarse con lógica específica de un solo negocio, sigue este flujo riguroso:
+Para que GoldenStarterV3 siga evolucionando como una plantilla de clase mundial:
 
-### PASO 1: Asegúrate de estar en la rama de la plantilla
+### PASO 1: Crea una rama de feature limpia desde `main`
 Antes de hacer cualquier mejora genérica o estructural:
 ```bash
-git checkout GoldenStarterV3
+git checkout main
+git pull origin main
+git checkout -b feat/nombre-de-la-mejora
 ```
-*(Así garantizas que no estás mezclando código con la app de Bienes Raíces de `main`).*
 
 ---
 

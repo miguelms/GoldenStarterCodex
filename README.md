@@ -102,19 +102,19 @@ docker compose up -d
 
 ## 🚀 ¿Cómo usar GoldenStarterV3 para una nueva app?
 
-### Opción A: Crear una carpeta nueva clonando la rama (Recomendado)
 Para iniciar una nueva aplicación en una carpeta limpia (ej. `MiNuevaApp`):
 
 ```bash
-# 1. Clonas directamente la rama limpia en el destino que desees:
-git clone -b GoldenStarterV3 /Users/mm/Downloads/m-work/Projects/customAgents/Rstate-GSv2 /Users/mm/Downloads/m-work/Projects/customAgents/MiNuevaApp
+# 1. Clonas el repositorio directamente (la rama principal 'main' ya es el Golden Starter limpio):
+git clone git@github.com:miguelms/GoldenStarterV3.git MiNuevaApp
+# O localmente:
+# git clone /Users/mm/Downloads/m-work/Projects/customAgents/Rstate-GSv2 MiNuevaApp
 
 # 2. Entras a la carpeta de la nueva app:
-cd /Users/mm/Downloads/m-work/Projects/customAgents/MiNuevaApp
+cd MiNuevaApp
 
-# 3. Desvinculas el remote original para iniciar tu propio repositorio:
+# 3. Desvinculas el remote original para conectar tu propio repositorio nuevo:
 git remote remove origin
-git checkout -b main
 # git remote add origin git@github.com:tu-usuario/mi-nueva-app.git
 
 # 4. Instalas dependencias y configuras variables de entorno:
@@ -123,32 +123,19 @@ cp .env.example .env
 npm run dev
 ```
 
-### Opción B: Cambiar entre el Starter Virgen y Bienes Raíces en este mismo repo
-Si estás trabajando dentro de esta carpeta local:
-
-```bash
-# Para trabajar en el Starter Virgen V3 (para empezar otra app o mejorar la plantilla):
-git checkout GoldenStarterV3
-
-# Para volver a la app de Bienes Raíces (CIP):
-git checkout main
-```
-
-- **`GoldenStarterV3`**: Plantilla pura, agnóstica a cualquier dominio de negocio, 0 residuos de código específico.
-- **`main`**: Aplicación de Bienes Raíces completa (CIP - Captador Inteligente de Propiedades).
-
 ---
 
 ## 🔄 ¿Cómo seguir mejorando GoldenStarterV3? (Metodología y Pasos)
 
-Para que GoldenStarterV3 siga evolucionando como una plantilla de clase mundial sin contaminarse:
+Para que GoldenStarterV3 siga evolucionando como una plantilla de clase mundial:
 
-### PASO 1: Asegúrate de estar en la rama de la plantilla
+### PASO 1: Crea una rama de feature limpia desde `main`
 Antes de hacer cualquier mejora genérica:
 ```bash
-git checkout GoldenStarterV3
+git checkout main
+git pull origin main
+git checkout -b feat/nombre-de-la-mejora
 ```
-*(Así garantizas que no estás mezclando cosas con la app de Bienes Raíces de main).*
 
 ### PASO 2: Define la mejora con la metodología SDD (Spec-Driven Development)
 No programes "a ciegas". Si vas a añadir una mejora estructural:
