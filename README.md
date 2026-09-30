@@ -100,11 +100,106 @@ docker compose up -d
 
 ---
 
-## 📋 Flujo de Trabajo con Agentes (SDD)
+## 🚀 ¿Cómo usar GoldenStarterV3 para una nueva app?
 
-Para implementar nuevas funcionalidades, sigue el flujo **Spec-Driven Development**:
-1. Crea la especificación de la feature en `specs/` usando `specs/templates/feature-spec.template.md`.
-2. `product-manager-agent` valida los requisitos y criterios de aceptación.
-3. `change-planner-agent` descompone en tareas atómicas en `TASKS.md`.
-4. `backend-agent`, `frontend-agent` o `mobile-agent` implementan respetando `@starter/contracts`.
-5. `test-engineer-agent` y `qa-agent` verifican los criterios antes de dar por completada la tarea.
+### Opción A: Crear una carpeta nueva clonando la rama (Recomendado)
+Para iniciar una nueva aplicación en una carpeta limpia (ej. `MiNuevaApp`):
+
+```bash
+# 1. Clonas directamente la rama limpia en el destino que desees:
+git clone -b GoldenStarterV3 /Users/mm/Downloads/m-work/Projects/customAgents/Rstate-GSv2 /Users/mm/Downloads/m-work/Projects/customAgents/MiNuevaApp
+
+# 2. Entras a la carpeta de la nueva app:
+cd /Users/mm/Downloads/m-work/Projects/customAgents/MiNuevaApp
+
+# 3. Desvinculas el remote original para iniciar tu propio repositorio:
+git remote remove origin
+git checkout -b main
+# git remote add origin git@github.com:tu-usuario/mi-nueva-app.git
+
+# 4. Instalas dependencias y configuras variables de entorno:
+npm install
+cp .env.example .env
+npm run dev
+```
+
+### Opción B: Cambiar entre el Starter Virgen y Bienes Raíces en este mismo repo
+Si estás trabajando dentro de esta carpeta local:
+
+```bash
+# Para trabajar en el Starter Virgen V3 (para empezar otra app o mejorar la plantilla):
+git checkout GoldenStarterV3
+
+# Para volver a la app de Bienes Raíces (CIP):
+git checkout main
+```
+
+- **`GoldenStarterV3`**: Plantilla pura, agnóstica a cualquier dominio de negocio, 0 residuos de código específico.
+- **`main`**: Aplicación de Bienes Raíces completa (CIP - Captador Inteligente de Propiedades).
+
+---
+
+## 🔄 ¿Cómo seguir mejorando GoldenStarterV3? (Metodología y Pasos)
+
+Para que GoldenStarterV3 siga evolucionando como una plantilla de clase mundial sin contaminarse:
+
+### PASO 1: Asegúrate de estar en la rama de la plantilla
+Antes de hacer cualquier mejora genérica:
+```bash
+git checkout GoldenStarterV3
+```
+*(Así garantizas que no estás mezclando cosas con la app de Bienes Raíces de main).*
+
+### PASO 2: Define la mejora con la metodología SDD (Spec-Driven Development)
+No programes "a ciegas". Si vas a añadir una mejora estructural:
+1. Crea una especificación en `specs/` (ej. `specs/003-oauth-social.md`) usando [`specs/templates/feature-spec.template.md`](file:///Users/mm/Downloads/m-work/Projects/customAgents/Rstate-GSv2/specs/templates/feature-spec.template.md).
+2. Si afecta contratos o arquitectura base, regístralo en `docs/adr/`.
+3. Establece los criterios Given / When / Then y scorecard de aceptación.
+
+### PASO 3: Invoca o asigna a los agentes especializados de Antigravity
+Delega cada parte a su especialista:
+- `change-planner-agent`: Planifica el desglose en `TASKS.md`.
+- `backend-agent`: Implementa endpoints en `src/app/api` o microservicio en `backend-ai/`.
+- `frontend-agent`: Implementa componentes UI con React 19, Tailwind CSS 4 y Shadcn.
+- `infra-data-agent`: Schemas Drizzle y migraciones en PostgreSQL 18.
+- `mobile-agent`: Actualiza o verifica la app Expo en `apps/mobile/`.
+- `security-agent`: Audita autenticación, secretos y validaciones Zod.
+- `test-engineer-agent`: Escribe tests Vitest y Playwright.
+- `qa-agent`: Verifica de forma independiente los criterios de aceptación.
+
+### PASO 4: Ejecuta los Quality Gates obligatorios
+Antes de dar por buena la mejora, ejecuta:
+```bash
+npm run typecheck       # 0 errores de tipado TypeScript
+npm run test:unit       # 100% pruebas unitarias pasando
+npm run check:agents    # 17 agentes validados en Antigravity
+npm run lint            # Estándar de código limpio
+```
+
+### PASO 5: Persiste y publica la mejora
+```bash
+git add .
+git commit -m "feat(core): agregar soporte de <mejora>"
+git push origin GoldenStarterV3
+```
+
+---
+
+## 🗺️ Roadmap de Mejoras Sugeridas de Alto Valor para GSv3
+
+1. **Autenticación Social (OAuth)**:
+   - Configurar proveedores Google y GitHub en Better Auth para que cualquier app nueva ya tenga inicio de sesión con un clic.
+2. **Server-Sent Events (SSE) o Streaming de IA**:
+   - Permitir que el microservicio Flask o Next.js transmitan tokens de texto o transcripciones en tiempo real mientras se generan, en lugar de solo sondeo (`polling`).
+3. **Pipeline CI/CD en GitHub Actions**:
+   - Automatizar en `.github/workflows/ci.yml` la ejecución de `typecheck`, `test:unit`, `check:agents` y build en cada Pull Request.
+4. **Caché y Rate Limiting con Redis**:
+   - Proteger endpoints públicos y acelerar lecturas frecuentes mediante Redis.
+5. **Exportación e Importación en GenericCrudDataGrid**:
+   - Soporte para exportar a CSV/Excel e importación masiva con validación por Zod.
+6. **Notificaciones Push y Webhooks**:
+   - Notificaciones asíncronas móviles (Expo) y webhooks configurables al terminar tareas pesadas de Celery.
+
+---
+
+> Para la guía operativa detallada, consulta [`docs/guides/how-to-use-and-extend-gsv3.md`](file:///Users/mm/Downloads/m-work/Projects/customAgents/Rstate-GSv2/docs/guides/how-to-use-and-extend-gsv3.md).
