@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { aiSatelliteClient } from "@/server/ai-satellite-client";
-import { normalizeVoiceData } from "@starter/contracts";
 import { getRequestContext } from "@/server/auth";
 
 export async function GET(
@@ -22,13 +21,7 @@ export async function GET(
   }
 
   try {
-    const taskStatus = await aiSatelliteClient.getCipTaskStatus(taskId);
-
-    // Si la tarea terminó con éxito, incluir los datos normalizados para el formulario
-    let normalizedData = null;
-    if (taskStatus.status === "success" && taskStatus.result) {
-      normalizedData = normalizeVoiceData(taskStatus.result);
-    }
+    const taskStatus = await aiSatelliteClient.getTaskStatus(taskId);
 
     return NextResponse.json(
       {
@@ -39,7 +32,6 @@ export async function GET(
         progress: taskStatus.progress ?? (taskStatus.ready ? 100 : 50),
         step: taskStatus.step,
         result: taskStatus.result,
-        normalized: normalizedData,
         error: taskStatus.error,
         requestId: context.requestId,
       },

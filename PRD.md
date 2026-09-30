@@ -1,38 +1,55 @@
-# Product Requirements Document (PRD) — Base Golden Starter V2
+# Product Requirements Document (PRD) — Golden Starter V3
 
-> Documento canónico de requisitos del Golden Starter V2. Esta base define el esqueleto sobre el cual se instanciará la nueva aplicación.
+> Documento canónico de requisitos del **Golden Starter V3 (GSv3)**.  
+> Base arquitectónica universal, pura y 100% agnóstica a cualquier dominio de negocio.
 
-## 1. Visión y Propósito del Starter
+---
 
-Proporcionar una plantilla de inicio lista para producción (Golden Starter) que elimine la fricción de configuración inicial en nuevas aplicaciones web y móviles, garantizando desde el día 1:
-- Aislamiento multi-tenant por organización.
-- Sincronización offline tolerante a fallos de red.
-- Contratos tipados de extremo a extremo compartidos entre Web y Mobile.
-- Un equipo autónomo de 17 agentes de IA especializados bajo metodología Spec-Driven Development (SDD).
+## 1. Visión y Propósito
 
-## 2. Capacidades de la Plataforma Base
+Proporcionar una plantilla de inicio corporativa, lista para producción inmediata, que elimine la fricción de configuración técnica en nuevas aplicaciones web, APIs y móviles, garantizando desde el primer commit:
+- Arquitectura **Backend for Frontend (BFF)** con Next.js 16 y microservicio satélite de IA en Python/Flask + Celery + Redis.
+- Aislamiento multi-tenant por organización sobre **PostgreSQL 18** y **Drizzle ORM**.
+- Autenticación completa con **Better Auth** (sesiones, cuentas, tokens).
+- Sistema de componentes canónico con **Shadcn UI** y **Generic DataGrid** con vista responsiva para móvil.
+- Almacenamiento híbrido para archivos crudos con **AWS S3** y fallback local seguro.
+- Soporte para clientes móviles en **Expo 57 / React Native** con sincronización offline tolerante a fallos.
+- Gobernanza de **17 agentes de IA especializados** bajo la metodología **Spec-Driven Development (SDD)**.
+
+---
+
+## 2. Capacidades del Núcleo Agnóstico
 
 1. **Gestión de Cuentas y Organizaciones:**
-   - Multi-tenant estricto con jerarquía Organizaciones -> Usuarios -> Roles (`admin_global`, `org_admin`, `manager`, `member`, `viewer`).
-   - Autenticación segura mediante Better-Auth sobre PostgreSQL 18.
-2. **Registro y Seguridad de Dispositivos:**
-   - Registro de huellas digitales de dispositivos (`deviceFingerprint`).
-   - Revocación administrativa de acceso: dispositivos revocados quedan en cuarentena inmediata.
-3. **Cola de Sincronización Offline (Outbox):**
-   - Soporte para operar sin conexión a internet en clientes móviles y web.
-   - Sincronización idempotente con deduplicación por UUIDv4 en servidor.
-4. **Almacenamiento de Archivos Híbrido:**
-   - Abstracción unificada para almacenamiento local en disco (desarrollo) o AWS S3 (producción).
-5. **Auditoría Append-Only:**
-   - Registro inmutable de eventos administrativos y de seguridad con trazabilidad completa.
+   - Multi-tenant estricto: `organizations` -> `users` -> `roles` (`admin_global`, `org_admin`, `manager`, `member`, `viewer`).
+   - Autenticación nativa con Better Auth sobre PostgreSQL 18.
+2. **Orquestación BFF y Microservicio Satélite:**
+   - Next.js 16 gestiona la API pública, validaciones con Zod y persistencia transaccional.
+   - Flask y Celery ejecutan tareas pesadas de IA y medios en red interna aislada (sin acceso directo a la BD).
+3. **Registro y Seguridad de Dispositivos:**
+   - Registro de huellas digitales de dispositivos (`devices`).
+   - Revocación administrativa con puesta en cuarentena inmediata.
+4. **Cola de Sincronización Offline (Outbox):**
+   - Soporte de operación sin conexión en clientes móviles y web.
+   - Deduplicación idempotente en servidor por UUIDv4 (`sync_events`).
+5. **Almacenamiento de Medios (AWS S3):**
+   - Subida y validación tipada vía Next.js. Traspaso de `s3Key` hacia Flask sin enviar binarios pesados por HTTP.
+6. **Auditoría Append-Only & Error Tracking:**
+   - Registro inmutable de eventos (`audit_logs`) y logs con redacción de secretos (`error_logs`).
 
-## 3. Aplicación Instanciada: CIP (Captador Inteligente de Propiedades)
+---
 
-Este Golden Starter V2 tiene instanciada como aplicación principal **CIP (Captador Inteligente de Propiedades)**:
-- **Especificación completa SDD:** Ver [`specs/cip-captador-inteligente.md`](specs/cip-captador-inteligente.md).
-- **Módulos activos:**
-  1. *Formulario Híbrido de Captura (`/propiedades/nueva`):* Asistente de voz en navegador + carga de fotos S3 + campos estructurados.
-  2. *Cartera de Propiedades (`/propiedades`):* Gestión y visualización con el componente canónico `GenericCrudDataGrid`.
-  3. *Microservicio Satélite IA (`backend-ai/`):* Flask + Celery en red interna Docker para transcripción Whisper/Gemini y extracción de dimensiones.
-  4. *Persistencia Relacional:* Drizzle ORM sobre PostgreSQL 18 con tabla `properties` y logs de auditoría append-only.
+## 3. Cómo Instanciar una Nueva Aplicación desde GSv3
 
+Para crear cualquier aplicación sobre este starter:
+1. **Especificación SDD (`specs/`):**
+   - Copiar `specs/templates/feature-spec.template.md` a `specs/<mi-nueva-app>.md`.
+   - Redactar casos de uso, escenarios Given/When/Then y scorecards de aceptación (`AC-001`).
+2. **Contratos (`packages/contracts/src/index.ts`):**
+   - Definir los esquemas Zod de las entidades del nuevo dominio.
+3. **Base de Datos (`src/db/schema.ts`):**
+   - Declarar las nuevas tablas con Drizzle ORM y ejecutar `npm run db:generate`.
+4. **Pantallas y Componentes (`src/app/`):**
+   - Crear las rutas de la app usando los componentes oficiales Shadcn UI y `GenericCrudDataGrid`.
+5. **Tareas de IA (`backend-ai/tasks.py`):**
+   - Definir los prompts y estructuras JSON que los workers de Celery procesarán con OpenAI / Gemini.

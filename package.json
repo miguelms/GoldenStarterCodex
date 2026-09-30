@@ -1,8 +1,8 @@
 {
-  "name": "golden-starter-v2",
-  "version": "2.0.0",
+  "name": "golden-starter-v3",
+  "version": "3.0.0",
   "private": true,
-  "description": "Golden Starter V2 — Enterprise Monorepo Skeleton (Next.js 16 + React 19 + Expo 57 + Drizzle ORM + PostgreSQL 18 + Better-Auth + Zod contracts)",
+  "description": "Golden Starter V3 — Enterprise Monorepo Skeleton (Next.js 16 + React 19 + Expo 57 + Drizzle ORM + PostgreSQL 18 + Better-Auth + Zod contracts + BFF Flask/Celery Satellite)",
   "workspaces": [
     "apps/mobile",
     "packages/contracts"

@@ -157,32 +157,3 @@ export const errorLogs = pgTable("error_logs", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// =============================================================================
-// CIP — PROPERTIES TABLE (Captador Inteligente de Propiedades)
-// =============================================================================
-export const properties = pgTable("properties", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  organizationId: uuid("organization_id")
-    .notNull()
-    .references(() => organizations.id, { onDelete: "cascade" }),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
-  title: text("title").notNull(),
-  propertyType: text("property_type").notNull(), // casa, departamento, terreno, comercial
-  price: numeric("price", { precision: 14, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("MXN"), // MXN, USD
-  address: text("address").notNull(),
-  gpsLoc: text("gps_loc"),
-  landSize: numeric("land_size", { precision: 10, scale: 2 }),
-  constructionSize: numeric("construction_size", { precision: 10, scale: 2 }),
-  bedrooms: integer("bedrooms"),
-  bathrooms: numeric("bathrooms", { precision: 4, scale: 1 }),
-  parkingSpots: integer("parking_spots"),
-  finishes: text("finishes"),
-  description: text("description").notNull(),
-  rawAudioS3Key: text("raw_audio_s3_key"),
-  transcription: text("transcription"),
-  images: jsonb("images").$type<string[]>().default([]).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
-

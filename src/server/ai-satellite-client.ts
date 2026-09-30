@@ -11,13 +11,13 @@ import {
 } from "@starter/contracts";
 import { getFlaskApiUrl } from "@/lib/server-env";
 
-export interface CipVoiceTranscribeResponse {
+export interface AudioTranscribeResponse {
   task_id: string;
   status: string;
   enqueued_at?: string;
 }
 
-export interface CipTaskStatusResponse {
+export interface TaskStatusResponse {
   task_id: string;
   status: string;
   ready: boolean;
@@ -27,7 +27,7 @@ export interface CipTaskStatusResponse {
   error?: string;
 }
 
-export interface CipImageProcessResponse {
+export interface ImageProcessResponse {
   success: boolean;
   processed_count: number;
   images: ImageMetadataItem[];
@@ -42,10 +42,10 @@ export class AiSatelliteClient {
   }
 
   /**
-   * Dispara la transcripción y extracción estructurada por voz en Flask/Celery.
+   * Dispara la transcripción y extracción estructurada de audio en Flask/Celery.
    * Regla de arquitectura: solo envía s3_key, no archivos pesados por HTTP.
    */
-  public async transcribeVoice(s3Key: string): Promise<CipVoiceTranscribeResponse> {
+  public async transcribeAudio(s3Key: string): Promise<AudioTranscribeResponse> {
     const response = await fetch(`${this.baseUrl}/api/v1/voice/transcribe`, {
       method: "POST",
       headers: {
@@ -60,13 +60,20 @@ export class AiSatelliteClient {
       throw new Error(`AI Satellite voice transcription failed with HTTP ${response.status}: ${errorText}`);
     }
 
-    return (await response.json()) as CipVoiceTranscribeResponse;
+    return (await response.json()) as AudioTranscribeResponse;
+  }
+
+  /**
+   * Alias de conveniencia para transcripción de voz.
+   */
+  public async transcribeVoice(s3Key: string): Promise<AudioTranscribeResponse> {
+    return this.transcribeAudio(s3Key);
   }
 
   /**
    * Consulta el estado de una tarea Celery en Flask.
    */
-  public async getCipTaskStatus(taskId: string): Promise<CipTaskStatusResponse> {
+  public async getTaskStatus(taskId: string): Promise<TaskStatusResponse> {
     const response = await fetch(`${this.baseUrl}/api/v1/tasks/${encodeURIComponent(taskId)}`, {
       method: "GET",
       headers: {
@@ -79,14 +86,14 @@ export class AiSatelliteClient {
       throw new Error(`Failed to retrieve task status for ${taskId} (HTTP ${response.status}): ${errorText}`);
     }
 
-    return (await response.json()) as CipTaskStatusResponse;
+    return (await response.json()) as TaskStatusResponse;
   }
 
   /**
    * Procesa imágenes de forma síncrona en Flask (< 5 segundos).
    * Envía un arreglo de s3_keys y retorna metadatos / dimensiones.
    */
-  public async processImages(s3Keys: string[]): Promise<CipImageProcessResponse> {
+  public async processImages(s3Keys: string[]): Promise<ImageProcessResponse> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6000);
 
@@ -106,7 +113,7 @@ export class AiSatelliteClient {
         throw new Error(`AI Satellite image processing failed with HTTP ${response.status}: ${errorText}`);
       }
 
-      return (await response.json()) as CipImageProcessResponse;
+      return (await response.json()) as ImageProcessResponse;
     } catch (err: unknown) {
       if ((err as { name?: string }).name === "AbortError") {
         throw new Error("AI Satellite image processing timeout: exceeded 5 seconds limit");
@@ -184,36 +191,17 @@ export class AiSatelliteClient {
   }
 
   /**
-   * Consulta el estado de una tarea genérica en curso en Celery/Redis a través de Flask.
-   */
-  public async getTaskStatus(taskId: string): Promise<AiAsyncTaskDetail> {
-    const response = await fetch(`${this.baseUrl}/tasks/${encodeURIComponent(taskId)}`, {
-      method: "GET",
-      headers: {
-        "X-Caller": "Nextjs-BFF",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to retrieve task status for ${taskId} (HTTP ${response.status})`);
-    }
-
-    const json = await response.json();
-    return aiAsyncTaskDetailSchema.parse(json);
-  }
-
-  /**
    * Helper de polling para esperar el resultado de una tarea asíncrona.
    */
   public async pollTaskResult(
     taskId: string,
     options: { maxAttempts?: number; intervalMs?: number } = {}
-  ): Promise<CipTaskStatusResponse> {
+  ): Promise<TaskStatusResponse> {
     const maxAttempts = options.maxAttempts ?? 30;
     const intervalMs = options.intervalMs ?? 1500;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const detail = await this.getCipTaskStatus(taskId);
+      const detail = await this.getTaskStatus(taskId);
       if (detail.status === "success" || detail.status === "failure") {
         return detail;
       }

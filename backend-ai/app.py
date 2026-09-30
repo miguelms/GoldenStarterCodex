@@ -6,13 +6,41 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 
 from celery_app import celery_app
-from tasks import process_voice_transcription
+from tasks import process_voice_transcription, process_heavy_media
 
 load_dotenv()
 
 app = Flask(__name__)
 # Permitir peticiones internas desde Next.js BFF en la red interna de Docker
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+@app.route("/process/sync", methods=["POST"])
+def process_sync():
+    """Flujos síncronos genéricos (< 5s)."""
+    data = request.get_json(silent=True) or {}
+    s3_key = data.get("s3Key") or data.get("s3_key")
+    operation = data.get("operation", "quick_analysis")
+    return jsonify({
+        "success": True,
+        "operation": operation,
+        "result": {"s3Key": s3_key, "status": "completed"},
+        "executionTimeMs": 25,
+    }), 200
+
+@app.route("/process/async", methods=["POST"])
+def process_async():
+    """Flujos asíncronos genéricos (> 5s)."""
+    data = request.get_json(silent=True) or {}
+    s3_key = data.get("s3Key") or data.get("s3_key")
+    operation = data.get("operation", "heavy_processing")
+    parameters = data.get("parameters", {})
+    task = process_heavy_media.delay(s3_key, operation, parameters)
+    return jsonify({
+        "taskId": task.id,
+        "status": "pending",
+        "enqueuedAt": datetime.now(timezone.utc).isoformat(),
+    }), 202
+
 
 @app.route("/health", methods=["GET"])
 @app.route("/api/v1/health", methods=["GET"])

@@ -5,7 +5,7 @@ vi.mock("server-only", () => ({}));
 
 import { AiSatelliteClient } from "@/server/ai-satellite-client";
 
-describe("AiSatelliteClient — CIP Satellite Operations", () => {
+describe("AiSatelliteClient — Golden Starter V3 Satellite Operations", () => {
   let client: AiSatelliteClient;
   const mockBaseUrl = "http://internal-flask:5000";
 
@@ -18,23 +18,23 @@ describe("AiSatelliteClient — CIP Satellite Operations", () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        task_id: "task-cip-12345",
+        task_id: "task-gsv3-12345",
         status: "queued",
         enqueued_at: "2026-09-30T12:00:00Z",
       }),
     });
     global.fetch = mockFetch;
 
-    const result = await client.transcribeVoice("properties/audios/test-audio.m4a");
+    const result = await client.transcribeAudio("uploads/audios/test-audio.m4a");
 
     expect(mockFetch).toHaveBeenCalledWith(
       "http://internal-flask:5000/api/v1/voice/transcribe",
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ s3_key: "properties/audios/test-audio.m4a" }),
+        body: JSON.stringify({ s3_key: "uploads/audios/test-audio.m4a" }),
       })
     );
-    expect(result.task_id).toBe("task-cip-12345");
+    expect(result.task_id).toBe("task-gsv3-12345");
     expect(result.status).toBe("queued");
   });
 
@@ -42,28 +42,27 @@ describe("AiSatelliteClient — CIP Satellite Operations", () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        task_id: "task-cip-12345",
+        task_id: "task-gsv3-12345",
         status: "success",
         ready: true,
         progress: 100,
         result: {
-          title: "Casa en Colinas",
-          price: 3500000,
-          transcription: "Hermosa casa...",
+          summary: "Audio procesado exitosamente",
+          transcription: "Texto transcrito de prueba...",
         },
       }),
     });
     global.fetch = mockFetch;
 
-    const result = await client.getCipTaskStatus("task-cip-12345");
+    const result = await client.getTaskStatus("task-gsv3-12345");
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "http://internal-flask:5000/api/v1/tasks/task-cip-12345",
+      "http://internal-flask:5000/api/v1/tasks/task-gsv3-12345",
       expect.objectContaining({ method: "GET" })
     );
     expect(result.status).toBe("success");
     expect(result.ready).toBe(true);
-    expect(result.result?.title).toBe("Casa en Colinas");
+    expect(result.result?.summary).toBe("Audio procesado exitosamente");
   });
 
   it("procesa imágenes de forma síncrona en /api/v1/images/process", async () => {
