@@ -1,6 +1,8 @@
 import {
   boolean,
+  integer,
   jsonb,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -32,6 +34,7 @@ export const users = pgTable("users", {
     .notNull()
     .references(() => organizations.id, { onDelete: "cascade" }),
   email: text("email").notNull(),
+  name: text("name").notNull().default(""),
   displayName: text("display_name").notNull(),
   role: text("role").notNull().default("member"),
   emailVerified: boolean("email_verified").default(false).notNull(),
@@ -67,7 +70,10 @@ export const accounts = pgTable("accounts", {
   providerId: text("provider_id").notNull(),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
-  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+  scope: text("scope"),
   password: text("password"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -150,3 +156,33 @@ export const errorLogs = pgTable("error_logs", {
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+// =============================================================================
+// CIP — PROPERTIES TABLE (Captador Inteligente de Propiedades)
+// =============================================================================
+export const properties = pgTable("properties", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  title: text("title").notNull(),
+  propertyType: text("property_type").notNull(), // casa, departamento, terreno, comercial
+  price: numeric("price", { precision: 14, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("MXN"), // MXN, USD
+  address: text("address").notNull(),
+  gpsLoc: text("gps_loc"),
+  landSize: numeric("land_size", { precision: 10, scale: 2 }),
+  constructionSize: numeric("construction_size", { precision: 10, scale: 2 }),
+  bedrooms: integer("bedrooms"),
+  bathrooms: numeric("bathrooms", { precision: 4, scale: 1 }),
+  parkingSpots: integer("parking_spots"),
+  finishes: text("finishes"),
+  description: text("description").notNull(),
+  rawAudioS3Key: text("raw_audio_s3_key"),
+  transcription: text("transcription"),
+  images: jsonb("images").$type<string[]>().default([]).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+

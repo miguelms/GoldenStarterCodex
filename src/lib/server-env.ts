@@ -21,14 +21,19 @@ const storageEnvSchema = z
     LOCAL_STORAGE_DIR: optionalString,
     AWS_REGION: z.string().trim().min(1).default("us-east-1"),
     S3_BUCKET: optionalString,
+    AWS_S3_BUCKET_NAME: optionalString,
     S3_PREFIX: z.string().trim().max(512).optional().default(""),
   })
+  .transform((val) => ({
+    ...val,
+    S3_BUCKET: val.S3_BUCKET || val.AWS_S3_BUCKET_NAME,
+  }))
   .superRefine((val, ctx) => {
     if (val.STORAGE_PROVIDER === "s3" && !val.S3_BUCKET) {
       ctx.addIssue({
         code: "custom",
         path: ["S3_BUCKET"],
-        message: "S3_BUCKET is required when STORAGE_PROVIDER=s3",
+        message: "S3_BUCKET or AWS_S3_BUCKET_NAME is required when STORAGE_PROVIDER=s3",
       });
     }
   });
@@ -55,3 +60,12 @@ export function getBetterAuthEnv() {
   if (!parsed.success) throw new Error("Better Auth environment is invalid");
   return parsed.data;
 }
+
+export function getFlaskApiUrl(): string {
+  return (
+    process.env.FLASK_API_URL ||
+    process.env.AI_SATELLITE_URL ||
+    (process.env.NODE_ENV === "production" ? "http://flask-api:5000" : "http://localhost:5000")
+  ).replace(/\/+$/, "");
+}
+

@@ -1,81 +1,165 @@
+import Link from "next/link";
+import {
+  Building2,
+  Mic,
+  Camera,
+  Database,
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  Server,
+  Layers,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export default function HomePage() {
   return (
-    <main className="max-w-5xl mx-auto px-6 py-12">
-      <header className="mb-10 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 mb-4">
-          <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-          Golden Starter V2 • Canonical Skeleton
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      {/* Hero Header */}
+      <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto max-w-6xl px-6 py-12 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+              <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+              CIP • Captador Inteligente de Propiedades
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl">
+              Captación Inmobiliaria Híbrida con IA
+            </h1>
+            <p className="max-w-2xl text-base text-slate-600 dark:text-slate-400">
+              Combina captura manual tradicional con asistencia de voz inteligente (Whisper/LLM),
+              optimización de fotografías en AWS S3 y persistencia relacional en PostgreSQL 18.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Link href="/propiedades/nueva">
+              <Button size="lg" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">
+                <Mic className="mr-2 h-4 w-4" /> Captar Propiedad
+              </Button>
+            </Link>
+            <Link href="/propiedades">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                <Building2 className="mr-2 h-4 w-4" /> Ver Cartera
+              </Button>
+            </Link>
+          </div>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-          Base Arquitectónica Limpia y Modular
-        </h1>
-        <p className="mt-3 text-lg text-slate-600 max-w-2xl">
-          Listo para instanciar nuevas aplicaciones sin vestigios de dominios específicos. Diseñado para
-          orquestación con agentes especializados Antigravity y desarrollo guiado por especificaciones (SDD).
-        </p>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow transition-shadow">
-          <div className="text-blue-600 font-semibold text-sm mb-1">Tecnología Web</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Next.js 16 + React 19</h2>
-          <p className="text-sm text-slate-600">
-            App Router, Tailwind CSS 4, Route Handlers desacoplados, autenticación con Better-Auth y runtime Node 24.
-          </p>
-        </div>
+      {/* Main Grid */}
+      <main className="mx-auto max-w-6xl px-6 py-12 space-y-12">
+        {/* Módulos Principales de la Solución */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="hover:shadow-md transition-shadow border-indigo-100 dark:border-slate-800">
+            <CardHeader className="pb-2">
+              <div className="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 mb-2 dark:bg-indigo-950 dark:text-indigo-400">
+                <Mic className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-lg">Asistente de Voz Inteligente</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400 space-y-2">
+              <p>
+                Graba directo en campo o sube un audio (.m4a, .mp3, .wav). Flask + Celery procesan la
+                transcripción y extraen entidades clave estructuradas.
+              </p>
+              <div className="pt-2">
+                <Badge variant="secondary" className="text-xs">
+                  Sin sobrescribir campos manuales
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow transition-shadow">
-          <div className="text-emerald-600 font-semibold text-sm mb-1">Tecnología Mobile</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Expo 57 + React Native</h2>
-          <p className="text-sm text-slate-600">
-            Expo Router 57, motor Hermes, sincronización outbox idempotente y soporte de operación offline con SQLite.
-          </p>
-        </div>
+          <Card className="hover:shadow-md transition-shadow border-indigo-100 dark:border-slate-800">
+            <CardHeader className="pb-2">
+              <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 mb-2 dark:bg-emerald-950 dark:text-emerald-400">
+                <Camera className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-lg">Fotos y Medios a S3</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400 space-y-2">
+              <p>
+                Subida directa de imágenes a bucket privado AWS S3. El microservicio satélite extrae
+                dimensiones y metadatos de forma síncrona (&lt; 5s).
+              </p>
+              <div className="pt-2">
+                <Badge variant="secondary" className="text-xs">
+                  S3 Keys Only (No binarios por HTTP)
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow transition-shadow">
-          <div className="text-violet-600 font-semibold text-sm mb-1">Persistencia y Datos</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">PostgreSQL 18 + Drizzle</h2>
-          <p className="text-sm text-slate-600">
-            Multi-tenant por organización (orgId), contratos Zod compartidos (@starter/contracts), almacenamiento S3 y logs con redacción de secretos.
-          </p>
-        </div>
-      </section>
+          <Card className="hover:shadow-md transition-shadow border-indigo-100 dark:border-slate-800">
+            <CardHeader className="pb-2">
+              <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 mb-2 dark:bg-blue-950 dark:text-blue-400">
+                <Database className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-lg">PostgreSQL 18 + Drizzle</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400 space-y-2">
+              <p>
+                Aislamiento estricto: Next.js es el único gateway con acceso a la base de datos relacional.
+                Flask jamás realiza consultas SQL directas.
+              </p>
+              <div className="pt-2">
+                <Badge variant="secondary" className="text-xs">
+                  Validación Zod estricta
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
 
-      <section className="bg-slate-900 text-slate-100 rounded-2xl p-8 mb-12 shadow-md">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-6 mb-6">
-          <div>
-            <h3 className="text-xl font-bold">Estado del Sistema</h3>
-            <p className="text-sm text-slate-400">Verificación de baseline y contratos de gobierno</p>
+        {/* Panel de Arquitectura BFF */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 dark:border-slate-800">
+            <div>
+              <div className="flex items-center gap-2">
+                <Server className="h-5 w-5 text-indigo-600" />
+                <h2 className="text-lg font-bold">Topología Backend for Frontend (BFF)</h2>
+              </div>
+              <p className="text-xs text-slate-500">
+                Aislamiento de red interna y microservicios satélite
+              </p>
+            </div>
+            <Link href="/propiedades/nueva">
+              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                Probar Captador <ArrowRight className="ml-1 h-3.5 w-3.5" />
+              </Button>
+            </Link>
           </div>
-          <div className="flex items-center gap-2 bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1.5 rounded-full font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            Golden Starter V2 Activo
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-          <div className="bg-slate-800/60 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-white">17</div>
-            <div className="text-xs text-slate-400 mt-1">Agentes Antigravity</div>
-          </div>
-          <div className="bg-slate-800/60 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-emerald-400">100%</div>
-            <div className="text-xs text-slate-400 mt-1">Contratos Zod Puros</div>
-          </div>
-          <div className="bg-slate-800/60 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-blue-400">SDD</div>
-            <div className="text-xs text-slate-400 mt-1">Spec-Driven Loop</div>
-          </div>
-          <div className="bg-slate-800/60 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-purple-400">Zero</div>
-            <div className="text-xs text-slate-400 mt-1">Vestigios Clínicos</div>
-          </div>
-        </div>
-      </section>
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div className="rounded-lg bg-slate-50 p-4 border border-slate-100 dark:bg-slate-950 dark:border-slate-800">
+              <div className="text-xs font-semibold text-slate-500 uppercase">Orquestador</div>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-1">Next.js 16</div>
+              <div className="text-[11px] text-emerald-600 mt-0.5">Puerto 3000 (Expuesto)</div>
+            </div>
 
-      <footer className="text-center text-xs text-slate-500 border-t border-slate-200 pt-6">
-        Golden Starter V2 • Listo para recibir la especificación de la nueva aplicación.
-      </footer>
-    </main>
+            <div className="rounded-lg bg-slate-50 p-4 border border-slate-100 dark:bg-slate-950 dark:border-slate-800">
+              <div className="text-xs font-semibold text-slate-500 uppercase">Satélite IA</div>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-1">Python + Flask</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">Red Interna (Aislado)</div>
+            </div>
+
+            <div className="rounded-lg bg-slate-50 p-4 border border-slate-100 dark:bg-slate-950 dark:border-slate-800">
+              <div className="text-xs font-semibold text-slate-500 uppercase">Colas Asíncronas</div>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-1">Redis + Celery</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">Whisper &amp; LLM Cloud</div>
+            </div>
+
+            <div className="rounded-lg bg-slate-50 p-4 border border-slate-100 dark:bg-slate-950 dark:border-slate-800">
+              <div className="text-xs font-semibold text-slate-500 uppercase">Persistencia</div>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-1">PostgreSQL 18</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">Drizzle ORM</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }

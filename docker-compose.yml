@@ -1,9 +1,9 @@
 services:
-  web:
+  next-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: starter_web
+    container_name: cip_next_app
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -12,8 +12,12 @@ services:
       - DATABASE_URL=postgresql://starter_dev:starter_pass@db:5432/starter_db
       - BETTER_AUTH_SECRET=dev_super_secret_auth_key_at_least_32_characters_long!
       - BETTER_AUTH_URL=http://localhost:3000
+      - FLASK_API_URL=http://flask-api:5000
       - AI_SATELLITE_URL=http://flask-api:5000
       - STORAGE_PROVIDER=local
+      - AWS_REGION=us-east-1
+      - AWS_S3_BUCKET_NAME=starter-media-bucket
+      - OPENAI_API_KEY=mock_dev_key
     depends_on:
       db:
         condition: service_healthy
@@ -24,16 +28,16 @@ services:
 
   db:
     image: postgres:18-alpine
-    container_name: starter_db
+    container_name: cip_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: starter_db
       POSTGRES_USER: starter_dev
       POSTGRES_PASSWORD: starter_pass
     ports:
-      - "5432:5432" # Expuesto solo para desarrollo local/drizzle-kit
+      - "5432:5432" # Expuesto solo para desarrollo local y migraciones Drizzle
     volumes:
-      - starter_pgdata:/var/lib/postgresql/data
+      - cip_pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U starter_dev -d starter_db"]
       interval: 5s
@@ -44,26 +48,30 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: starter_redis
+    container_name: cip_redis
     restart: unless-stopped
-    # Sin puertos mapeados al host (solo red interna)
+    # Sin puertos expuestos al host (aislado dentro de la red interna)
     volumes:
-      - starter_redisdata:/data
+      - cip_redisdata:/data
     networks:
       - internal-network
 
   flask-api:
     build:
-      context: ./services/ai-satellite
+      context: ./backend-ai
       dockerfile: Dockerfile
-    container_name: starter_flask_api
+    container_name: cip_flask_api
     restart: unless-stopped
-    # Sin puertos expuestos al exterior (accesible solo desde web en internal-network)
+    # Sin puertos expuestos al host (accesible únicamente por next-app)
     environment:
       - FLASK_ENV=development
+      - PORT=5000
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - AWS_REGION=us-east-1
-      - S3_BUCKET=starter-media-bucket
+      - AWS_S3_BUCKET_NAME=starter-media-bucket
+      - OPENAI_API_KEY=mock_dev_key
     depends_on:
       - redis
     networks:
@@ -71,25 +79,29 @@ services:
 
   celery-worker:
     build:
-      context: ./services/ai-satellite
+      context: ./backend-ai
       dockerfile: Dockerfile
-    container_name: starter_celery_worker
+    container_name: cip_celery_worker
     restart: unless-stopped
     command: ["celery", "-A", "celery_app.celery_app", "worker", "--loglevel=info"]
+    # Sin puertos expuestos al host (trabaja en segundo plano consumiendo Redis)
     environment:
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - AWS_REGION=us-east-1
-      - S3_BUCKET=starter-media-bucket
+      - AWS_S3_BUCKET_NAME=starter-media-bucket
+      - OPENAI_API_KEY=mock_dev_key
     depends_on:
       - redis
     networks:
       - internal-network
 
 volumes:
-  starter_pgdata:
-  starter_redisdata:
+  cip_pgdata:
+  cip_redisdata:
 
 networks:
   internal-network:
-    name: starter_internal_network
+    name: cip_internal_network
     driver: bridge

@@ -7,6 +7,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgres://careflow:careflow@localhost:55432/careflow",
+    url: process.env.DATABASE_URL ?? "postgresql://starter_dev:starter_pass@localhost:5432/starter_db",
   },
 });

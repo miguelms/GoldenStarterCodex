@@ -2,6 +2,7 @@ import type {
   Device,
   Organization,
   ProcessedSyncEvent,
+  Property,
   UserProfile,
 } from "@starter/contracts";
 
@@ -133,6 +134,9 @@ export class InMemoryStore {
     this.syncEvents.set(event.clientEventId, event);
   }
 
+  // Properties (CIP)
+  private properties = new Map<string, Property>();
+
   // Audit
   public recordAudit(entry: StoredAuditEntry): void {
     this.auditEntries.push(entry);
@@ -140,6 +144,21 @@ export class InMemoryStore {
 
   public listAuditEntries(orgId: string): StoredAuditEntry[] {
     return this.auditEntries.filter((a) => a.organizationId === orgId);
+  }
+
+  // Properties CRUD
+  public saveProperty(property: Property): void {
+    this.properties.set(property.id, property);
+  }
+
+  public getProperty(id: string): Property | undefined {
+    return this.properties.get(id);
+  }
+
+  public listProperties(orgId?: string): Property[] {
+    const all = Array.from(this.properties.values());
+    if (!orgId) return all;
+    return all.filter((p) => p.organizationId === orgId);
   }
 }
 

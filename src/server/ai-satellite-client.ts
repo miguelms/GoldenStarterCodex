@@ -7,24 +7,122 @@ import {
   type AiAsyncTaskDetail,
   type AiSyncProcessRequest,
   type AiSyncProcessResponse,
+  type ImageMetadataItem,
 } from "@starter/contracts";
+import { getFlaskApiUrl } from "@/lib/server-env";
 
-const AI_SATELLITE_URL = process.env.AI_SATELLITE_URL || "http://flask-api:5000";
+export interface CipVoiceTranscribeResponse {
+  task_id: string;
+  status: string;
+  enqueued_at?: string;
+}
+
+export interface CipTaskStatusResponse {
+  task_id: string;
+  status: string;
+  ready: boolean;
+  progress?: number;
+  step?: string;
+  result?: Record<string, unknown>;
+  error?: string;
+}
+
+export interface CipImageProcessResponse {
+  success: boolean;
+  processed_count: number;
+  images: ImageMetadataItem[];
+  execution_time_ms?: number;
+}
 
 export class AiSatelliteClient {
   private readonly baseUrl: string;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = (baseUrl || AI_SATELLITE_URL).replace(/\/+$/, "");
+    this.baseUrl = (baseUrl || getFlaskApiUrl()).replace(/\/+$/, "");
   }
 
   /**
-   * Procesa una tarea síncrona en el microservicio satélite Flask (< 5 segundos).
-   * Envía únicamente el S3 Object Key y parámetros JSON.
+   * Dispara la transcripción y extracción estructurada por voz en Flask/Celery.
+   * Regla de arquitectura: solo envía s3_key, no archivos pesados por HTTP.
+   */
+  public async transcribeVoice(s3Key: string): Promise<CipVoiceTranscribeResponse> {
+    const response = await fetch(`${this.baseUrl}/api/v1/voice/transcribe`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Caller": "Nextjs-BFF",
+      },
+      body: JSON.stringify({ s3_key: s3Key }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(`AI Satellite voice transcription failed with HTTP ${response.status}: ${errorText}`);
+    }
+
+    return (await response.json()) as CipVoiceTranscribeResponse;
+  }
+
+  /**
+   * Consulta el estado de una tarea Celery en Flask.
+   */
+  public async getCipTaskStatus(taskId: string): Promise<CipTaskStatusResponse> {
+    const response = await fetch(`${this.baseUrl}/api/v1/tasks/${encodeURIComponent(taskId)}`, {
+      method: "GET",
+      headers: {
+        "X-Caller": "Nextjs-BFF",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(`Failed to retrieve task status for ${taskId} (HTTP ${response.status}): ${errorText}`);
+    }
+
+    return (await response.json()) as CipTaskStatusResponse;
+  }
+
+  /**
+   * Procesa imágenes de forma síncrona en Flask (< 5 segundos).
+   * Envía un arreglo de s3_keys y retorna metadatos / dimensiones.
+   */
+  public async processImages(s3Keys: string[]): Promise<CipImageProcessResponse> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+
+    try {
+      const response = await fetch(`${this.baseUrl}/api/v1/images/process`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Caller": "Nextjs-BFF",
+        },
+        body: JSON.stringify({ s3_keys: s3Keys }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(`AI Satellite image processing failed with HTTP ${response.status}: ${errorText}`);
+      }
+
+      return (await response.json()) as CipImageProcessResponse;
+    } catch (err: unknown) {
+      if ((err as { name?: string }).name === "AbortError") {
+        throw new Error("AI Satellite image processing timeout: exceeded 5 seconds limit");
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  /**
+   * Procesa una tarea genérica síncrona en el microservicio satélite Flask (< 5 segundos).
    */
   public async processSync(payload: AiSyncProcessRequest): Promise<AiSyncProcessResponse> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000); // 6s timeout guard
+    const timeout = setTimeout(() => controller.abort(), 6000);
 
     try {
       const response = await fetch(`${this.baseUrl}/process/sync`, {
@@ -57,8 +155,7 @@ export class AiSatelliteClient {
   }
 
   /**
-   * Encola una tarea pesada asíncrona en Flask/Celery (> 5 segundos).
-   * Devuelve inmediatamente el task_id sin bloquear el hilo de ejecución.
+   * Encola una tarea genérica asíncrona en Flask/Celery (> 5 segundos).
    */
   public async enqueueAsync(payload: {
     s3Key: string;
@@ -87,7 +184,7 @@ export class AiSatelliteClient {
   }
 
   /**
-   * Consulta el estado de una tarea en curso en Celery/Redis a través de Flask.
+   * Consulta el estado de una tarea genérica en curso en Celery/Redis a través de Flask.
    */
   public async getTaskStatus(taskId: string): Promise<AiAsyncTaskDetail> {
     const response = await fetch(`${this.baseUrl}/tasks/${encodeURIComponent(taskId)}`, {
@@ -111,13 +208,13 @@ export class AiSatelliteClient {
   public async pollTaskResult(
     taskId: string,
     options: { maxAttempts?: number; intervalMs?: number } = {}
-  ): Promise<AiAsyncTaskDetail> {
-    const maxAttempts = options.maxAttempts ?? 30; // 30 intentos
-    const intervalMs = options.intervalMs ?? 1500; // 1.5s entre consultas
+  ): Promise<CipTaskStatusResponse> {
+    const maxAttempts = options.maxAttempts ?? 30;
+    const intervalMs = options.intervalMs ?? 1500;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const detail = await this.getTaskStatus(taskId);
-      if (detail.status === "completed" || detail.status === "failed") {
+      const detail = await this.getCipTaskStatus(taskId);
+      if (detail.status === "success" || detail.status === "failure") {
         return detail;
       }
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
