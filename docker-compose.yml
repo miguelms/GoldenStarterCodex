@@ -1,19 +1,95 @@
 services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: starter_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://starter_dev:starter_pass@db:5432/starter_db
+      - BETTER_AUTH_SECRET=dev_super_secret_auth_key_at_least_32_characters_long!
+      - BETTER_AUTH_URL=http://localhost:3000
+      - AI_SATELLITE_URL=http://flask-api:5000
+      - STORAGE_PROVIDER=local
+    depends_on:
+      db:
+        condition: service_healthy
+      flask-api:
+        condition: service_started
+    networks:
+      - internal-network
+
   db:
     image: postgres:18-alpine
+    container_name: starter_db
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: careflow
-      POSTGRES_USER: careflow
-      POSTGRES_PASSWORD: careflow
+      POSTGRES_DB: starter_db
+      POSTGRES_USER: starter_dev
+      POSTGRES_PASSWORD: starter_pass
     ports:
-      - "55432:5432"
+      - "5432:5432" # Expuesto solo para desarrollo local/drizzle-kit
+    volumes:
+      - starter_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U careflow -d careflow"]
+      test: ["CMD-SHELL", "pg_isready -U starter_dev -d starter_db"]
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - internal-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: starter_redis
+    restart: unless-stopped
+    # Sin puertos mapeados al host (solo red interna)
     volumes:
-      - careflow_pgdata:/var/lib/postgresql
+      - starter_redisdata:/data
+    networks:
+      - internal-network
+
+  flask-api:
+    build:
+      context: ./services/ai-satellite
+      dockerfile: Dockerfile
+    container_name: starter_flask_api
+    restart: unless-stopped
+    # Sin puertos expuestos al exterior (accesible solo desde web en internal-network)
+    environment:
+      - FLASK_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_REGION=us-east-1
+      - S3_BUCKET=starter-media-bucket
+    depends_on:
+      - redis
+    networks:
+      - internal-network
+
+  celery-worker:
+    build:
+      context: ./services/ai-satellite
+      dockerfile: Dockerfile
+    container_name: starter_celery_worker
+    restart: unless-stopped
+    command: ["celery", "-A", "celery_app.celery_app", "worker", "--loglevel=info"]
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_REGION=us-east-1
+      - S3_BUCKET=starter-media-bucket
+    depends_on:
+      - redis
+    networks:
+      - internal-network
 
 volumes:
-  careflow_pgdata:
+  starter_pgdata:
+  starter_redisdata:
+
+networks:
+  internal-network:
+    name: starter_internal_network
+    driver: bridge

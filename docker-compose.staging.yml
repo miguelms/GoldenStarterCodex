@@ -13,10 +13,15 @@ services:
       - DATABASE_URL=postgresql://staging_user:staging_secure_password_2026!@db:5432/starter_staging
       - BETTER_AUTH_SECRET=staging_super_secret_auth_key_minimum_32_characters_long!
       - BETTER_AUTH_URL=http://localhost:3000
+      - AI_SATELLITE_URL=http://flask-api:5000
       - STORAGE_PROVIDER=local
     depends_on:
       db:
         condition: service_healthy
+      flask-api:
+        condition: service_started
+    networks:
+      - internal-network
 
   db:
     image: postgres:18-alpine
@@ -35,7 +40,59 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - internal-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: starter_redis_staging
+    restart: unless-stopped
+    volumes:
+      - starter_staging_redis:/data
+    networks:
+      - internal-network
+
+  flask-api:
+    build:
+      context: ./services/ai-satellite
+      dockerfile: Dockerfile
+    image: starter-ai-satellite:staging
+    container_name: starter_flask_staging
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_REGION=us-east-1
+      - S3_BUCKET=starter-staging-media
+    depends_on:
+      - redis
+    networks:
+      - internal-network
+
+  celery-worker:
+    build:
+      context: ./services/ai-satellite
+      dockerfile: Dockerfile
+    image: starter-ai-satellite:staging
+    container_name: starter_celery_staging
+    restart: unless-stopped
+    command: ["celery", "-A", "celery_app.celery_app", "worker", "--loglevel=info"]
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_REGION=us-east-1
+      - S3_BUCKET=starter-staging-media
+    depends_on:
+      - redis
+    networks:
+      - internal-network
 
 volumes:
   starter_staging_data:
     name: starter_staging_data
+  starter_staging_redis:
+    name: starter_staging_redis
+
+networks:
+  internal-network:
+    name: starter_staging_network
+    driver: bridge

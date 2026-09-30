@@ -119,6 +119,56 @@ export const storageObjectSchema = z.object({
   url: z.string().url().optional(),
 });
 
+// =============================================================================
+// BFF PATTERN — AI SATELLITE CONTRACTS (Next.js <-> Flask)
+// =============================================================================
+// Strict contracts between Next.js (BFF Orchestrator) and Flask (AI Satellite).
+// Media files are NEVER sent directly; only the S3 Object Key is passed.
+// =============================================================================
+
+export const aiTaskStatusSchema = z.enum([
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+]);
+
+export const aiSyncProcessRequestSchema = z.object({
+  s3Key: z.string().min(1),
+  operation: z.string().min(1),
+  parameters: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const aiSyncProcessResponseSchema = z.object({
+  success: z.boolean(),
+  operation: z.string(),
+  result: z.record(z.string(), z.unknown()),
+  executionTimeMs: z.number().optional(),
+});
+
+export const aiAsyncProcessRequestSchema = z.object({
+  s3Key: z.string().min(1),
+  operation: z.string().min(1),
+  webhookUrl: z.string().url().optional(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const aiAsyncEnqueueResponseSchema = z.object({
+  taskId: z.string().min(1),
+  status: aiTaskStatusSchema.default("pending"),
+  enqueuedAt: z.string().datetime().optional(),
+});
+
+export const aiAsyncTaskDetailSchema = z.object({
+  taskId: z.string().min(1),
+  status: aiTaskStatusSchema,
+  progress: z.number().min(0).max(100).optional(),
+  result: z.record(z.string(), z.unknown()).nullable().optional(),
+  error: z.string().nullable().optional(),
+  createdAt: z.string().datetime().optional(),
+  completedAt: z.string().datetime().nullable().optional(),
+});
+
 // Standard API Response Contracts
 export const apiErrorResponseSchema = z.object({
   code: z.string(),
@@ -171,5 +221,11 @@ export type AuditAction = z.infer<typeof auditActionSchema>;
 export type AuditLog = z.infer<typeof auditLogSchema>;
 export type StorageProvider = z.infer<typeof storageProviderSchema>;
 export type StorageObject = z.infer<typeof storageObjectSchema>;
+export type AiTaskStatus = z.infer<typeof aiTaskStatusSchema>;
+export type AiSyncProcessRequest = z.infer<typeof aiSyncProcessRequestSchema>;
+export type AiSyncProcessResponse = z.infer<typeof aiSyncProcessResponseSchema>;
+export type AiAsyncProcessRequest = z.infer<typeof aiAsyncProcessRequestSchema>;
+export type AiAsyncEnqueueResponse = z.infer<typeof aiAsyncEnqueueResponseSchema>;
+export type AiAsyncTaskDetail = z.infer<typeof aiAsyncTaskDetailSchema>;
 export type ApiErrorResponse = z.infer<typeof apiErrorResponseSchema>;
 export type HealthResponse = z.infer<typeof healthSchema>;

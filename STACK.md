@@ -25,7 +25,21 @@
 - **Navegación**: Expo Router `57.0.22` (basado en sistema de archivos).
 - **Capacidades Offline**: Cola Outbox idempotente con UUIDv4 y almacenamiento local.
 
-## 4. Base de Datos y Persistencia
+## 4. Microservicio Satélite de IA (Python / Flask)
+
+- **Runtime**: Python `3.12-slim`.
+- **Framework Web**: Flask `3.1.0` con Gunicorn `23.0.0` (red interna Docker, sin puertos expuestos).
+- **Integraciones IA**: SDKs oficiales en la nube (`google-genai 1.0`, `openai 1.58`). Prohibido el uso de LLMs locales.
+- **Acceso a Medios**: Boto3 `1.35` para leer objetos directamente desde AWS S3 con la clave enviada por Next.js.
+- **Aislamiento de BD**: Estrictamente prohibido conectarse a PostgreSQL para operaciones CRUD.
+
+## 5. Gestión Asíncrona (Redis / Celery)
+
+- **Broker & Backend**: Redis `7-alpine` (`redis://redis:6379/0`).
+- **Sistema de Colas**: Celery `5.4.0` (worker en contenedor dedicado `celery-worker`).
+- **Objetivo**: Delegación de tareas pesadas (> 5s) como transcripción, visión y RAG.
+
+## 6. Base de Datos y Persistencia
 
 - **Motor**: PostgreSQL `18` (`postgres:18-alpine`).
 - **Driver**: `postgres` (3.4.5).
