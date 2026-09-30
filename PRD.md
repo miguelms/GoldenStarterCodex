@@ -26,6 +26,13 @@ Proporcionar una plantilla de inicio lista para producción (Golden Starter) que
 5. **Auditoría Append-Only:**
    - Registro inmutable de eventos administrativos y de seguridad con trazabilidad completa.
 
-## 3. Próximo Paso: Definición de la Nueva Aplicación
+## 3. Aplicación Instanciada: CIP (Captador Inteligente de Propiedades)
 
-Este Golden Starter V2 está preparado para incorporar los requisitos específicos del nuevo producto (módulos, entidades de negocio, pantallas y flujos operativos) en este documento y en especificaciones atómicas bajo `specs/`.
+Este Golden Starter V2 tiene instanciada como aplicación principal **CIP (Captador Inteligente de Propiedades)**:
+- **Especificación completa SDD:** Ver [`specs/cip-captador-inteligente.md`](specs/cip-captador-inteligente.md).
+- **Módulos activos:**
+  1. *Formulario Híbrido de Captura (`/propiedades/nueva`):* Asistente de voz en navegador + carga de fotos S3 + campos estructurados.
+  2. *Cartera de Propiedades (`/propiedades`):* Gestión y visualización con el componente canónico `GenericCrudDataGrid`.
+  3. *Microservicio Satélite IA (`backend-ai/`):* Flask + Celery en red interna Docker para transcripción Whisper/Gemini y extracción de dimensiones.
+  4. *Persistencia Relacional:* Drizzle ORM sobre PostgreSQL 18 con tabla `properties` y logs de auditoría append-only.
+
