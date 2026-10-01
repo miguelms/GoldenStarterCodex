@@ -32,11 +32,11 @@ Esta ficha reúne las decisiones duraderas que orientan el trabajo futuro. El vi
 
 - **Edición original:** [GoldenStarterAntigravity](https://github.com/miguelms/GoldenStarterAntigravity), renombrado desde GoldenStarterV3.
 - **Repositorio de esta edición Codex:** [GoldenStarterCodex](https://github.com/miguelms/GoldenStarterCodex).
-- **Checkout observado:** `GoldenStarterCodex`, rama local `codex/agent-separation`, con `origin` configurado al repo Codex. El remoto no tenía ramas cuando se consultó; los cambios locales aún no estaban en un commit.
+- **Rama de trabajo Codex:** `codex/agent-separation`, publicada en el repositorio Codex y seguida por `origin/codex/agent-separation`.
 - **Interfaz de GoldenStarterCodex:** no es una aplicación con UI propia. No requiere asociar un proyecto visual Stitch.
 - **Stitch MCP:** herramienta conectada para que el perfil `ui_ux_designer` consulte, en modo de solo lectura, diseños de las aplicaciones que utilicen el starter. La tarea de diseño debe indicar el proyecto/pantallas externos pertinentes; no son parte de la identidad visual de GoldenStarterCodex.
 - **Referencias por feature de otra app:** registrar IDs de pantallas/frames y alcance en la sesión de diseño de esa aplicación bajo `docs/design-sessions/`.
-- **Estado:** repositorios de ambas ediciones identificados; los cambios locales siguen pendientes de commit/publicación; Stitch es una capacidad del subagente, no una asociación de proyecto para este starter.
+- **Estado:** repositorios de ambas ediciones identificados y separados; Stitch es una capacidad del subagente, no una asociación de proyecto para este starter.
 
 ## Reglas y calidad
 

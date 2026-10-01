@@ -58,7 +58,7 @@ GoldenStarterCodex/
 └── package.json / docker-compose* / configuración de toolchain
 ```
 
-**Repositorios:** la edición original está en [GoldenStarterAntigravity](https://github.com/miguelms/GoldenStarterAntigravity); la edición Codex tiene como destino [GoldenStarterCodex](https://github.com/miguelms/GoldenStarterCodex). El checkout local usa la rama `codex/agent-separation` y `origin` apunta al repo Codex, que no tenía ramas al consultarlo. La copia de trabajo continúa sin commit ni push.
+**Repositorios:** la edición original está en [GoldenStarterAntigravity](https://github.com/miguelms/GoldenStarterAntigravity); la edición Codex está en [GoldenStarterCodex](https://github.com/miguelms/GoldenStarterCodex). La rama [codex/agent-separation](https://github.com/miguelms/GoldenStarterCodex/tree/codex/agent-separation) contiene el baseline Codex y está configurada para seguirse localmente desde `origin`.
 
 GoldenStarterCodex es un starter sin interfaz propia, así que no le corresponde asociar un proyecto visual de Stitch. Stitch está conectado como herramienta MCP para que `ui_ux_designer` consulte diseños de la aplicación que se esté diseñando; el subagente recibe el proyecto/pantallas pertinentes desde esa tarea. Su uso y límites están descritos en [`agent-harness.md`](agent-harness.md) y en `.codex/agents/ui-ux-designer.toml`.
 
