@@ -1,6 +1,6 @@
-# Stack Tecnológico — Golden Starter V2
+# Stack Tecnológico — Golden Starter V3
 
-> ID del starter: `golden-starter-v2`. Versión: `2.0.0`. Owner: `platform-release`.
+> ID del starter: `golden-starter-v3`. Versión: `3.0.0`. Owner: `platform-release`.
 
 ## 1. Runtimes y Gestor de Paquetes
 
@@ -47,25 +47,25 @@
 - **Migraciones**: Drizzle Kit `0.31.10`.
 - **Aislamiento**: Multi-tenant estricto mediante clave foránea obligatoria `organizationId`.
 
-## 5. Autenticación y Autorización
+## 7. Autenticación y Autorización
 
 - **Motor de Autenticación**: Better-Auth `1.7.5`.
 - **Modelo de Permisos**: RBAC con resolución por contexto HTTP (`organizationId`, `userId`, `role`).
 - **Gestión de Dispositivos**: Identificación por fingerprint y revocación administrativa en caliente.
 
-## 6. Almacenamiento y Archivos
+## 8. Almacenamiento y Archivos
 
 - **Abstracción**: `src/lib/storage.ts` con selector runtime `STORAGE_PROVIDER=local|s3`.
 - **Local**: `storage/uploads/` para desarrollo y staging.
 - **S3 / Compatible**: `@aws-sdk/client-s3` con control de traversal y sanitización de llaves.
 
-## 7. Contratos y Validación
+## 9. Contratos y Validación
 
 - **Librería**: Zod `4.6.5`.
 - **Ubicación**: `packages/contracts/src/index.ts` exportado como `@starter/contracts`.
 - **Regla**: Todo contrato compartido entre Web y Mobile se declara aquí como fuente única de verdad.
 
-## 8. Calidad y Pruebas
+## 10. Calidad y Pruebas
 
 - **Unitarias e Integración**: Vitest `2.1.9`.
 - **E2E Web**: Playwright `1.63.0`.
