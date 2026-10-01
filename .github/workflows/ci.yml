@@ -47,11 +47,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
-          POSTGRES_USER: careflow
-          POSTGRES_PASSWORD: careflow
-          POSTGRES_DB: careflow
+          POSTGRES_USER: starter_user
+          POSTGRES_PASSWORD: starter_password
+          POSTGRES_DB: starter_test
         ports:
           - 55432:5432
         options: >-
@@ -78,7 +78,7 @@ jobs:
       - name: Run integration tests
         run: npm run test:integration
         env:
-          DATABASE_URL: postgres://careflow:careflow@localhost:55432/careflow
+          DATABASE_URL: postgres://starter_user:starter_password@localhost:55432/starter_test
           NODE_ENV: test
 
   build-web:

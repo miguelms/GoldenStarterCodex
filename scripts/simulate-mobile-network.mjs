@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 
 /**
- * CareFlow HomeCare — Mobile Network Simulation Harness (T-027)
+ * Golden Starter V3 — Mobile Network Simulation Harness (T-027)
  *
  * Simulates adverse mobile network connectivity (latency 200-800ms, jitter, timeouts,
- * packet loss) between physical mobile devices (Android/iOS) and the CareFlow backend.
+ * packet loss) between physical mobile devices (Android/iOS) and the Starter backend.
  *
  * Usage:
  *   node scripts/simulate-mobile-network.mjs --dry-run
  *   node scripts/simulate-mobile-network.mjs --port 8081 --target http://localhost:3000
- *   node scripts/simulate-mobile-network.mjs --profile hospital-basement
+ *   node scripts/simulate-mobile-network.mjs --profile 3g-slow
  *   node scripts/simulate-mobile-network.mjs --help
  */
 
 import http from "node:http";
 import { URL } from "node:url";
 import crypto from "node:crypto";
-import { syncEventSchema, syncBatchInputSchema } from "@careflow/contracts";
+import { syncEventSchema, syncBatchInputSchema } from "@starter/contracts";
 
 // Network simulation profile presets
 export const NETWORK_PROFILES = {
@@ -36,8 +36,8 @@ export const NETWORK_PROFILES = {
     dropRate: 0.2,
     timeoutMs: 4000,
   },
-  "hospital-basement": {
-    name: "Hospital / Concrete Basement (High attenuation)",
+  "subterranean-basement": {
+    name: "Subterranean / Concrete Basement (High attenuation)",
     minLatency: 500,
     maxLatency: 1500,
     jitter: 350,
@@ -154,7 +154,7 @@ export function parseCliArgs(args) {
  */
 function printHelp() {
   console.log(`
-CareFlow HomeCare — Mobile Network Simulation Harness (T-027)
+Golden Starter V3 — Mobile Network Simulation Harness (T-027)
 
 Usage:
   node scripts/simulate-mobile-network.mjs [options]
@@ -166,7 +166,7 @@ Options:
   --profile <name>      Network profile preset:
                           • 3g-slow            (400-800ms, jitter 150ms, 10% timeout)
                           • rural-edge         (600-1200ms, jitter 250ms, 20% timeout)
-                          • hospital-basement  (500-1500ms, jitter 350ms, 25% timeout)
+                          • subterranean-basement (500-1500ms, jitter 350ms, 25% timeout)
                           • offline-outage     (Total loss, 100% timeout)
                           • ideal-lan          (10-35ms, control baseline)
   --min-latency <ms>    Minimum added latency in ms (default: 200)
@@ -184,7 +184,7 @@ Options:
  */
 export async function runDryRunSuite() {
   console.log("================================================================================");
-  console.log("🏥 CareFlow HomeCare — Mobile Network Simulation Harness (T-027)");
+  console.log("🚀 Golden Starter V3 — Mobile Network Simulation Harness (T-027)");
   console.log("Mode: DRY-RUN VERIFICATION SUITE");
   console.log(`Node.js ${process.version} on ${process.platform} (${process.arch})`);
   console.log("================================================================================\n");
@@ -234,7 +234,7 @@ export async function runDryRunSuite() {
   );
 
   // --------------------------------------------------------------------------
-  // Suite 2: Synthetic Clinical Outbox Payload Validation (@careflow/contracts)
+  // Suite 2: Synthetic Outbox Payload Validation (@starter/contracts)
   // --------------------------------------------------------------------------
   console.log("\n▶ Suite 2: Contract Conformance for Offline Outbox Events");
   const mockDate = new Date().toISOString();
@@ -263,30 +263,29 @@ export async function runDryRunSuite() {
       : JSON.stringify(parsedAttendance.error),
   );
 
-  // Synthetic Vital Sign Event (AC-006 / NOM-004)
-  const vitalsEvent = {
-    clientEventId: `evt_${Date.now()}_vit_${crypto.randomBytes(4).toString("hex")}`,
-    type: "vital_sign",
+  // Synthetic Telemetry / Measurement Event (AC-006)
+  const telemetryEvent = {
+    clientEventId: `evt_${Date.now()}_met_${crypto.randomBytes(4).toString("hex")}`,
+    type: "telemetry",
     status: "accepted",
     occurredAt: mockDate,
     payload: {
-      patientId: "pat-ficticio-001",
+      entityId: "entity-ficticio-001",
       organizationId: "org-demo-001",
-      temperature: 36.6,
-      bloodPressure: "120/80",
-      heartRate: 72,
-      spo2: 98,
-      glucose: 95,
+      metricValue: 98.6,
+      pressureValue: "120/80",
+      readingRate: 72,
+      accuracy: 98,
       isOutOfRange: false,
     },
   };
-  const parsedVitals = syncEventSchema.safeParse(vitalsEvent);
+  const parsedTelemetry = syncEventSchema.safeParse(telemetryEvent);
   assertTest(
-    "Vital signs event conforms to syncEventSchema with standard clinical ranges",
-    parsedVitals.success,
-    parsedVitals.success
-      ? `clientEventId: ${vitalsEvent.clientEventId}`
-      : JSON.stringify(parsedVitals.error),
+    "Telemetry measurement event conforms to syncEventSchema with standard validation ranges",
+    parsedTelemetry.success,
+    parsedTelemetry.success
+      ? `clientEventId: ${telemetryEvent.clientEventId}`
+      : JSON.stringify(parsedTelemetry.error),
   );
 
   // Synthetic Task Event
@@ -314,13 +313,13 @@ export async function runDryRunSuite() {
   // Batch Validation
   const batchPayload = {
     deviceId: "device-test-android-001",
-    events: [attendanceEvent, vitalsEvent, taskEvent],
+    events: [attendanceEvent, telemetryEvent, taskEvent],
   };
   const parsedBatch = syncBatchInputSchema.safeParse(batchPayload);
   assertTest(
     "Consolidated offline outbox batch passes syncBatchInputSchema",
     parsedBatch.success,
-    `Batch contains ${batchPayload.events.length} verified clinical events`,
+    `Batch contains ${batchPayload.events.length} verified events`,
   );
 
   // --------------------------------------------------------------------------
@@ -339,8 +338,8 @@ export async function runDryRunSuite() {
     });
   }
 
-  // Enqueue vitals event in outbox
-  queueOfflineEvent(vitalsEvent);
+  // Enqueue telemetry event in outbox
+  queueOfflineEvent(telemetryEvent);
   assertTest(
     "Mobile outbox persists event locally prior to network transmission",
     localMobileOutbox.length === 1 && localMobileOutbox[0].state === "pending",
@@ -366,7 +365,7 @@ export async function runDryRunSuite() {
   }
 
   // Demonstration of Fail-Before (Naïve sync without outbox drops event)
-  const naiveSyncTransmission = simulateNetworkTransmission(vitalsEvent, true);
+  const naiveSyncTransmission = simulateNetworkTransmission(telemetryEvent, true);
   const failBeforeDataLost = naiveSyncTransmission.success === false;
   assertTest(
     "Demonstrates Fail-Before: Unprotected sync fails on network timeout",
@@ -385,7 +384,7 @@ export async function runDryRunSuite() {
     localMobileOutbox[0].retryCount === 1;
 
   assertTest(
-    "Demonstrates Pass-After: Offline outbox preserves clinical record on timeout for retry",
+    "Demonstrates Pass-After: Offline outbox preserves event record on timeout for retry",
     passAfterEventPreserved,
     `Outbox event ${localMobileOutbox[0].clientEventId} marked as pending_retry (count: 1), ZERO data loss`,
   );
@@ -428,20 +427,20 @@ export async function runDryRunSuite() {
   }
 
   // Transmission 1: Recovery after timeout succeeds
-  const firstSyncResult = processServerSyncBatch({ events: [vitalsEvent] });
+  const firstSyncResult = processServerSyncBatch({ events: [telemetryEvent] });
   assertTest(
     "Transmission 1 (Reconnection): Server accepts outbox event and logs audit",
     firstSyncResult.processedCount === 1 && serverStore.size === 1,
-    `Stored clientEventId: ${vitalsEvent.clientEventId}`,
+    `Stored clientEventId: ${telemetryEvent.clientEventId}`,
   );
 
   // Transmission 2: Duplicate retry (e.g. mobile retransmits because ACK was delayed by high jitter)
-  const duplicateRetryResult = processServerSyncBatch({ events: [vitalsEvent] });
+  const duplicateRetryResult = processServerSyncBatch({ events: [telemetryEvent] });
   const isIdempotent =
     duplicateRetryResult.processedCount === 0 &&
     duplicateRetryResult.acknowledged.length === 1 &&
     serverStore.size === 1 &&
-    serverAuditLog.filter((e) => e.clientEventId === vitalsEvent.clientEventId).length === 1;
+    serverAuditLog.filter((e) => e.clientEventId === telemetryEvent.clientEventId).length === 1;
 
   assertTest(
     "Transmission 2 (Idempotent Retry): Duplicate outbox retransmission produces ZERO duplicates",
@@ -458,7 +457,7 @@ export async function runDryRunSuite() {
   );
 
   // --------------------------------------------------------------------------
-  // Suite 5: Geofence Exception Justification Validation (AC-003 / NOM-004)
+  // Suite 5: Geofence Exception Justification Validation (AC-003)
   // --------------------------------------------------------------------------
   console.log("\n▶ Suite 5: Real GPS Geofence & Justification Exception Matrix (AC-003)");
 
@@ -498,7 +497,7 @@ export async function runDryRunSuite() {
     },
   };
   assertTest(
-    "Case 2 (Outside Geofence): Exception check-in accepted with NOM-004 justification",
+    "Case 2 (Outside Geofence): Exception check-in accepted with business justification",
     syncEventSchema.safeParse(outsideWithReasonEvent).success &&
       outsideWithReasonEvent.payload.outsideGeofence === true &&
       Boolean(outsideWithReasonEvent.payload.reason),
@@ -562,7 +561,7 @@ export function startSimulationProxy(options) {
   let totalLatencyMs = 0;
 
   console.log("================================================================================");
-  console.log("🏥 CareFlow HomeCare — Live Mobile Network Simulation Proxy (T-027)");
+  console.log("🚀 Golden Starter V3 — Live Mobile Network Simulation Proxy (T-027)");
   console.log("================================================================================");
   console.log(`  Proxy Listening Port : ${port}`);
   console.log(`  Target Backend       : ${target}`);
@@ -619,13 +618,13 @@ export function startSimulationProxy(options) {
           if (!res.writableEnded) {
             res.writeHead(504, {
               "Content-Type": "application/json",
-              "X-CareFlow-Harness": "simulated-drop",
-              "X-CareFlow-RequestId": requestId,
+              "X-Starter-Harness": "simulated-drop",
+              "X-Starter-RequestId": requestId,
             });
             res.end(
               JSON.stringify({
                 error: "GATEWAY_TIMEOUT",
-                message: `CareFlow Mobile Harness: Simulated mobile cell packet loss timeout after ${timeoutMs}ms`,
+                message: `Starter Mobile Harness: Simulated mobile cell packet loss timeout after ${timeoutMs}ms`,
                 requestId,
               }),
             );
@@ -649,8 +648,8 @@ export function startSimulationProxy(options) {
         // Forward request to upstream target
         const upstreamHeaders = { ...req.headers };
         upstreamHeaders.host = targetUrl.host;
-        upstreamHeaders["x-careflow-simulated-latency"] = `${latencyDelay}ms`;
-        upstreamHeaders["x-careflow-harness-id"] = requestId;
+        upstreamHeaders["x-starter-simulated-latency"] = `${latencyDelay}ms`;
+        upstreamHeaders["x-starter-harness-id"] = requestId;
 
         const proxyReq = http.request(
           {
@@ -662,8 +661,8 @@ export function startSimulationProxy(options) {
           },
           (upstreamRes) => {
             const responseHeaders = { ...upstreamRes.headers };
-            responseHeaders["x-careflow-simulated-latency"] = `${latencyDelay}ms`;
-            responseHeaders["x-careflow-harness"] = "active";
+            responseHeaders["x-starter-simulated-latency"] = `${latencyDelay}ms`;
+            responseHeaders["x-starter-harness"] = "active";
 
             res.writeHead(upstreamRes.statusCode || 200, responseHeaders);
             upstreamRes.pipe(res);

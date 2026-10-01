@@ -1,5 +1,5 @@
 // =============================================================================
-// GS Vera Clinic - Generic Starter Components & Hooks Library
+// Golden Starter V3 - Generic Shared Components & Hooks Library
 // =============================================================================
 
 // 1. Generic CRUD Data Grid (Desktop Table + Mobile Cards)

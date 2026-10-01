@@ -10,13 +10,13 @@
 
 ## 1. Contexto y Planteamiento del Problema
 
-La operación de **GS Vera Clinic / CareFlow HomeCare** involucra la carga, almacenamiento y consulta de archivos binarios con datos personales sensibles y registros médicos protegidos:
+Las operaciones en aplicaciones basadas en **Golden Starter V3** involucran frecuentemente la carga, almacenamiento y consulta de archivos binarios con datos privados sensibles y documentos confidenciales:
 
-- Fotografías clínicas de evolución de heridas y escaras tomadas por enfermería en campo.
-- Identificaciones oficiales de pacientes y cuidadores primarios.
-- Documentos de consentimiento informado debidamente firmados.
-- Recetas y órdenes médicas escaneadas.
-- Paquetes de exportación del expediente clínico electrónico en formato PDF/ZIP (conforme a la NOM-004-SSA3-2012).
+- Fotografías y evidencias de operaciones tomadas por operadores o inspectores en campo.
+- Identificaciones oficiales y documentos de verificación de identidad.
+- Documentos contractuales y cartas de consentimiento debidamente firmadas.
+- Facturas, órdenes de compra y recibos escaneados.
+- Paquetes de exportación de datos y reportes de auditoría en formato PDF/ZIP.
 
 Estos activos conllevan obligaciones regulatorias rigurosas:
 
@@ -42,13 +42,13 @@ Estos activos conllevan obligaciones regulatorias rigurosas:
 - **Descripción:** Almacenar el contenido binario directamente en columnas de tablas PostgreSQL.
 - **Razón de Descarte:**
   - Degrada gravemente el rendimiento general de la base de datos relacional y satura la memoria compartida (`shared_buffers`).
-  - Dispara el tiempo y volumen de los respaldos lógicos (`pg_dump`), encareciendo el costo de retención a 5 años exigido por la norma mexicana.
+  - Dispara el tiempo y volumen de los respaldos lógicos (`pg_dump`), encareciendo el costo de almacenamiento y retención a largo plazo.
 
 ### 2.3 Opción C: Buckets S3 Públicos o CDN Directa sin Autenticación
 
 - **Descripción:** Subir archivos a un bucket con permisos públicos de lectura y entregar la URL fija directamente al cliente.
 - **Razón de Descarte:**
-  - **Inaceptable por seguridad y regulación:** Constituye una violación crítica de la LFPDPPP y la NOM-004-SSA3-2012. Cualquier tercero con acceso al enlace o que descubra el patrón de claves podría descargar información clínica confidencial de los pacientes.
+  - **Inaceptable por seguridad y privacidad:** Constituye una violación de normativas de protección de datos personales. Cualquier tercero con acceso al enlace o que descubra el patrón de claves podría descargar información confidencial y privada.
 
 ### 2.4 Opción D: Proxy de Archivos Completo a través de Route Handlers de Next.js
 
@@ -91,15 +91,15 @@ sequenceDiagram
 2. **Estructura Canónica de Claves de Objeto (Keys):**
    - Para garantizar particionamiento multi-tenant estricto y prevenir colisiones:
      `tenants/{organizationId}/{category}/{resourceId}/{uuid}-{filename}`
-     _(Ejemplo: `tenants/org-demo-001/patients/pat-001/vitals-wound/a1b2c3d4-foto-curacion.jpg`)_
+     _(Ejemplo: `tenants/org-demo-001/inspections/insp-001/evidence/a1b2c3d4-foto-evidencia.jpg`)_
 3. **Tiempos de Expiración (TTL) Estrictos:**
-   - **Subida (`PutObject`):** Vigencia máxima de **5 minutos**. Solo se genera tras validar que el usuario tiene rol de captura médica.
+   - **Subida (`PutObject`):** Vigencia máxima de **5 minutos**. Solo se genera tras validar que el usuario tiene permisos de edición sobre el recurso.
    - **Lectura/Descarga (`GetObject`):** Vigencia máxima de **15 minutos**. Tras este período, el enlace deja de ser válido y el cliente debe solicitar una nueva firma si requiere reabrir el archivo.
 4. **Validación de Tipos MIME y Límites de Tamaño:**
-   - Restricción estricta de tipos MIME en el contrato de entrada: imágenes (`image/jpeg`, `image/png`, `image/webp`) y documentos clínicos (`application/pdf`).
-   - Límite máximo de carga fijado a 15 MB por archivo para prevenir saturación de ancho de banda en dispositivos de enfermería.
+   - Restricción estricta de tipos MIME en el contrato de entrada: imágenes (`image/jpeg`, `image/png`, `image/webp`) y documentos protegidos (`application/pdf`).
+   - Límite máximo de carga fijado a 15 MB por archivo para prevenir saturación de ancho de banda en dispositivos móviles.
 5. **Políticas de Retención de Ciclo de Vida (S3 Lifecycle):**
-   - Transición automática a clases de almacenamiento de menor costo (_Glacier Instant Retrieval_ o _Deep Archive_) para expedientes clínicos archivados después de 1 año, asegurando el cumplimiento de la retención obligatoria de 5 años NOM-004.
+   - Transición automática a clases de almacenamiento de menor costo (_Glacier Instant Retrieval_ o _Deep Archive_) para archivos históricos o cerrados después de 1 año, asegurando el cumplimiento de políticas corporativas de retención.
 
 ---
 
@@ -107,10 +107,10 @@ sequenceDiagram
 
 ### Pros
 
-- **Máxima Seguridad:** Ningún archivo clínico está expuesto en la web pública. Cada lectura o escritura requiere autenticación y autorización en tiempo real.
+- **Máxima Seguridad:** Ningún archivo privado está expuesto en la web pública. Cada lectura o escritura requiere autenticación y autorización en tiempo real.
 - **Eficiencia de Servidor:** Descarga el 100% de la transferencia de datos pesados al proveedor de almacenamiento en la nube, preservando los recursos del VPS y el proceso Next.js.
 - **Portabilidad de Proveedor:** La API S3 es el estándar de facto de la industria, compatible con AWS S3, Cloudflare R2 (sin tarifas de salida de datos), Wasabi o MinIO en entornos de prueba on-premise.
-- **Auditoría Centralizada:** Cada solicitud de URL firmada genera un evento de auditoría en la tabla `audit_entries`, garantizando trazabilidad de quién accedió a qué archivo clínico y cuándo.
+- **Auditoría Centralizada:** Cada solicitud de URL firmada genera un evento de auditoría en la tabla `audit_entries`, garantizando trazabilidad de quién accedió a qué archivo y cuándo.
 
 ### Contras y Mitigaciones
 

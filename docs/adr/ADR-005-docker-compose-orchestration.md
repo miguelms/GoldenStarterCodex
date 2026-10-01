@@ -10,7 +10,7 @@
 
 ## 1. Contexto y Planteamiento del Problema
 
-El despliegue de **GS Vera Clinic / CareFlow HomeCare** en entornos de pre-producción (Staging) y Producción se lleva a cabo sobre infraestructura existente de servidores virtuales privados (VPS en Ubuntu Linux de proveedores como AWS EC2, Hetzner Cloud o DigitalOcean), los cuales ya cuentan con un servidor **NGINX preinstalado en el host** gestionando certificados TLS/SSL y enrutamiento hacia servicios locales.
+El despliegue de aplicaciones basadas en **Golden Starter V3** en entornos de pre-producción (Staging) y Producción se lleva a cabo sobre infraestructura existente de servidores virtuales privados (VPS en Ubuntu Linux de proveedores como AWS EC2, Hetzner Cloud o DigitalOcean), los cuales frecuentemente ya cuentan con un servidor **NGINX preinstalado en el host** gestionando certificados TLS/SSL y enrutamiento hacia servicios locales.
 
 Los requerimientos operativos para la orquestación son:
 
@@ -28,7 +28,7 @@ Los requerimientos operativos para la orquestación son:
 
 - **Descripción:** Plataforma de orquestación de contenedores distribuida con pods, servicios, ingress controllers y operadores.
 - **Razón de Descarte:**
-  - **Sobrecarga desproporcionada de recursos:** El plano de control de Kubernetes (kubelet, etcd, kube-apiserver) consume entre 1.5 y 2.5 GB de RAM por sí solo, agotando la capacidad de un VPS estándar antes de iniciar la propia aplicación clínica.
+  - **Sobrecarga desproporcionada de recursos:** El plano de control de Kubernetes (kubelet, etcd, kube-apiserver) consume entre 1.5 y 2.5 GB de RAM por sí solo, agotando la capacidad de un VPS estándar antes de iniciar la propia aplicación.
   - **Complejidad operativa excesiva:** Requiere experiencia especializada para gestionar manifiestos YAML complejos, gestión de certificados internas, almacenamiento persistente CSI y solución de problemas de red interna (CNI).
 
 ### 2.2 Opción B: Plataformas Serverless / PaaS Gestionadas (Vercel + Neon / AWS Lambda)
@@ -36,8 +36,8 @@ Los requerimientos operativos para la orquestación son:
 - **Descripción:** Alojar la aplicación web en plataformas en la nube completamente administradas y la base de datos en proveedores serverless externos.
 - **Razón de Descarte:**
   - **Vendor Lock-in y Costos Impredecibles:** Costos elevados por llamadas serverless recurrentes, transferencias de red y tarifas de base de datos serverless bajo tráfico continuo.
-  - **Soberanía y Latencia de Datos:** En el sector salud, la residencia local y el control estricto de base de datos en servidores propios o nubes privadas dedicadas es un requisito regulatorio habitual de los clientes institucionales.
-  - **Latencia por Cold Starts:** Las funciones serverless experimentan latencias de arranque en frío que perjudican la experiencia de enfermeras que realizan check-in en condiciones de red móvil deficiente.
+  - **Soberanía y Latencia de Datos:** En entornos corporativos regulados, la residencia local y el control estricto de base de datos en servidores propios o nubes privadas dedicadas es un requisito habitual de auditoría y cumplimiento normativo.
+  - **Latencia por Cold Starts:** Las funciones serverless experimentan latencias de arranque en frío que perjudican la experiencia de usuarios de campo que operan bajo condiciones de conectividad móvil intermitente.
 
 ### 2.3 Opción C: Ejecución Directa en el Host (Bare-Metal con PM2 y PostgreSQL de Sistema)
 
@@ -67,11 +67,11 @@ flowchart TD
         NGINX["NGINX en el Host (Puertos 80 / 443)<br/>Terminación SSL Let's Encrypt / Certbot"]
 
         subgraph Compose["Docker Compose Stack (Red Privada Bridge)"]
-            Web["Contenedor Web: Next.js Standalone<br/>careflow-homecare-web<br/>(Puerto 127.0.0.1:3005, UID 1001)"]
-            DB["Contenedor Base de Datos: PostgreSQL<br/>careflow_db<br/>(Red interna, Volúmenes persistentes)"]
+            Web["Contenedor Web: Next.js Standalone<br/>starter-web<br/>(Puerto 127.0.0.1:3005, UID 1001)"]
+            DB["Contenedor Base de Datos: PostgreSQL<br/>starter_db<br/>(Red interna, Volúmenes persistentes)"]
         end
 
-        Vol[("Volumen Persistente Docker<br/>careflow_staging_data / pgdata_prod")]
+        Vol[("Volumen Persistente Docker<br/>starter_staging_data / pgdata_prod")]
     end
 
     Internet((Tráfico HTTPS Internet)) -->|443 TLS| NGINX
@@ -115,7 +115,7 @@ flowchart TD
 ### Contras y Mitigaciones
 
 - **Escalado Horizontal Limitado a un Único Host:** Docker Compose no distribuye contenedores entre múltiples servidores físicos de forma nativa.
-  - _Mitigación:_ Para el volumen de carga de agencias de atención domiciliaria (cientos a miles de pacientes y turnos concurrentes), el escalado vertical en VPS (aumento de vCPUs/RAM) y la optimización de queries y caché cubren con holgura la demanda operativa. Si en el futuro se requiriera multi-nodo, la arquitectura desacoplada de contenedores permite migrar a Docker Swarm o K8s sin modificar el código de la aplicación.
+  - _Mitigación:_ Para el volumen de carga típico de operaciones empresariales y de campo (cientos a miles de usuarios y transacciones concurrentes), el escalado vertical en VPS (aumento de vCPUs/RAM) y la optimización de queries y caché cubren con holgura la demanda operativa. Si en el futuro se requiriera multi-nodo, la arquitectura desacoplada de contenedores permite migrar a Docker Swarm o K8s sin modificar el código de la aplicación.
 - **Actualizaciones con Ventana de Reinicio Breve:** El reinicio del contenedor web puede introducir unos segundos de indisponibilidad si no se aplica rolling update.
   - _Mitigación:_ El Runbook SRE documenta el procedimiento de actualización atómica (`--no-deps web`) y la activación de página de mantenimiento HTTP 503 en NGINX ante migraciones de esquema mayores.
 

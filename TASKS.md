@@ -1,4 +1,4 @@
-# Tareas del Proyecto — Golden Starter V2
+# Tareas del Proyecto — Golden Starter V3
 
 > Bitácora y seguimiento de tareas gobernada por `orchestrator-agent`.
 
@@ -11,7 +11,7 @@
 | **GS2-003** | `backend` | Route handlers canónicos (`/api/health`, `/api/sync`, `/api/devices`) | **COMPLETED** | `src/app/api/` |
 | **GS2-004** | `mobile` | Skeleton móvil Expo SDK 57 con banner de sincronización offline | **COMPLETED** | `apps/mobile/app/index.tsx` |
 | **GS2-005** | `devops` | Incorporación de Storage S3, logger redactado y verificación de target | **COMPLETED** | `src/lib/storage.ts`, `src/lib/error-logger.ts` |
-| **GS2-006** | `docs` | Eliminación total de vestigios clínicos y actualización de constitución | **COMPLETED** | `STACK.md`, `ARCHITECTURE.md`, `PRD.md` |
+| **GS2-006** | `docs` | Eliminación total de vestigios de dominio anterior y neutralización agnóstica | **COMPLETED** | `STACK.md`, `ARCHITECTURE.md`, `PRD.md` |
 
 ## Fase 1: Nueva Aplicación (En espera de descripción)
 

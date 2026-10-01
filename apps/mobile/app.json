@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "GS Vera Clinic",
-    "slug": "gs-vera-clinic",
+    "name": "Golden Starter Mobile",
+    "slug": "golden-starter-mobile",
     "version": "1.0.0",
-    "scheme": "gsveraclinic",
+    "scheme": "goldenstarter",
     "plugins": ["expo-router"],
     "experiments": { "typedRoutes": true }
   }

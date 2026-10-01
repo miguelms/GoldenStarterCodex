@@ -9,7 +9,7 @@ Usa esta skill para convertir referencias visuales en una especificación aproba
 
 ## Fuentes y autoridad
 
-1. `PRD.md` y las decisiones confirmadas gobiernan comportamiento, permisos y contenido clínico.
+1. `PRD.md` y las decisiones confirmadas gobiernan comportamiento, permisos y reglas de negocio.
 2. El proyecto y las pantallas identificadas de Google Stitch gobiernan lenguaje visual, composición y tokens.
 3. La spec versionada documenta la adaptación a web, Android, iPhone e iPad.
 4. Una referencia faltante o inaccesible es una limitación explícita; nunca se sustituye con evidencia inventada.
@@ -27,7 +27,7 @@ Usa esta skill para convertir referencias visuales en una especificación aproba
 
 ## Preguntas materiales
 
-Pregunta por navegación principal, jerarquía de información, densidad operativa, ubicación de acciones o alertas clínicas, identidad visual, diferencias relevantes entre plataformas y cualquier alternativa que cambie el flujo. Resuelve espaciado, breakpoints, estados estándar y uso de componentes ya aprobados sin interrumpir al usuario.
+Pregunta por navegación principal, jerarquía de información, densidad operativa, ubicación de acciones o alertas del sistema, identidad visual, diferencias relevantes entre plataformas y cualquier alternativa que cambie el flujo. Resuelve espaciado, breakpoints, estados estándar y uso de componentes ya aprobados sin interrumpir al usuario.
 
 ## Estados
 

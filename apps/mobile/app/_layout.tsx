@@ -1,14 +1,14 @@
 import { Stack } from "expo-router";
-import { CLINICAL_COLORS } from "../constants/tokens";
+import { APP_COLORS } from "../constants/tokens";
 
 export default function Layout() {
   return (
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: CLINICAL_COLORS.primaryTeal,
+          backgroundColor: APP_COLORS.primary,
         },
-        headerTintColor: CLINICAL_COLORS.onPrimary,
+        headerTintColor: APP_COLORS.onPrimary,
         headerTitleStyle: {
           fontWeight: "700",
           fontSize: 17,
@@ -19,13 +19,7 @@ export default function Layout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "CareFlow HomeCare",
-        }}
-      />
-      <Stack.Screen
-        name="shift"
-        options={{
-          title: "Hoja de Trabajo Diaria",
+          title: "Golden Starter V3",
         }}
       />
     </Stack>

@@ -44,7 +44,7 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({
             accessibilityLabel="Reintentar sincronización con el servidor"
           >
             {isSyncing ? (
-              <ActivityIndicator color={CLINICAL_COLORS.warningAmber} size="small" />
+              <ActivityIndicator color={APP_COLORS.warningAmber} size="small" />
             ) : (
               <Text style={styles.syncButtonText}>🔄 Reintentar Sync</Text>
             )}
@@ -91,16 +91,16 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({
 
 const styles = StyleSheet.create({
   offlineContainer: {
-    backgroundColor: CLINICAL_COLORS.warningBg,
-    borderColor: CLINICAL_COLORS.warningBorder,
+    backgroundColor: APP_COLORS.warningBg,
+    borderColor: APP_COLORS.warningBorder,
     borderWidth: 1,
     borderLeftWidth: 4,
-    borderLeftColor: CLINICAL_COLORS.warningAmber,
-    borderRadius: CLINICAL_RADII.md,
-    padding: CLINICAL_SPACING.md,
-    marginHorizontal: CLINICAL_SPACING.lg,
-    marginTop: CLINICAL_SPACING.sm,
-    marginBottom: CLINICAL_SPACING.md,
+    borderLeftColor: APP_COLORS.warningAmber,
+    borderRadius: APP_RADII.md,
+    padding: APP_SPACING.md,
+    marginHorizontal: APP_SPACING.lg,
+    marginTop: APP_SPACING.sm,
+    marginBottom: APP_SPACING.md,
   },
   contentRow: {
     flexDirection: "row",
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   offlineIcon: {
     fontSize: 20,
-    marginRight: CLINICAL_SPACING.sm,
+    marginRight: APP_SPACING.sm,
   },
   textContainer: {
     flex: 1,
@@ -116,46 +116,46 @@ const styles = StyleSheet.create({
   offlineTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: CLINICAL_COLORS.warningAmber,
+    color: APP_COLORS.warningAmber,
   },
   offlineSubtitle: {
     fontSize: 12,
-    color: CLINICAL_COLORS.textSecondary,
+    color: APP_COLORS.textSecondary,
     marginTop: 2,
   },
   actionRow: {
     flexDirection: "row",
-    marginTop: CLINICAL_SPACING.sm,
-    gap: CLINICAL_SPACING.sm,
+    marginTop: APP_SPACING.sm,
+    gap: APP_SPACING.sm,
   },
   syncButton: {
-    minHeight: CLINICAL_SPACING.minTouchTarget,
-    paddingHorizontal: CLINICAL_SPACING.md,
-    backgroundColor: CLINICAL_COLORS.surfaceCard,
-    borderColor: CLINICAL_COLORS.warningBorder,
+    minHeight: APP_SPACING.minTouchTarget,
+    paddingHorizontal: APP_SPACING.md,
+    backgroundColor: APP_COLORS.surfaceCard,
+    borderColor: APP_COLORS.warningBorder,
     borderWidth: 1,
-    borderRadius: CLINICAL_RADII.md,
+    borderRadius: APP_RADII.md,
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
   },
   syncButtonText: {
-    color: CLINICAL_COLORS.warningAmber,
+    color: APP_COLORS.warningAmber,
     fontSize: 13,
     fontWeight: "600",
   },
   toggleButton: {
-    minHeight: CLINICAL_SPACING.minTouchTarget,
-    paddingHorizontal: CLINICAL_SPACING.md,
-    backgroundColor: CLINICAL_COLORS.surfaceCard,
-    borderColor: CLINICAL_COLORS.borderSlate,
+    minHeight: APP_SPACING.minTouchTarget,
+    paddingHorizontal: APP_SPACING.md,
+    backgroundColor: APP_COLORS.surfaceCard,
+    borderColor: APP_COLORS.borderSlate,
     borderWidth: 1,
-    borderRadius: CLINICAL_RADII.md,
+    borderRadius: APP_RADII.md,
     justifyContent: "center",
     alignItems: "center",
   },
   toggleButtonText: {
-    color: CLINICAL_COLORS.textSecondary,
+    color: APP_COLORS.textSecondary,
     fontSize: 12,
     fontWeight: "500",
   },
@@ -163,15 +163,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: CLINICAL_COLORS.successBg,
-    borderColor: CLINICAL_COLORS.successBorder,
+    backgroundColor: APP_COLORS.successBg,
+    borderColor: APP_COLORS.successBorder,
     borderWidth: 1,
-    borderRadius: CLINICAL_RADII.md,
-    paddingHorizontal: CLINICAL_SPACING.md,
-    paddingVertical: CLINICAL_SPACING.sm,
-    marginHorizontal: CLINICAL_SPACING.lg,
-    marginTop: CLINICAL_SPACING.sm,
-    marginBottom: CLINICAL_SPACING.md,
+    borderRadius: APP_RADII.md,
+    paddingHorizontal: APP_SPACING.md,
+    paddingVertical: APP_SPACING.sm,
+    marginHorizontal: APP_SPACING.lg,
+    marginTop: APP_SPACING.sm,
+    marginBottom: APP_SPACING.md,
     minHeight: 44,
   },
   onlineStatusRow: {
@@ -183,23 +183,23 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: CLINICAL_COLORS.successGreen,
-    marginRight: CLINICAL_SPACING.sm,
+    backgroundColor: APP_COLORS.successGreen,
+    marginRight: APP_SPACING.sm,
   },
   onlineText: {
     fontSize: 12,
     fontWeight: "600",
-    color: CLINICAL_COLORS.successGreen,
+    color: APP_COLORS.successGreen,
   },
   simulateOfflineBtn: {
     minHeight: 36,
-    paddingHorizontal: CLINICAL_SPACING.sm,
+    paddingHorizontal: APP_SPACING.sm,
     justifyContent: "center",
     alignItems: "center",
   },
   simulateOfflineText: {
     fontSize: 11,
-    color: CLINICAL_COLORS.textMuted,
+    color: APP_COLORS.textMuted,
     textDecorationLine: "underline",
   },
 });

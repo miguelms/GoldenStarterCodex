@@ -59,7 +59,3 @@ export const APP_RADII = {
   full: 9999,
 } as const;
 
-// Backward-compatibility aliases for theme
-export const CLINICAL_COLORS = APP_COLORS;
-export const CLINICAL_SPACING = APP_SPACING;
-export const CLINICAL_RADII = APP_RADII;

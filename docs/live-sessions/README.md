@@ -6,7 +6,7 @@ Cerrar decisiones de producto con una conversación interactiva antes de que bac
 
 ## Cuándo activarla
 
-- PRD nuevo o cambio con decisiones clínicas, legales, de privacidad, permisos o costos.
+- PRD nuevo o cambio con decisiones de negocio, legales, de privacidad, permisos o costos.
 - Respuestas escritas que necesitan repreguntas o contienen contradicciones.
 - Antes de marcar `product-manager` como DONE y antes de pasar a `change-planner`.
 
@@ -22,7 +22,7 @@ Cerrar decisiones de producto con una conversación interactiva antes de que bac
 1. El PM hace una sola pregunta bloqueante por turno y explica qué cambia si se elige cada opción.
 2. El usuario puede responder, pedir ejemplos, cuestionar la recomendación o hacer una pregunta propia.
 3. El PM clasifica cada intercambio como `DECISION`, `ASSUMPTION`, `RECOMMENDATION`, `BLOCKER` o `QUESTION`.
-4. El PM no inventa rangos clínicos, obligaciones legales ni permisos; los deja pendientes y solicita al responsable adecuado.
+4. El PM no inventa reglas de negocio, obligaciones legales ni permisos; los deja pendientes y solicita al responsable adecuado.
 5. Al detectar contradicción con una respuesta previa, pausa la decisión, muestra ambos textos y pide resolución explícita.
 6. Cada decisión registra responsable, fecha, evidencia, impacto, archivos afectados y si requiere ADR.
 7. Al final, el PM produce resumen, decisiones aceptadas, preguntas abiertas, cambios propuestos a PRD/AC/TASKS y un veredicto `READY`, `BLOCKED` o `NEEDS_REVIEW`.
@@ -37,7 +37,7 @@ Cerrar decisiones de producto con una conversación interactiva antes de que bac
 - Reanudación de una sesión sin perder contexto ni repetir decisiones cerradas.
 - Confirmación final del usuario antes de cambiar requisitos sensibles.
 - Enlaces directos entre respuesta, requisito, AC, tarea y ADR.
-- Resumen de preguntas que deben pasar a clínica, legal, privacidad o seguridad.
+- Resumen de preguntas que deben pasar a áreas de dominio, legal, privacidad o seguridad.
 - Prueba de calidad del propio agente: no marcar `READY` si quedan blockers.
 
 ## Salidas mínimas
@@ -59,7 +59,7 @@ Copiar lo siguiente a un archivo fechado:
 - Session ID: <id>
 - Fecha/hora/zona: <timestamp>
 - Repo y base SHA: <repo> / <sha>
-- Participantes: usuario, product-manager, <clínica/legal/etc.>
+- Participantes: usuario, product-manager, <dominio/legal/etc.>
 - Fuentes cargadas: <archivos>
 - Estado inicial: OPEN
 
@@ -93,4 +93,4 @@ Copiar lo siguiente a un archivo fechado:
 
 ## Regla de aprobación
 
-La sesión no aprueba por sí sola el producto clínico. `READY` solo significa que el alcance está suficientemente definido para planificación; la aprobación clínica, legal, de privacidad y de seguridad sigue siendo independiente.
+La sesión no aprueba por sí sola el producto en su totalidad. `READY` solo significa que el alcance está suficientemente definido para planificación; la aprobación regulatoria, de negocio, de privacidad y de seguridad sigue siendo independiente.

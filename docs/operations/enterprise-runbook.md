@@ -1,10 +1,10 @@
 # Runbook Operativo SRE: Gestión Empresarial, Contingencias y Resiliencia en Producción
 
-## GS Vera Clinic / CareFlow HomeCare — v1.0.0
+## Golden Starter V3 — v3.0.0
 
-- **Versión del Runbook:** 1.0.0
-- **Fecha de Certificación:** 2026-09-21
-- **Base SHA Evaluada:** `18c101c`
+- **Versión del Runbook:** 3.0.0
+- **Fecha de Certificación:** 2026-09-30
+- **Base SHA Evaluada:** `main`
 - **Estado:** CANÓNICO (Aprobado para Operaciones de Producción y SRE)
 - **Roles Responsables:** `sre-agent`, `devops-agent`, `infra-data-agent` en coordinación con `backend-agent` y `security-agent`
 - **Infraestructura Base:** Servidor VPS Linux existente (Ubuntu 22.04 / 24.04 LTS) con **NGINX preexistente en el host**, Docker Engine `>=26.0` y Docker Compose v2.
@@ -14,7 +14,7 @@
 
 ## 1. Propósito y Alcance Operativo
 
-Este manual es la guía de procedimientos operativos estándar (_Standard Operating Procedures_ - SOP) y recuperación de contingencias de ingeniería de confiabilidad de sitios (_Site Reliability Engineering_ - SRE) para **GS Vera Clinic / CareFlow HomeCare**.
+Este manual es la guía de procedimientos operativos estándar (_Standard Operating Procedures_ - SOP) y recuperación de contingencias de ingeniería de confiabilidad de sitios (_Site Reliability Engineering_ - SRE) para aplicaciones construidas sobre **Golden Starter V3**.
 
 ### 1.1 Premisa de Infraestructura Canónica
 
@@ -90,7 +90,7 @@ En el servidor VPS existente de producción:
 
 ```bash
 # 1. Posicionarse en el directorio raíz del proyecto desplegado
-cd /opt/careflow-homecare  # O ruta convenida en el host
+cd /opt/golden-starter  # O ruta convenida en el host
 
 # 2. Verificar que las variables de entorno de producción estén presentes y protegidas
 ls -la .env.production
@@ -107,7 +107,7 @@ docker compose -f docker-compose.staging.yml ps
 
 # 6. Comprobar respuesta a través del proxy local y del dominio público
 curl -f http://127.0.0.1:3005/api/health
-curl -I https://app.veraclinic.com/api/health
+curl -I https://app.example.com/api/health
 ```
 
 ---
@@ -156,21 +156,21 @@ Las migraciones del esquema relacional son administradas por Drizzle ORM / Drizz
 
 ```bash
 # 1. Crear directorio de respaldos si no existe
-sudo mkdir -p /var/backups/careflow_db
+sudo mkdir -p /var/backups/starter_db
 
 # 2. Generar backup puntual de contingencia antes de migrar
 BACKUP_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-docker exec careflow_db_staging pg_dump -U staging_careflow_user careflow_staging | gzip > "/var/backups/careflow_db/pre_migration_${BACKUP_TIMESTAMP}.sql.gz"
+docker exec starter_db_staging pg_dump -U staging_user starter_staging | gzip > "/var/backups/starter_db/pre_migration_${BACKUP_TIMESTAMP}.sql.gz"
 
 # 3. Verificar que el respaldo tenga tamaño válido y no esté vacío
-test -s "/var/backups/careflow_db/pre_migration_${BACKUP_TIMESTAMP}.sql.gz" && echo "✓ Respaldo previo generado exitosamente"
+test -s "/var/backups/starter_db/pre_migration_${BACKUP_TIMESTAMP}.sql.gz" && echo "✓ Respaldo previo generado exitosamente"
 ```
 
 ### 4.2 Ejecución de la Migración
 
 ```bash
 # Exportar la variable de conexión apuntando a la base de datos objetivo
-export DATABASE_URL="postgresql://staging_careflow_user:staging_mock_secure_password_careflow_2026!@127.0.0.1:5432/careflow_staging"
+export DATABASE_URL="postgresql://staging_user:staging_secure_password_2026!@127.0.0.1:5432/starter_staging"
 
 # Ejecutar la migración relacional Drizzle
 npm run db:migrate
@@ -188,8 +188,8 @@ Si la migración arroja un error de sintaxis, bloqueo de tablas (_lock timeout_)
    docker compose -f docker-compose.staging.yml stop web
 
    # Restaurar el estado previo de la base de datos
-   gunzip -c "/var/backups/careflow_db/pre_migration_${BACKUP_TIMESTAMP}.sql.gz" | \
-     docker exec -i careflow_db_staging psql -U staging_careflow_user -d careflow_staging
+   gunzip -c "/var/backups/starter_db/pre_migration_${BACKUP_TIMESTAMP}.sql.gz" | \
+     docker exec -i starter_db_staging psql -U staging_user -d starter_staging
 
    # Reiniciar la aplicación web con la versión anterior estable
    docker compose -f docker-compose.staging.yml start web
@@ -211,16 +211,16 @@ El respaldo incluye esquema, tablas relacionales, datos de auditoría e índices
 
 ```bash
 # Parámetros de respaldo
-BACKUP_DIR="/var/backups/careflow_db"
-BACKUP_FILE="${BACKUP_DIR}/careflow_full_$(date +%Y%m%d_%H%M%S).sql.gz"
+BACKUP_DIR="/var/backups/starter_db"
+BACKUP_FILE="${BACKUP_DIR}/starter_full_$(date +%Y%m%d_%H%M%S).sql.gz"
 
 # Ejecución con pg_dump comprimido
-docker exec careflow_db_staging pg_dump \
-  -U staging_careflow_user \
+docker exec starter_db_staging pg_dump \
+  -U staging_user \
   --format=plain \
   --no-owner \
   --no-acl \
-  careflow_staging | gzip -9 > "${BACKUP_FILE}"
+  starter_staging | gzip -9 > "${BACKUP_FILE}"
 
 # Generar checksum SHA256 para verificación de integridad
 sha256sum "${BACKUP_FILE}" > "${BACKUP_FILE}.sha256"
@@ -232,7 +232,7 @@ echo "Respaldo completado: ${BACKUP_FILE}"
 
 ```bash
 # Agregar a crontab de root (sudo crontab -e):
-0 3 * * * docker exec careflow_db_staging pg_dump -U staging_careflow_user --no-owner --no-acl careflow_staging | gzip -9 > /var/backups/careflow_db/careflow_backup_$(date +\%Y\%m\%d).sql.gz && find /var/backups/careflow_db -name "*.sql.gz" -mtime +30 -delete
+0 3 * * * docker exec starter_db_staging pg_dump -U staging_user --no-owner --no-acl starter_staging | gzip -9 > /var/backups/starter_db/starter_backup_$(date +\%Y\%m\%d).sql.gz && find /var/backups/starter_db -name "*.sql.gz" -mtime +30 -delete
 ```
 
 ---
@@ -247,17 +247,17 @@ sudo touch /var/www/maintenance.flag
 docker compose -f docker-compose.staging.yml stop web
 
 # Paso 3: Verificar la integridad del archivo de respaldo
-sha256sum -c /var/backups/careflow_db/archivo_a_restaurar.sql.gz.sha256
+sha256sum -c /var/backups/starter_db/archivo_a_restaurar.sql.gz.sha256
 
 # Paso 4: Limpiar y recrear la base de datos destino en el contenedor
-docker exec -i careflow_db_staging psql -U staging_careflow_user -d postgres -c \
-  "DROP DATABASE IF EXISTS careflow_staging;"
-docker exec -i careflow_db_staging psql -U staging_careflow_user -d postgres -c \
-  "CREATE DATABASE careflow_staging OWNER staging_careflow_user;"
+docker exec -i starter_db_staging psql -U staging_user -d postgres -c \
+  "DROP DATABASE IF EXISTS starter_staging;"
+docker exec -i starter_db_staging psql -U staging_user -d postgres -c \
+  "CREATE DATABASE starter_staging OWNER staging_user;"
 
 # Paso 5: Descomprimir y restaurar los datos
-gunzip -c /var/backups/careflow_db/archivo_a_restaurar.sql.gz | \
-  docker exec -i careflow_db_staging psql -U staging_careflow_user -d careflow_staging
+gunzip -c /var/backups/starter_db/archivo_a_restaurar.sql.gz | \
+  docker exec -i starter_db_staging psql -U staging_user -d starter_staging
 
 # Paso 6: Reiniciar y reanudar el contenedor web
 docker compose -f docker-compose.staging.yml start web
@@ -292,7 +292,7 @@ docker compose -f docker-compose.staging.yml restart web
 curl -f http://127.0.0.1:3005/api/health
 ```
 
-_Nota Operativa:_ La rotación de `BETTER_AUTH_SECRET` invalida de forma inmediata todas las sesiones activas, requiriendo que los usuarios vuelvan a iniciar sesión. Debe coordinarse preferentemente fuera de los horarios pico de turnos de enfermería.
+_Nota Operativa:_ La rotación de `BETTER_AUTH_SECRET` invalida de forma inmediata todas las sesiones activas, requiriendo que los usuarios vuelvan a iniciar sesión. Debe coordinarse preferentemente fuera de los horarios pico de transacciones u operaciones de campo.
 
 ---
 
@@ -303,8 +303,8 @@ _Nota Operativa:_ La rotación de `BETTER_AUTH_SECRET` invalida de forma inmedia
 NEW_DB_PASS=$(openssl rand -base64 24 | tr -dc 'a-zA-Z0-9' | head -c 20)
 
 # 2. Modificar la contraseña en el motor PostgreSQL en caliente
-docker exec -i careflow_db_staging psql -U staging_careflow_user -d careflow_staging -c \
-  "ALTER USER staging_careflow_user WITH PASSWORD '${NEW_DB_PASS}';"
+docker exec -i starter_db_staging psql -U staging_user -d starter_staging -c \
+  "ALTER USER staging_user WITH PASSWORD '${NEW_DB_PASS}';"
 
 # 3. Actualizar la contraseña en el archivo de entorno (.env.staging / .env.production)
 # Actualizar los valores de POSTGRES_PASSWORD, POSTGRES_URL y DATABASE_URL
@@ -357,7 +357,7 @@ curl -i http://127.0.0.1:3005/api/health
 Conéctate a la base de datos mediante el usuario administrador:
 
 ```bash
-docker exec -i careflow_db_staging psql -U staging_careflow_user -d careflow_staging -c "
+docker exec -i starter_db_staging psql -U staging_user -d starter_staging -c "
 SELECT count(*), state, client_addr, usename, application_name
 FROM pg_stat_activity
 GROUP BY state, client_addr, usename, application_name
@@ -371,7 +371,7 @@ Si existen transacciones colgadas en estado `idle in transaction` consumiendo sl
 
 ```bash
 # Terminar conexiones ociosas con más de 5 minutos de inactividad
-docker exec -i careflow_db_staging psql -U staging_careflow_user -d careflow_staging -c "
+docker exec -i starter_db_staging psql -U staging_user -d starter_staging -c "
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
 WHERE state = 'idle in transaction'
@@ -384,7 +384,7 @@ WHERE state = 'idle in transaction'
 Si la carga legítima aumentó y la memoria RAM del VPS lo tolera:
 
 ```bash
-docker exec -i careflow_db_staging psql -U staging_careflow_user -d careflow_staging -c \
+docker exec -i starter_db_staging psql -U staging_user -d starter_staging -c \
   "ALTER SYSTEM SET max_connections = '150';"
 
 # Reiniciar el servicio de base de datos para aplicar
@@ -462,20 +462,20 @@ sudo rm -rf /tmp/* /var/tmp/*
 
 ### 8.3 Contingencia SRE 3: Página de Mantenimiento HTTP 503 en NGINX
 
-Durante intervenciones críticas, restauraciones de base de datos o caídas mayores, NGINX en el host debe retornar una página de estado HTTP 503 informando a los usuarios y coordinadores médicos que el sistema se encuentra en mantenimiento programado.
+Durante intervenciones críticas, restauraciones de base de datos o caídas mayores, NGINX en el host debe retornar una página de estado HTTP 503 informando a los usuarios que el sistema se encuentra en mantenimiento programado.
 
-#### Configuración Previa de NGINX en el Host (`/etc/nginx/sites-available/careflow`):
+#### Configuración Previa de NGINX en el Host (`/etc/nginx/sites-available/starter-app`):
 
 ```nginx
 # Fragmento canónico de configuración del VirtualHost en el servidor NGINX
 server {
     listen 80;
     listen 443 ssl http2;
-    server_name app.veraclinic.com;
+    server_name app.example.com;
 
     # Certificados SSL gestionados en el host
-    ssl_certificate /etc/letsencrypt/live/app.veraclinic.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/app.veraclinic.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/app.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app.example.com/privkey.pem;
 
     # Bandera de mantenimiento del sistema
     set $maintenance 0;
@@ -519,7 +519,7 @@ sudo bash -c 'cat << "EOF" > /var/www/maintenance.html
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mantenimiento Programado — GS Vera Clinic</title>
+  <title>Mantenimiento Programado — Golden Starter</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
@@ -531,9 +531,9 @@ sudo bash -c 'cat << "EOF" > /var/www/maintenance.html
 </head>
 <body>
   <div class="card">
-    <h1>Ventana de Mantenimiento Clínico</h1>
-    <p>La plataforma <strong>GS Vera Clinic / CareFlow HomeCare</strong> se encuentra temporalmente en actualización para optimizar la seguridad y disponibilidad de los servicios asistenciales.</p>
-    <p>Las órdenes de trabajo y atenciones continuarán registrándose en las terminales móviles en modo fuera de línea.</p>
+    <h1>Ventana de Mantenimiento Programado</h1>
+    <p>La plataforma <strong>Golden Starter</strong> se encuentra temporalmente en actualización para optimizar el rendimiento y la disponibilidad de los servicios.</p>
+    <p>Los eventos y operaciones continuarán registrándose en las terminales móviles en modo fuera de línea.</p>
     <div class="badge">Estado: HTTP 503 Service Unavailable</div>
   </div>
 </body>
@@ -548,7 +548,7 @@ EOF'
 sudo touch /var/www/maintenance.flag
 
 # Verificar que NGINX responde HTTP 503 de inmediato
-curl -I https://app.veraclinic.com/
+curl -I https://app.example.com/
 # (Debe retornar: HTTP/2 503)
 
 # -------------------------------------------------------------------
@@ -559,7 +559,7 @@ curl -I https://app.veraclinic.com/
 sudo rm -f /var/www/maintenance.flag
 
 # Verificar que el servicio público está restaurado y operativo
-curl -I https://app.veraclinic.com/
+curl -I https://app.example.com/
 # (Debe retornar: HTTP/2 200)
 ```
 

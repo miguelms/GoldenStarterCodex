@@ -10,12 +10,12 @@
 
 ## 1. Contexto y Planteamiento del Problema
 
-El sistema **GS Vera Clinic / CareFlow HomeCare** administra identidades de personal sanitario (enfermeras, coordinadores clínicos, supervisores y directores médicos) y requiere un modelo de autenticación y control de acceso robusto, conforme con las siguientes necesidades críticas:
+El sistema **Golden Starter V3** administra identidades de colaboradores y usuarios en organizaciones multi-tenant y requiere un modelo de autenticación y control de acceso robusto (RBAC), conforme con las siguientes necesidades críticas:
 
-1. **Soberanía y Privacidad de Datos (LFPDPPP):** La legislación mexicana de protección de datos personales sensibles en posesión de particulares exige que las credenciales, sesiones y metadatos de identidad residan bajo la infraestructura controlada de la organización proveedora de salud, evitando la dispersión de datos en servicios en la nube de terceros no certificados.
-2. **Aislamiento Multi-Tenant Nativo:** Soporte para múltiples organizaciones y agencias de salud (`organization_id`), asociando a los usuarios a sus respectivas entidades con roles diferenciados (`admin_global`, `clinical_lead`, `registered_nurse`, `caregiver`, `coordinator`).
+1. **Soberanía y Privacidad de Datos:** Garantizar que las credenciales, sesiones y metadatos de identidad residan bajo la infraestructura controlada de la organización en PostgreSQL 18, evitando la dispersión de datos en servicios de terceros no auditables.
+2. **Aislamiento Multi-Tenant Nativo:** Soporte para múltiples organizaciones (`organization_id`), asociando a los usuarios a sus respectivas entidades con roles diferenciados (`admin_global`, `org_admin`, `manager`, `member`, `viewer`).
 3. **Compatibilidad Dual Web y Móvil:** Capacidad de gestionar sesiones basadas en cookies seguras `HttpOnly` para la interfaz web Next.js, y tokens de sesión persistentes seguros para la aplicación móvil Expo / React Native en campo.
-4. **Independencia de Proveedores Comerciales (Cero Vendor Lock-in):** Evitar esquemas tarifarios crecientes por usuario activo mensual (MAU) que comprometan la viabilidad financiera del modelo de negocio de atención domiciliaria.
+4. **Independencia de Proveedores Comerciales (Cero Vendor Lock-in):** Evitar esquemas tarifarios crecientes por usuario activo mensual (MAU) que comprometan la viabilidad financiera del modelo de negocio.
 
 ---
 
@@ -25,9 +25,9 @@ El sistema **GS Vera Clinic / CareFlow HomeCare** administra identidades de pers
 
 - **Descripción:** Delegar el flujo de autenticación, almacenamiento de contraseñas y emisión de tokens a un servicio externo completamente gestionado.
 - **Razón de Descarte:**
-  - **Costos prohibitivos y crecientes:** El modelo de cobro por MAU escala de forma exponencial al incorporar cuadrillas grandes de enfermería y personal de campo con turnos esporádicos.
+  - **Costos prohibitivos y crecientes:** El modelo de cobro por MAU escala de forma exponencial al incorporar grandes volúmenes de usuarios y personal de campo.
   - **Vendor Lock-in:** Migrar usuarios y hashes de contraseñas fuera de estas plataformas suele ser complejo o intencionalmente restringido.
-  - **Riesgo Regulatorio y Latencia:** Los datos de identidad residen en servidores fuera del control directo de la organización, introduciendo dependencias de disponibilidad externa y posibles conflictos con políticas de privacidad locales.
+  - **Riesgo Regulatorio y Latencia:** Los datos de identidad residen en servidores fuera del control directo de la organización, introduciendo dependencias de disponibilidad externa y posibles conflictos de soberanía.
 
 ### 2.2 Opción B: Supabase Auth (GoTrue)
 

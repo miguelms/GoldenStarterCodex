@@ -1,10 +1,10 @@
 # Manual Canónico de Arquitectura y Gobernanza del Starter
 
-## GS Vera Clinic / CareFlow HomeCare — v1.0.0
+## Golden Starter V3 — v3.0.0
 
-- **Versión del Documento:** 1.0.0
-- **Fecha de Certificación:** 2026-09-21
-- **Base SHA Integrada:** `18c101c`
+- **Versión del Documento:** 3.0.0
+- **Fecha de Certificación:** 2026-09-30
+- **Base SHA Integrada:** `main`
 - **Estado:** CANÓNICO (Aprobado para Gobernanza y Operaciones)
 - **Autor y Mantenedores:** `docs-agent` en coordinación con `orchestrator-agent`, `sre-agent` y `devops-agent`
 - **Referencias Base:** [`golden-starter.manifest.json`](../../golden-starter.manifest.json), [`STACK.md`](../../STACK.md), [`ARCHITECTURE.md`](../../ARCHITECTURE.md), [`docs/adr/README.md`](../adr/README.md), [`docs/operations/enterprise-runbook.md`](../operations/enterprise-runbook.md)
@@ -13,24 +13,23 @@
 
 ## 1. Visión General del Monorepo
 
-El **Golden Starter GS Vera Clinic / CareFlow HomeCare v1.0.0** es un monorepo TypeScript integral de grado empresarial diseñado con una **arquitectura estrictamente desacoplada** entre el núcleo genérico del starter corporativo (_Generic Enterprise Core_) y la vertical asistencial de salud (_packages/clinical_). Esta separación permite reutilizar la base técnica multi-tenant, segura y offline-first en diversas industrias, mientras aísla las reglas de negocio médico, expedientes NOM-004 y flujos de enfermería en módulos especializados.
+El **Golden Starter V3** es una plantilla monorepo TypeScript integral de grado empresarial diseñada con una **arquitectura desacoplada, multi-tenant y offline-first**. Proporciona una base técnica robusta, segura y lista para producción sobre la cual construir aplicaciones web y móviles para cualquier industria o dominio de negocio.
 
 ### 1.1 Estructura de Espacios de Trabajo (Workspaces)
 
-El repositorio está estructurado mediante npm workspaces en torno a componentes desacoplados:
+El repositorio está estructurado mediante npm workspaces:
 
 ```
-careflow-homecare/ (gs-vera-clinic)
+golden-starter-v3/
 ├── apps/
 │   └── mobile/                 # Aplicación móvil Expo SDK 57 / React Native
 ├── packages/
-│   ├── contracts/              # Contratos y esquemas Zod puros compartidos (cero dependencias server)
-│   └── clinical/               # Dominio clínico especializado (NOM-004, vitals, work-orders)
+│   └── contracts/              # Contratos y esquemas Zod puros compartidos (cero dependencias server)
 ├── src/                        # Núcleo Web Next.js 16 (App Router) y APIs
 │   ├── app/                    # Rutas de interfaz web y Route Handlers (/api/**)
-│   ├── components/             # Componentes de UI (compartidos y modulares)
+│   ├── components/             # Componentes de UI (DataGrid, ResponsiveShell, OutboxBanner)
 │   ├── db/                     # Esquemas Drizzle ORM y conexión PostgreSQL
-│   ├── domain/                 # Lógica de dominio y servicios del starter
+│   ├── domain/                 # Lógica de dominio del starter (sync, outbox, geofence, audit)
 │   └── server/                 # Contexto de autenticación, control de acceso RBAC y errores
 ├── drizzle/                    # Migraciones relacionales PostgreSQL versionadas
 ├── docs/                       # Documentación técnica, ADRs canónicos y runbooks SRE
@@ -65,13 +64,22 @@ Conforme a la fuente de verdad técnica estipulada en [`STACK.md`](../../STACK.m
 
 ---
 
-### 1.3 Arquitectura Desacoplada del Starter: Core Genérico vs. packages/clinical
+### 1.3 Arquitectura de Componentes de Golden Starter V3
 
-Para garantizar máxima modularidad, el repositorio establece una frontera nítida entre los cimientos reutilizables de grado empresarial y la lógica de negocio asistencial:
+El repositorio establece una clara separación de responsabilidades entre sus capas modulares:
 
 ```mermaid
 flowchart TD
-    subgraph Core["Generic Enterprise Core (Starter Reutilizable)"]
+    subgraph Clients["Clientes Multi-Plataforma"]
+        Web["Aplicación Web Next.js 16<br/>(src/app, ResponsiveShell, DataGrid)"]
+        Mobile["Aplicación Móvil Expo SDK 57<br/>(apps/mobile, OfflineOutbox, Geofence)"]
+    end
+
+    subgraph Contracts["Contratos Puros Compartidos (packages/contracts)"]
+        ZodSchemas["Esquemas Zod de Validación<br/>(Auth, Sync, Organizations, Users, Devices)"]
+    end
+
+    subgraph Core["Núcleo del Servidor (src/)"]
         Auth["Better-Auth + RBAC Multi-Tenant<br/>(src/server/auth.ts)"]
         DB["PostgreSQL 18 + Drizzle ORM<br/>(src/db/)"]
         S3["Almacenamiento Privado S3<br/>(URLs firmadas efímeras)"]
@@ -80,33 +88,22 @@ flowchart TD
         SRE["Orquestación Docker Compose & NGINX<br/>(docs/operations/enterprise-runbook.md)"]
     end
 
-    subgraph Clinical["Vertical Asistencial Especializada (packages/clinical)"]
-        NOM["Expediente Clínico Electrónico<br/>(NOM-004-SSA3-2012 / LFPDPPP)"]
-        Vitals["Captura Reactiva de Signos Vitales<br/>(Opción B: Bloqueo Fuera de Rango)"]
-        WorkOrders["Hojas de Trabajo Diarias (Daily Work Orders)<br/>(Asignación, Check-in, Procedimientos)"]
-        Geofence["Geocerca Asistencial 50 Metros<br/>(5 Excepciones Tipificadas)"]
-        Quarantine["Aislamiento de Dispositivos Extraviados<br/>(Quarantine Outbox)"]
-    end
-
-    Clinical -->|Extiende y consume contratos| Core
+    Web -->|Consume contratos| ZodSchemas
+    Mobile -->|Consume contratos| ZodSchemas
+    Web -->|Route Handlers| Core
+    Mobile -->|API REST / Sincronización| Core
 ```
 
-#### Responsabilidades de Cada Capa:
+#### Responsabilidades Principales:
 
 1. **Núcleo Genérico Empresarial (_Generic Enterprise Core_):**
-
-   - **Autenticación y Sesiones:** Gestión autónoma con Better-Auth, sesiones con cookies `HttpOnly`, soporte para clientes móviles con almacenamiento seguro nativo y control RBAC.
+   - **Autenticación y Sesiones:** Gestión autónoma con Better-Auth, sesiones con cookies `HttpOnly`, soporte para clientes móviles y control de roles RBAC (`admin_global`, `org_admin`, `manager`, `member`, `viewer`).
    - **Aislamiento Multi-Tenant:** Filtrado estricto por `organization_id` en todas las consultas y aserción de tenant en Route Handlers (`assertOrganizationAccess`).
    - **Almacenamiento Protegido S3:** Subida y descarga de archivos privados mediante URLs temporales prefirmadas (ADR-004), sin almacenamiento en disco de contenedor ni buckets públicos.
    - **Sincronización Offline e Idempotencia:** Deduplicación por `clientEventId`, soporte de reintentos seguros sin corrupción de estado y cola outbox local.
    - **Auditoría Inmutable:** Registro append-only en `audit_entries` con metadatos JSONB para trazabilidad legal y forense.
    - **Infraestructura y Confiabilidad:** Orquestación con Docker Compose v2 (ADR-005) adaptada a VPS existente con NGINX en el host, comprobación de salud en `/api/health` y manuales SRE.
-
-2. **Módulo Clínico Especializado (_packages/clinical_ y Vertical Asistencial):**
-   - **Expediente NOM-004-SSA3-2012:** Políticas de retención obligatoria de 5 años, archivado lógico inmutable y prohibición de borrado físico (`DELETE`).
-   - **Flujos de Atención en Turno:** Asignación de turnos, check-in/check-out con geocerca perimetral de 50 metros y excepciones documentadas.
-   - **Monitoreo de Signos Vitales:** Reglas de validación clínica en tiempo real que impiden registrar signos alterados sin justificación médica (Opción B).
-   - **Cuarentena de Dispositivos de Campo:** Aislamiento de paquetes de sincronización ante pérdida o robo de teléfonos móviles.
+   - **Gestión de Dispositivos:** Registro, cuarentena y revocación remota de dispositivos móviles extraviados o desautorizados.
 
 ---
 
@@ -150,11 +147,11 @@ sequenceDiagram
 
 ## 2. Patrones Clave de Arquitectura
 
-El diseño de CareFlow HomeCare implementa seis patrones fundamentales que garantizan aislamiento, seguridad, cumplimiento legal y experiencia continua sin red.
+El diseño de **Golden Starter V3** implementa cinco patrones fundamentales que garantizan aislamiento, seguridad, integridad de datos y experiencia continua sin red.
 
 ### 2.1 Aislamiento Multi-Tenant Estricto (`organizationId`)
 
-El sistema es multi-empresa (_multi-tenant_) por diseño. Ninguna organización proveedora de servicios médicos puede visualizar, mutar ni sincronizar expedientes, órdenes o dispositivos que pertenezcan a otra entidad.
+El sistema es multi-empresa (_multi-tenant_) por diseño. Ninguna organización puede visualizar, mutar ni sincronizar registros, usuarios o dispositivos que pertenezcan a otra entidad.
 
 ```mermaid
 flowchart TD
@@ -170,11 +167,11 @@ flowchart TD
 
 #### Reglas de Aislamiento en Datos y Código:
 
-1. **Clave Foránea Obligatoria:** Todas las tablas de datos de negocio en `src/db/schema.ts` (`users`, `patients`, `shifts`, `carePlans`, `dailyWorkOrders`, `serviceRequests`, `procedureCatalog`, `certifications`, `staffCapabilities`, `vitalSignsRecords`, `devices`, `syncEvents`, `auditEntries`) definen `organizationId: uuid("organization_id").notNull().references(() => organizations.id)`.
+1. **Clave Foránea Obligatoria:** Todas las tablas de datos de negocio en `src/db/schema.ts` (`users`, `devices`, `syncEvents`, `auditLogs`, `errorLogs`) definen `organizationId: uuid("organization_id").notNull().references(() => organizations.id)`.
 2. **Resolución de Contexto (`src/server/auth.ts`):** La función `getRequestContext(request)` extrae la identidad del llamador aplicando el orden de precedencia:
    - Cabecera HTTP `x-organization-id`
    - Parámetro de consulta `?organizationId=`
-   - Fallback configurado por la aplicación (`org-demo-001` en modo piloto)
+   - Fallback configurado por la aplicación (`org-demo-001` en modo desarrollo)
 3. **Control por Objeto (`assertOrganizationAccess`):** Antes de retornar o persistir un recurso, el Route Handler evalúa:
    ```typescript
    export function assertOrganizationAccess(context: RequestContext, resourceOrgId: string): void {
@@ -195,7 +192,7 @@ Para evitar acoplamientos indeseados entre el backend web y el cliente móvil, t
 #### Invariantes del Paquete de Contratos:
 
 - **Cero Dependencias de Plataforma:** El paquete sólo depende de `zod`. Está estrictamente prohibido importar módulos de servidor (`fs`, `path`, `crypto`, Drizzle ORM, Better-Auth) o módulos nativos de React/Expo.
-- **Tipado Unidireccional e Inferido:** Los tipos TypeScript de dominio (`Patient`, `Shift`, `DailyWorkOrder`, `VitalSignRecord`, `SyncEvent`, `Device`, etc.) se generan automáticamente a través de `z.infer<typeof schema>`.
+- **Tipado Unidireccional e Inferido:** Los tipos TypeScript de dominio (`User`, `Organization`, `Device`, `SyncEvent`, `AuditLog`, etc.) se generan automáticamente a través de `z.infer<typeof schema>`.
 - **Estandarización de Respuestas de Error:** Todas las fallas HTTP implementan el contrato `apiErrorResponseSchema`:
   ```typescript
   {
@@ -205,112 +202,100 @@ Para evitar acoplamientos indeseados entre el backend web y el cliente móvil, t
     requestId: string
   }
   ```
-- **Refinamiento de Validación Cruzada (`superRefine`):** Las reglas complejas (tales como la congruencia de fechas de vencimiento de certificaciones o la exigencia de justificación clínica) se validan directamente en el contrato de entrada.
+- **Refinamiento de Validación Cruzada (`superRefine`):** Las reglas complejas (tales como validaciones condicionales o justificaciones obligatorias) se validan directamente en el contrato de entrada.
 
 ---
 
-### 2.3 Gobernanza Clínica NOM-004-SSA3-2012 y LFPDPPP
+### 2.3 Gobernanza de Datos, Privacidad y Retención de Registros
 
-El manejo de información clínica de pacientes está sujeto a la legislación mexicana para expedientes clínicos electrónicos (NOM-004-SSA3-2012 / NOM-024-SSA3-2012) y la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP).
+El manejo de información empresarial y datos sensibles está protegido por directrices estrictas de retención, privacidad y trazabilidad inmutable.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Activo: Alta de Paciente / Expediente
-    Activo --> Archivado: Inactivación Lógica (NOM-004)
+    [*] --> Activo: Creación de Registro
+    Activo --> Archivado: Inactivación Lógica
     note right of Archivado
       Status: archived
       Prohibición de DELETE físico.
       Motivo y usuario obligatorios.
-      Preservación íntegra de notas y signos.
+      Preservación íntegra histórica.
     end note
-    Archivado --> RetencionProtegida: Años 0 a 5
+    Archivado --> RetencionProtegida: Período de Retención Legal
     note right of RetencionProtegida
       isProtectedByLaw: true
       meetsRetention: false
-      Retención médica legal obligatoria.
+      Retención corporativa obligatoria.
       Inviolabilidad de registros históricos.
     end note
-    RetencionProtegida --> RetencionCumplida: > 5 Años
+    RetencionProtegida --> RetencionCumplida: Vencimiento de Retención
     note right of RetencionCumplida
       meetsRetention: true
       isProtectedByLaw: false
-      Posible dictamen legal / baja documental.
+      Posible dictamen de baja documental.
     end note
 ```
 
 #### Directrices Normativas Implementadas:
 
-1. **Cero Borrado Físico (No DELETE):**
-   - Las tablas clínicas carecen de operaciones `DELETE` en Route Handlers y modelos de dominio.
-   - Las solicitudes de baja de servicio o ejercicio de derechos ARCO de cancelación conducen a un archivado lógico con congelamiento de estado.
-2. **Archivado Lógico con Trazabilidad (`validateArchivePatient`):**
-   - Implementado en `src/domain/retention.ts`. Exige identificador de usuario (`archivedBy`), marca temporal UTC (`archivedAt`) y motivo justificado (`archiveReason`).
-   - El endpoint `POST /api/patients/:id/archive` persiste estos metadatos y crea una entrada inmutable en `audit_entries`.
-3. **Retención Legal Obligatoria de 5 Años:**
-   - La constante `NOM_004_RETENTION_YEARS = 5` rige el cálculo del ciclo de vida del expediente.
-   - La función `checkRetentionPolicy(createdAt, now)` y su detalle `getRetentionPolicyDetails` evalúan la antigüedad exacta del expediente. Si `yearsElapsed < 5`, el expediente se cataloga como protegido por ley (`isProtectedByLaw: true`), impidiendo cualquier purga de la base de datos.
-4. **Restricción Estricta de Exportación Clínica (RBAC):**
-   - La generación y descarga del expediente clínico resumido o completo (`POST /api/patients/:id/export`) está restringida exclusivamente a dos roles mediante `isAllowedClinicalExportRole`:
-     - `clinical_lead` (Jefa de Enfermeras / Dirección Médica)
-     - `admin_global` (Administrador de Cumplimiento)
-   - Cualquier intento de exportación por parte de enfermeras operativas, cuidadoras, coordinadores o supervisores es rechazado con `403 FORBIDDEN`.
-5. **Cumplimiento LFPDPPP (Datos Personales Sensibles):**
-   - Prohibición de persistir registros de pacientes reales durante fases de prueba o staging; todos los fixtures son sintéticos.
-   - Minimización de datos en telemetría: la bitácora `audit_entries` registra únicamente eventos de control sin duplicar descripciones clínicas sensibles.
+1. **Cero Borrado Físico Accidental (No DELETE en entidades clave):**
+   - Las tablas críticas carecen de operaciones `DELETE` destructivas en Route Handlers estándar.
+   - Las solicitudes de baja o retiro conducen a un archivado lógico con congelamiento de estado.
+2. **Archivado Lógico con Trazabilidad:**
+   - Exige identificador de usuario (`archivedBy`), marca temporal UTC (`archivedAt`) y motivo justificado (`archiveReason`).
+   - Persiste estos metadatos y crea una entrada inmutable en `audit_entries`.
+3. **Retención Legal y Regulatoria:**
+   - Reglas de retención configurables que evalúan la antigüedad exacta del expediente o registro antes de permitir su purga.
+4. **Restricción Estricta de Exportación de Datos (RBAC):**
+   - La exportación masiva de datos sensibles está restringida exclusivamente a roles autorizados (`admin_global`, `org_admin`).
+   - Cualquier intento de exportación por parte de roles sin privilegios es rechazado con `403 FORBIDDEN`.
+5. **Privacidad y Minimización de Datos:**
+   - Prohibición de persistir registros de usuarios reales durante fases de prueba o staging; todos los fixtures son sintéticos.
+   - Minimización de datos en telemetría: la bitácora `audit_entries` registra únicamente eventos de control sin duplicar payloads sensibles.
 
 ---
 
-### 2.4 Reglas de Negocio Reactivas: Opción B (Bloqueo por Signos Fuera de Rango)
+### 2.4 Reglas de Negocio Reactivas: Validación y Bloqueo con Justificación
 
-Durante el registro clínico de signos vitales (temperatura, tensión arterial sistólica/diastólica, frecuencia cardíaca, saturación de oxígeno SpO2 y glucemia), el sistema aplica el modelo reactivo conocido como **Opción B**.
+En flujos donde se ingresan valores que exceden los rangos operacionales esperados o representan anomalías, el sistema aplica un patrón de validación con bloqueo y justificación.
 
 ```mermaid
 flowchart TD
-    Input[Personal de Enfermería captura Signo Vital] --> Eval{Valor dentro de Baseline?}
+    Input[Operador captura Registro / Métrica] --> Eval{Valor dentro de Umbrales?}
     Eval -- Sí (Normal) --> AllowSave[Habilitar Guardado Directo]
-    Eval -- No (Fuera de Rango) --> ModeCheck{Modo de Alerta}
-    ModeCheck -- informative_warning (Opción A) --> Warn[Mostrar Banner Informativo] --> AllowSave
-    ModeCheck -- blocking_justification (Opción B: Defecto) --> Block[Bloquear Botón Guardar]
-    Block --> JustReq[Exigir Justificación Clínica Obligatoria]
+    Eval -- No (Fuera de Umbral) --> ModeCheck{Modo de Control}
+    ModeCheck -- advertencia_informativa --> Warn[Mostrar Banner Informativo] --> AllowSave
+    ModeCheck -- bloqueo_con_justificacion --> Block[Bloquear Botón Guardar]
+    Block --> JustReq[Exigir Justificación Obligatoria]
     JustReq --> InputJust{¿Justificación ingresada?}
     InputJust -- No / Vacía --> KeepBlocked[Mantener Guardado Deshabilitado]
-    InputJust -- Sí (Texto Clínico) --> CritCheck{¿Viola Rango Crítico de Alerta?}
-    CritCheck -- No --> AllowSaveWithJust[Guardar con Justificación]
-    CritCheck -- Sí --> Escalate[Activar Alerta de Escalamiento a Jefa de Enfermeras] --> AllowSaveWithJust
+    InputJust -- Sí (Texto Justificado) --> AllowSaveWithJust[Guardar con Justificación y Auditoría]
 ```
 
-#### Especificación de Rangos y Validación:
+#### Especificación del Patrón:
 
-- **Rangos Basales Estándar (`STANDARD_VITAL_RANGES`):**
-  - Temperatura: 36.0 °C – 37.5 °C (Alerta crítica: < 35.5 °C ó > 37.5 °C)
-  - TA Sistólica: 90 mmHg – 120 mmHg (Alerta crítica: < 90 mmHg ó > 139 mmHg)
-  - TA Diastólica: 60 mmHg – 80 mmHg (Alerta crítica: < 60 mmHg ó > 89 mmHg)
-  - SpO2: 94 % – 100 % (Alerta crítica: < 94 %)
-  - Frecuencia Cardíaca: 60 lpm – 100 lpm (Alerta crítica: < 50 lpm ó > 100 lpm)
-  - Glucosa: 70 mg/dL – 140 mg/dL (Alerta crítica: < 70 mg/dL ó > 180 mg/dL)
-- **Dominio (`src/domain/vitals.ts`):** La función `evaluateVitalSign` retorna `{ isOutOfRange, requiresJustification, shouldEscalate }`.
-- **Contrato de Servidor (`recordVitalSignInputSchema`):** La validación Zod `superRefine` rechaza peticiones HTTP con error 400 si `isOutOfRange === true` bajo `blocking_justification` y no se acompaña de una `justification` con texto válido.
-- **Componente Móvil (`VitalsBottomSheet.tsx`):** La hoja modal bloquea reactivamente la acción del usuario mostrando un campo de texto con resaltado de advertencia y deshabilitando el botón de confirmación hasta registrar la justificación médica.
+- **Dominio:** La función de evaluación retorna `{ isOutOfRange, requiresJustification, shouldEscalate }`.
+- **Contrato de Servidor:** La validación Zod `superRefine` rechaza peticiones HTTP con error 400 si el valor se encuentra fuera de umbral y no se acompaña de una justificación explicativa válida.
+- **Componentes de UI:** La interfaz bloquea reactivamente la acción del usuario mostrando un campo de justificación con resaltado de advertencia y deshabilitando el botón de confirmación hasta registrar la razón operativa.
 
 ---
 
-### 2.5 Arquitectura Offline-First: Outbox, Idempotencia y Geocerca de 50 Metros
+### 2.5 Arquitectura Offline-First: Outbox Local, Idempotencia y Geocercas
 
-El entorno de trabajo de la enfermera domiciliaria suele presentar cortes severos de cobertura celular (sótanos, zonas suburbanas, client isolation en redes Wi-Fi residenciales). La arquitectura está diseñada para operar con independencia total de red.
+El entorno de trabajo en campo frecuentemente presenta interrupciones o nula cobertura de conectividad. La arquitectura está diseñada para operar con total normalidad sin red.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Nurse as Enfermera (Móvil)
+    actor User as Operador de Campo (Móvil)
     participant Client as App Expo (SQLite Outbox)
     participant Server as Next.js (/api/sync)
     participant DB as PostgreSQL (sync_events)
 
-    Note over Nurse,Client: Sin Conexión a Internet (Offline)
-    Nurse->>Client: Registra Check-in / Signos / Tareas
+    Note over User,Client: Sin Conexión a Internet (Offline)
+    User->>Client: Registra Actividad / Evento
     Client->>Client: Genera clientEventId (UUIDv4/Timestamp)
     Client->>Client: Almacena en Outbox Local (Persistente)
-    Client-->>Nurse: Confirmación Inmediata en UI
+    Client-->>User: Confirmación Inmediata en UI
 
     Note over Client,Server: Recuperación de Conectividad (Online)
     Client->>Server: POST /api/sync { events: [OutboxRecords] }
@@ -327,21 +312,14 @@ sequenceDiagram
 
 #### Mecanismos de Resiliencia:
 
-1. **Outbox Local Desacoplado:** Toda interacción clínica genera un registro con `clientEventId`, tipo de evento (`attendance`, `task`, `vital_sign`, `procedure`, `work_order`), marca temporal de captura `occurredAt` y datos asociados.
+1. **Outbox Local Desacoplado:** Toda interacción móvil genera un registro con `clientEventId`, tipo de evento, marca temporal `occurredAt` y payload asociado en SQLite local.
 2. **Deduplicación e Idempotencia:**
    - La tabla de base de datos `sync_events` define un índice único sobre `client_event_id`.
    - La función `acceptIdempotentEvent` (`src/domain/sync.ts`) detecta transmisiones repetidas originadas por fallos en la confirmación TCP/HTTP y retorna la referencia previa sin crear registros espurios ni duplicar asientos de auditoría.
-3. **Geocerca Perimetral de 50 Metros con Excepciones:**
+3. **Geocerca Operativa con Excepciones Estructuradas:**
    - Implementada mediante cálculo trigonométrico de Haversine (`src/domain/geofence.ts`).
-   - El radio de atención estándar es de 50 metros respecto a las coordenadas geográficas del domicilio del paciente (`geofenceRadiusMeters: 50`).
-   - Se evalúa la precisión del sensor satelital del teléfono (`accuracyMeters <= 50m`). Si el sensor presenta baja precisión (> 100m) o el teléfono se sitúa fuera de los 50 metros, se bloquea el check-in directo y se abre obligatoriamente el diálogo de **Excepción de Geocerca**.
-   - **Catálogo de 5 Excepciones Tipificadas:**
-     1. _Dirección física inexacta o acceso con portón perimetral cerrado._
-     2. _Urgencia médica atendida de inmediato en la entrada del domicilio._
-     3. _Intermitencia de señal o baja precisión del sensor GPS (satélites)._
-     4. _Acompañamiento del paciente en traslado o ambulancia._
-     5. _Domicilio temporal de familiar previamente comunicado a coordinación._
-   - **Invariante Operativo:** No se permite realizar check-out sin haber verificado previamente el check-in de inicio de turno.
+   - El radio de atención estándar es configurable respecto a las coordenadas objetivo (`geofenceRadiusMeters: 50`).
+   - Se evalúa la precisión del sensor del dispositivo (`accuracyMeters <= 50m`). Si el dispositivo se sitúa fuera del radio permitido, se requiere registrar una justificación o excepción tipificada para continuar.
 
 ---
 
@@ -374,7 +352,7 @@ flowchart TD
     subgraph CalidadSeguridad["Aseguramiento, Seguridad y Release"]
         Test[test-engineer-agent<br/>Vitest, Playwright, Simulación]
         Debug[debugger-regression-agent<br/>Repro, Fallas, Regresión]
-        Sec[security-agent<br/>Auditoría NOM-004, RBAC]
+        Sec[security-agent<br/>Auditoría Seguridad, RBAC]
         Docs[docs-agent<br/>Docs Canónicos, Runbooks, ADRs]
         Rel[platform-release-agent<br/>CI/CD, EAS, Starter Extract]
         QA[qa-agent<br/>Gate de Cierre Independiente]
@@ -398,8 +376,8 @@ flowchart TD
 |   #    | Nombre del Agente           | Rol Operativo                                                                           | Política de Shell      | Herramientas Asignadas                                                               | Habilidades (Skills)           |
 | :----: | :-------------------------- | :-------------------------------------------------------------------------------------- | :--------------------- | :----------------------------------------------------------------------------------- | :----------------------------- |
 | **1**  | `orchestrator-agent`        | Coordinación general del flujo, DAG de tareas, integración y aplicación de gates.       | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`, `invoke_subagent` | —                              |
-| **2**  | `product-manager-agent`     | Conduce sesiones live de producto, traduce decisiones a PRD sin supuestos clínicos.     | `off` (Solo docs)      | `view_file`, `grep_search`, `replace_file_content`                                   | `skills/live-product-qa`       |
-| **3**  | `ui-ux-designer-agent`      | Diseña interfaces web y mobile con tokens clínicos; gestiona aprobaciones con Stitch.   | `off` (Solo specs)     | `view_file`, `grep_search`, `replace_file_content`                                   | `skills/live-design-review`    |
+| **2**  | `product-manager-agent`     | Conduce sesiones live de producto, traduce decisiones a PRD sin supuestos no autorizados.| `off` (Solo docs)      | `view_file`, `grep_search`, `replace_file_content`                                   | `skills/live-product-qa`       |
+| **3**  | `ui-ux-designer-agent`      | Diseña interfaces web y mobile con tokens de diseño; gestiona aprobaciones con Stitch.  | `off` (Solo specs)     | `view_file`, `grep_search`, `replace_file_content`                                   | `skills/live-design-review`    |
 | **4**  | `repo-explorer-agent`       | Explora y mapea estructura de archivos, módulos y dependencias de forma pasiva.         | `off` (Lectura)        | `view_file`, `grep_search`                                                           | —                              |
 | **5**  | `change-planner-agent`      | Genera planes de cambio atómicos, secuenciales y con estimación de impacto.             | `off` (Solo artifacts) | `view_file`, `grep_search`, `replace_file_content`                                   | —                              |
 | **6**  | `frontend-agent`            | Desarrolla la aplicación web Next.js 16 con App Router, React 19 y Tailwind CSS 4.      | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
@@ -408,7 +386,7 @@ flowchart TD
 | **9**  | `infra-data-agent`          | Gestiona esquemas Drizzle, PostgreSQL, migraciones, Dockerfile y docker-compose.        | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
 | **10** | `test-engineer-agent`       | Construye y ejecuta suites Vitest, Playwright y arneses de red simulada.                | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
 | **11** | `debugger-regression-agent` | Reproduce bugs, aísla causa raíz y escribe pruebas de regresión automatizadas.          | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **12** | `security-agent`            | Audita cumplimiento NOM-004, LFPDPPP, control de secretos, CI y hardening.              | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
+| **12** | `security-agent`            | Audita cumplimiento de privacidad, control de secretos, RBAC, CI y hardening.          | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
 | **13** | `docs-agent`                | Produce documentación canónica, runbooks de operación y guías de arquitectura.          | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
 | **14** | `platform-release-agent`    | Administra dependencias compartidas, pipelines de CI/CD, EAS y empaquetado del starter. | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
 | **15** | `qa-agent`                  | Actúa como tribunal de cierre independiente, auditando evidencia sin modificar código.  | `off` (Solo lectura)   | `view_file`, `grep_search`                                                           | —                              |
@@ -437,6 +415,6 @@ Las directrices técnicas fundamentales del sistema están formalizadas en regis
 1. **[`ADR-001: Adopción Directa de Next.js`](../adr/ADR-001-direct-nextjs.md):** Justificación de App Router, React Server Components (RSC) y Route Handlers sin capas intermedias.
 2. **[`ADR-002: PostgreSQL 18 como Motor Relacional Primario`](../adr/ADR-002-postgresql-18.md):** Transaccionalidad ACID estricta, JSONB nativo y extensiones enterprise.
 3. **[`ADR-003: Better Auth para Autenticación Multi-Tenant`](../adr/ADR-003-better-auth.md):** Autenticación autónoma autohospedada sin costos recurrentes ni vendor lock-in.
-4. **[`ADR-004: Almacenamiento Privado S3 con URLs Firmadas`](../adr/ADR-004-private-s3-storage.md):** Aislamiento de documentos médicos sensibles con URLs efímeras protegidas por RBAC.
+4. **[`ADR-004: Almacenamiento Privado S3 con URLs Firmadas`](../adr/ADR-004-private-s3-storage.md):** Aislamiento de documentos privados y sensibles con URLs efímeras protegidas por RBAC.
 5. **[`ADR-005: Orquestación con Docker Compose en Servidores Existentes`](../adr/ADR-005-docker-compose-orchestration.md):** Despliegue determinista y desacoplado coordinado con NGINX en el host.
 6. **[`Runbook Operativo SRE`](../operations/enterprise-runbook.md):** Manual completo de contingencias (_too many clients_, saturación de disco, página de mantenimiento HTTP 503 en NGINX y rollback).

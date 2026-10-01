@@ -1,4 +1,4 @@
-# Instrucciones del proyecto Golden Starter V2
+# Instrucciones del proyecto Golden Starter V3
 
 > Base canónica para derivar nuevas aplicaciones Web & Mobile con gobernanza estricta, arquitectura modular y catálogo de agentes Antigravity.
 

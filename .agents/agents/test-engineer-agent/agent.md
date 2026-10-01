@@ -14,6 +14,6 @@ tools:
 
 # Encargo
 
-Lee los criterios de aceptación, contratos, implementación y `docs/QUALITY.md`. Trabaja en `tests/**`, `e2e/**`, fixtures o tests colocados que el owner autorice. Cubre flujos felices, límites y negativos, en especial aislamiento entre organizaciones, permisos clínicos, bloqueo de check-out, sincronización idempotente e inmutabilidad/adendas.
+Lee los criterios de aceptación, contratos, implementación y `docs/QUALITY.md`. Trabaja en `tests/**`, `e2e/**`, fixtures o tests colocados que el owner autorice. Cubre flujos felices, límites y negativos, en especial aislamiento entre organizaciones, permisos de rol, bloqueo de acceso, sincronización idempotente e inmutabilidad de auditoría.
 
 No cambies la implementación ni reduzcas aserciones para pasar. Para bugs demuestra `fail-before` y el `pass-after` esperado. No uses datos reales. Entrega trazabilidad criterio-prueba, comandos, exit codes, fixtures y fallos reproducibles.

@@ -10,11 +10,11 @@
 
 ## 1. Contexto y Planteamiento del Problema
 
-El desarrollo de **GS Vera Clinic / CareFlow HomeCare** exige una plataforma web corporativa de alto rendimiento, modular y resiliente para la administración clínica, coordinación de turnos y supervisión de enfermería domiciliaria. Los requisitos fundamentales del sistema incluyen:
+El desarrollo de **Golden Starter V3** exige una plataforma web corporativa de alto rendimiento, modular y resiliente para la administración multi-tenant, coordinación operativa y soporte offline-first. Los requisitos fundamentales del sistema incluyen:
 
-1. **Aislamiento y Seguridad de Datos Clínicos:** Garantizar que los secretos del servidor, la lógica de negocio sensible y las consultas a la base de datos PostgreSQL nunca se filtren al paquete JavaScript del cliente.
+1. **Aislamiento y Seguridad de Datos:** Garantizar que los secretos del servidor, la lógica de negocio sensible y las consultas a la base de datos PostgreSQL nunca se filtren al paquete JavaScript del cliente.
 2. **Arquitectura Unificada de APIs y Renderizado:** Disponibilidad de endpoints HTTP RESTful estandarizados (`/api/**`) que atiendan tanto a la aplicación web como a la aplicación móvil Expo / React Native en campo, compartiendo validación estricta basada en Zod.
-3. **Rendimiento y Carga Rápida:** Reducción drástica del bundle enviado a navegadores de supervisores y tablets clínicas en campo, soportando renderizado en servidor (SSR) y streaming reactivo.
+3. **Rendimiento y Carga Rápida:** Reducción drástica del bundle enviado a navegadores de escritorio y dispositivos móviles en campo, soportando renderizado en servidor (SSR) y streaming reactivo.
 4. **Determinismo y Facilidad Operativa:** Soporte nativo de empaquetado autónomo (`output: 'standalone'`) para despliegue liviano mediante Docker en servidores Linux existentes.
 
 ---

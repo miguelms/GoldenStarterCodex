@@ -4,7 +4,7 @@
  * scripts/extract-golden-starter.mjs
  *
  * Motor de extracción, sanitización y catálogo para la promoción del
- * Golden Starter canónico de CareFlow HomeCare (v1.0.0).
+ * Golden Starter canónico V3 (v3.0.0).
  *
  * Capacidades:
  * - Excluye: .git, node_modules, .next, .expo, dist, logs, .DS_Store, locks temporales, secrets locales.
@@ -165,10 +165,10 @@ function validateManifest(manifestPath) {
   const manifest = JSON.parse(raw);
 
   const errors = [];
-  if (manifest.name !== "careflow-homecare-golden-starter") {
+  if (!manifest.name.startsWith("golden-starter")) {
     errors.push(`Nombre inválido: ${manifest.name}`);
   }
-  if (manifest.version !== "1.0.0") {
+  if (!manifest.version.startsWith("3.") && !manifest.version.startsWith("2.")) {
     errors.push(`Versión inválida: ${manifest.version}`);
   }
   if (!manifest.architecture || !manifest.architecture.framework) {
@@ -240,7 +240,7 @@ Uso: node scripts/extract-golden-starter.mjs [opciones]
 
 Opciones:
   --dry-run        Valida sanitización, integridad y calcula checksum sin tocar el disco.
-  --output, -o     Ruta del archivo o directorio de salida (default: release-artifacts/careflow-homecare-golden-starter-1.0.0.tar.gz)
+  --output, -o     Ruta del archivo o directorio de salida (default: release-artifacts/golden-starter-v3-3.0.0.tar.gz)
   --json           Emite el resultado en formato JSON estructurado.
   --verbose, -v    Muestra el detalle individual de cada archivo incluido.
   --help, -h       Muestra esta ayuda.
@@ -248,7 +248,7 @@ Opciones:
     process.exit(0);
   }
 
-  let outputPath = "release-artifacts/careflow-homecare-golden-starter-1.0.0.tar.gz";
+  let outputPath = "release-artifacts/golden-starter-v3-3.0.0.tar.gz";
   const outIdx = args.findIndex((a) => a === "--output" || a === "-o");
   if (outIdx !== -1 && args[outIdx + 1]) {
     outputPath = args[outIdx + 1];
@@ -399,7 +399,7 @@ Opciones:
 
   // Impresión visual estructurada para consola/CI
   console.log("================================================================================");
-  console.log("       CAREFLOW HOMECARE — MOTOR DE EXTRACCIÓN Y SANITIZACIÓN GOLDEN STARTER     ");
+  console.log("       GOLDEN STARTER V3 — MOTOR DE EXTRACCIÓN Y SANITIZACIÓN                    ");
   console.log("================================================================================");
   console.log(`Starter:           ${manifest.name} (v${manifest.version})`);
   console.log(`Base Ref:          ${manifest.base_ref}`);

@@ -1,4 +1,4 @@
-# Registro de agentes — CareFlow HomeCare
+# Registro de agentes — Golden Starter V3
 
 Instancia: Antigravity project scope, 2026-09-20. Manifiestos: `.agents/agents/<name>/agent.md`.
 

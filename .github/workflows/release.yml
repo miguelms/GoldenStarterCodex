@@ -45,7 +45,7 @@ jobs:
       - name: Package starter distribution archives
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          PACKAGE_NAME="careflow-homecare-v${VERSION}"
+          PACKAGE_NAME="golden-starter-v${VERSION}"
           mkdir -p release-artifacts
 
           # Package git archive in tar.gz and zip formats
@@ -68,7 +68,7 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: CareFlow HomeCare ${{ github.ref_name }}
+          name: Golden Starter V3 ${{ github.ref_name }}
           files: |
             release-artifacts/*.tar.gz
             release-artifacts/*.zip

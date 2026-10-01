@@ -92,7 +92,7 @@ describe("AC-007: Lost Device Policy, Revocation & Offline Sync Quarantine", () 
       expect(processed.deviceId).toBe(revokedDevice.id);
       expect(processed.quarantineReason).toBe(`Device revoked: ${revokedDevice.revocationReason}`);
 
-      // Verify clinical payload is kept intact for audit/investigation
+      // Verify event payload is kept intact for audit/investigation
       expect(processed.payload).toEqual(sampleSyncEvent.payload);
 
       // Validate against Zod quarantine schema
@@ -150,24 +150,24 @@ describe("AC-007: Lost Device Policy, Revocation & Offline Sync Quarantine", () 
       const offlineQueue: SyncEventCandidate[] = [
         {
           clientEventId: "evt-offline-001",
-          type: "vital_sign",
+          type: "telemetry",
           occurredAt: "2026-09-20T09:15:00.000Z",
-          payload: { organizationId: "org-demo-001", name: "glucose", value: 105, unit: "mg/dL" },
+          payload: { organizationId: "org-demo-001", metric: "cpu_usage", value: 45, unit: "percent" },
         },
         {
           clientEventId: "evt-offline-002",
-          type: "soapie",
+          type: "field_note",
           occurredAt: "2026-09-20T09:30:00.000Z",
           payload: {
             organizationId: "org-demo-001",
-            note: "Paciente toleró desayuno adecuadamente.",
+            note: "Operación de campo completada satisfactoriamente.",
           },
         },
         {
           clientEventId: "evt-offline-003",
           type: "task",
           occurredAt: "2026-09-20T09:45:00.000Z",
-          payload: { organizationId: "org-demo-001", taskId: "task-med-001", status: "completed" },
+          payload: { organizationId: "org-demo-001", taskId: "task-field-001", status: "completed" },
         },
       ];
 

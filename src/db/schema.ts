@@ -11,7 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 // =============================================================================
-// GOLDEN STARTER V2 — CORE DATABASE SCHEMA
+// GOLDEN STARTER V3 — CORE DATABASE SCHEMA
 // =============================================================================
 // Clean, multi-tenant relational schema for PostgreSQL 18 + Drizzle ORM.
 // Domain-agnostic foundation: Multi-tenant, Better-Auth, Devices, Outbox Sync,

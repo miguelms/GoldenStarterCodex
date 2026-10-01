@@ -10,11 +10,11 @@
 
 ## 1. Contexto y Planteamiento del Problema
 
-El sistema **GS Vera Clinic / CareFlow HomeCare** procesa información crítica de salud, programación de turnos asistenciales, expedientes médicos regulados (NOM-004-SSA3-2012 / LFPDPPP) y pistas de auditoría inmutables. Los requerimientos no negociables para la capa de persistencia son:
+El sistema **Golden Starter V3** procesa información crítica de negocio, pistas de auditoría inmutables, transacciones concurrentes y aislamiento multi-tenant estricto. Los requerimientos no negociables para la capa de persistencia son:
 
-1. **Garantías Transaccionales Estrictas (ACID):** Atomicidad y consistencia absoluta en el registro de check-ins de enfermería, signos vitales y asignación de órdenes de trabajo.
+1. **Garantías Transaccionales Estrictas (ACID):** Atomicidad y consistencia absoluta en el registro de operaciones de campo, sincronización offline y asignación de órdenes de trabajo.
 2. **Aislamiento Multi-Tenant Robusto:** Toda entidad de negocio debe estar particionada lógicamente por `organization_id`, soportando claves foráneas con integridad referencial restrictiva (`ON DELETE RESTRICT` o ausencia deliberada de borrado físico).
-3. **Manejo Híbrido Relacional + JSONB:** Capacidad de almacenar estructuras semi-estructuradas (eventos de sincronización móvil offline en outbox, payloads de auditoría y addendas clínicas) con indexación eficiente y alto desempeño.
+3. **Manejo Híbrido Relacional + JSONB:** Capacidad de almacenar estructuras semi-estructuradas (eventos de sincronización móvil offline en outbox, payloads de auditoría y metadatos dinámicos) con indexación eficiente y alto desempeño.
 4. **Capacidades Enterprise y Extensiones Nativas:** Soporte nativo para generación de UUIDs, funciones criptográficas (`pgcrypto`), búsqueda de texto eficiente (`pg_trgm`) y telemetría de rendimiento de consultas (`pg_stat_statements`).
 5. **Estabilidad a Largo Plazo (LTS):** Base de datos con amplio ciclo de vida de soporte, respaldada por la comunidad y con utilidades maduras de respaldo lógico y físico (`pg_dump`, `pg_restore`, replicación streaming).
 
@@ -27,15 +27,15 @@ El sistema **GS Vera Clinic / CareFlow HomeCare** procesa información crítica 
 - **Descripción:** Motores relacionales estándar de amplia difusión comercial.
 - **Razón de Descarte:**
   - El soporte para JSON semi-estructurado es inferior: almacena JSON como texto binario pero carece de índices especializados de inversión (GIN / GiST) comparables a los de PostgreSQL para consultar atributos internos con alto volumen de registros.
-  - Mayor permisividad histórica en conversión de tipos de datos en modo permisivo, lo cual contraviene la rigurosidad requerida en expedientes médicos.
+  - Mayor permisividad histórica en conversión de tipos de datos en modo permisivo, lo cual contraviene la rigurosidad requerida en aplicaciones empresariales.
   - Menor integración y optimización en las herramientas modernas del ecosistema TypeScript/Drizzle (`postgres.js`).
 
 ### 2.2 Opción B: Bases de Datos de Documentos NoSQL (MongoDB, DynamoDB)
 
 - **Descripción:** Almacenamiento basado en colecciones de documentos JSON sin esquema rígido.
 - **Razón de Descarte:**
-  - Carecen de integridad referencial declarativa en el motor. En un entorno médico multi-tenant, garantizar que un registro clínico no quede huérfano o sea asociado a un tenant erróneo recaería enteramente en la capa de aplicación, elevando el riesgo de corrupción de datos.
-  - La auditoría estricta de pistas inmutables y la verificación formal de retención legal (5 años NOM-004) requieren consultas relacionales complejas y uniones transaccionales no nativas en NoSQL.
+  - Carecen de integridad referencial declarativa en el motor. En un entorno multi-tenant, garantizar que un registro no quede huérfano o sea asociado a un tenant erróneo recaería enteramente en la capa de aplicación, elevando el riesgo de corrupción de datos.
+  - La auditoría estricta de pistas inmutables y la verificación formal de retención legal requieren consultas relacionales complejas y uniones transaccionales no nativas en NoSQL.
 
 ### 2.3 Opción C: SQLite Centralizado en Servidor
 
@@ -53,7 +53,7 @@ El sistema **GS Vera Clinic / CareFlow HomeCare** procesa información crítica 
 
 ## 3. Decisión Adoptada
 
-Se ratifica a **PostgreSQL 18** (imagen oficial `postgres:18-alpine`) como el **motor de base de datos relacional primario estándar** para el starter de GS Vera Clinic en desarrollo, staging y producción.
+Se ratifica a **PostgreSQL 18** (imagen oficial `postgres:18-alpine`) como el **motor de base de datos relacional primario estándar** para Golden Starter V3 en desarrollo, staging y producción.
 
 ### Directrices de Implementación:
 
@@ -61,13 +61,13 @@ Se ratifica a **PostgreSQL 18** (imagen oficial `postgres:18-alpine`) como el **
    - Todo modelo de datos reside en `src/db/schema.ts` utilizando las primitivas tipadas de Drizzle (`pgTable`, `uuid`, `varchar`, `timestamp`, `jsonb`, `boolean`, `integer`).
    - Las migraciones incrementales se generan y ejecutan exclusivamente mediante Drizzle Kit (`npm run db:generate`, `npm run db:migrate`), generando archivos SQL puros en `drizzle/` sujetos a control de versiones.
 2. **Campos JSONB Indexados:**
-   - La tabla `sync_events` utiliza `payload: jsonb("payload").notNull()` para retener el contenido de eventos offline de enfermería antes de su conciliación final.
+   - La tabla `sync_events` utiliza `payload: jsonb("payload").notNull()` para retener el contenido de eventos offline antes de su conciliación final.
    - La tabla `audit_entries` utiliza `metadata: jsonb("metadata")` para registrar detalles contextuales de auditoría sin modificar el esquema relacional ante nuevos atributos de telemetría.
 3. **Aislamiento Multi-Tenant Estricto:**
    - Todas las tablas de dominio contienen la columna `organization_id uuid NOT NULL REFERENCES organizations(id)`.
    - Índices compuestos en `(organization_id, id)` y `(organization_id, created_at)` aseguran que las consultas analíticas y de auditoría nunca ejecuten escaneos completos entre organizaciones distintas.
-4. **Integridad Transaccional NOM-004-SSA3-2012:**
-   - Prohibición deliberada de borrado físico (`DELETE CASCADE`). Los expedientes clínicos se archivan lógicamente mediante `status = 'archived'` y campos de auditoría inmutables (`archived_at`, `archived_by`, `archive_reason`).
+4. **Integridad Transaccional y Archivo Lógico:**
+   - Prohibición deliberada de borrado físico indiscriminado. Las entidades reguladas se archivan lógicamente mediante `status = 'archived'` y campos de auditoría inmutables (`archived_at`, `archived_by`, `archive_reason`).
 
 ---
 

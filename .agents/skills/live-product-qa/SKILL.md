@@ -1,6 +1,6 @@
 ---
 name: live-product-qa
-description: Facilita una sesión interactiva de preguntas y respuestas entre el usuario y el agente PM, registra decisiones y evita convertir supuestos clínicos, legales o de privacidad en requisitos sin aprobación.
+description: Facilita una sesión interactiva de preguntas y respuestas entre el usuario y el agente PM, registra decisiones y evita convertir supuestos de negocio, legales o de privacidad en requisitos sin aprobación.
 ---
 
 # Live product Q&A
@@ -14,7 +14,7 @@ Usa esta skill cuando un PRD tenga preguntas abiertas, respuestas contradictoria
 3. Separa preguntas bloqueantes, importantes y opcionales.
 4. Haz una pregunta bloqueante por turno. Permite preguntas del usuario y responde con alternativas, impacto y evidencia.
 5. Etiqueta cada intercambio como `DECISION`, `ASSUMPTION`, `RECOMMENDATION`, `BLOCKER` o `QUESTION`.
-6. Nunca inventes rangos clínicos, requisitos legales, consentimiento, retención ni permisos nativos. Marca `BLOCKER` y deriva al responsable.
+6. Nunca inventes reglas de negocio críticas, requisitos legales, consentimiento, retención ni permisos nativos. Marca `BLOCKER` y deriva al responsable.
 7. Revisa contradicciones con respuestas previas antes de aceptar una decisión.
 8. Actualiza PRD, preguntas, tareas y ADRs solamente con decisiones confirmadas.
 9. Devuelve `READY`, `BLOCKED` o `NEEDS_REVIEW` y un resumen trazable al SHA.
@@ -24,7 +24,7 @@ Usa esta skill cuando un PRD tenga preguntas abiertas, respuestas contradictoria
 - No implementes código del producto durante la sesión.
 - No cambies el proveedor, el stack o el alcance sensible por conveniencia del agente.
 - No marques `READY` si queda una decisión bloqueante sin responsable.
-- No incluyas secretos ni datos clínicos reales en el transcript.
+- No incluyas secretos ni datos sensibles reales en el transcript.
 
 ## Resultado mínimo
 

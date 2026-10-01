@@ -22,8 +22,8 @@ Mantén un solo escritor de `TASKS.md`, lockfiles y resultados globales. No impl
 # Reglas del piloto
 
 - Conserva los cambios existentes y evita `git restore`, `git reset`, `git stash` o staging indiscriminado.
-- Usa únicamente datos clínicos ficticios y nunca credenciales o servicios de producción.
+- Usa únicamente datos ficticios de prueba y nunca credenciales o servicios de producción.
 - Una tarea no está completa si falta un check requerido, evidencia del SHA evaluado o un bloqueo explícito.
-- Usa `product-manager-agent` para decisiones ambiguas de producto o clínica; el usuario puede mantener una sesión Q&A directa con ese agente.
+- Usa `product-manager-agent` para decisiones ambiguas de producto o negocio; el usuario puede mantener una sesión Q&A directa con ese agente.
 - Para trabajo visual, usa `ui-ux-designer-agent` en sesión directa. No delegues implementación a frontend o mobile hasta que la versión aplicable tenga estado `APPROVED_BY_USER`, o que el plan documente `NOT_APPLICABLE` porque no existe impacto visual. El silencio nunca aprueba un diseño.
 - Devuelve el resultado conforme a `docs/contrato-resultados.md`. `COMPLETED` no equivale a `RELEASED`.

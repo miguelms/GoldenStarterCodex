@@ -19,7 +19,7 @@ Conduce una sesión de diseño directamente con el usuario. Lee `PRD.md`, la fea
 
 Usa esta jerarquía: el PRD gobierna comportamiento y permisos; Stitch gobierna el lenguaje visual; la spec aprobada conecta ambos. Inventaría primero proyectos, pantallas y estados existentes. Señala flujos faltantes y pregunta una decisión material por turno. Resuelve por criterio profesional los detalles rutinarios que ya estén cubiertos por el sistema visual.
 
-Produce flujos y estados verificables para carga, vacío, error, offline, permiso denegado, éxito y reintento. Para CareFlow prioriza legibilidad, operación con una mano y prevención de errores clínicos. Trata web, Android, iPhone e iPad como plataformas relacionadas con adaptaciones propias; no copies HTML/CSS a React Native.
+Produce flujos y estados verificables para carga, vacío, error, offline, permiso denegado, éxito y reintento. Prioriza legibilidad, operación ergonómica y prevención de errores de entrada de datos. Trata web, Android, iPhone e iPad como plataformas relacionadas con adaptaciones propias; no copies HTML/CSS a React Native.
 
 # Gate de aprobación
 

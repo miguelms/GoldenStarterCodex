@@ -1,10 +1,10 @@
 # Runbook de Operaciones: Despliegue en Staging, Migraciones, Builds Móviles y Respuesta a Incidentes
 
-## GS Vera Clinic / CareFlow HomeCare — v1.0.0
+## Golden Starter V3 — v3.0.0
 
-- **Versión del Runbook:** 1.0.0
-- **Fecha de Emisión:** 2026-09-21
-- **Base SHA Evaluada:** `18c101c`
+- **Versión del Runbook:** 3.0.0
+- **Fecha de Emisión:** 2026-09-30
+- **Base SHA Evaluada:** `main`
 - **Estado:** CANÓNICO (Aprobado para Operaciones de Campo y Staging)
 - **Autor y Mantenedores:** `docs-agent` en coordinación con `platform-release-agent`, `infra-data-agent`, `sre-agent` y `devops-agent`
 - **Referencias Técnicas:** [`docs/operations/enterprise-runbook.md`](enterprise-runbook.md), [`docs/adr/README.md`](../adr/README.md), [`docker-compose.staging.yml`](../../docker-compose.staging.yml), [`Dockerfile`](../../Dockerfile), [`apps/mobile/eas.json`](../../apps/mobile/eas.json), [`scripts/validate-staging-env.mjs`](../../scripts/validate-staging-env.mjs), [`docs/security/infrastructure-ci-security-review.md`](../security/infrastructure-ci-security-review.md)
@@ -13,13 +13,13 @@
 
 ## 1. Propósito y Alcance
 
-Este manual de operaciones (_Standard Operating Procedure_ - SOP) proporciona las instrucciones detalladas y reproducibles para el despliegue, mantenimiento, compilación de binarios móviles y gestión de incidentes de seguridad en el entorno de **Staging** y pre-producción de CareFlow HomeCare.
+Este manual de operaciones (_Standard Operating Procedure_ - SOP) proporciona las instrucciones detalladas y reproducibles para el despliegue, mantenimiento, compilación de binarios móviles y gestión de incidentes de seguridad en el entorno de **Staging** y pre-producción de Golden Starter V3.
 
 ### 1.1 Entornos Cubiertos
 
 - **Staging Local / Nube Privada:** Orquestación basada en Docker Compose v2 sobre instancias Linux (ej. AWS EC2, servidores on-premise de prueba).
-- **Canal de Pruebas Móviles:** Distribución de APKs independientes para teléfonos físicos de campo del personal de enfermería mediante perfiles EAS Build.
-- **Base de Datos Persistente:** PostgreSQL 16 Alpine con volúmenes nombrados y comprobación de integridad (_healthchecks_).
+- **Canal de Pruebas Móviles:** Distribución de APKs independientes para teléfonos físicos de campo mediante perfiles EAS Build.
+- **Base de Datos Persistente:** PostgreSQL 18/16 Alpine con volúmenes nombrados y comprobación de integridad (_healthchecks_).
 
 ---
 
@@ -38,7 +38,7 @@ Este manual de operaciones (_Standard Operating Procedure_ - SOP) proporciona la
 
 ### 2.2 Configuración y Validación de Variables de Entorno
 
-El entorno de staging utiliza variables de entorno 100% sintéticas, garantizando que ninguna credencial de producción ni datos de pacientes reales ingresen a la infraestructura de prueba.
+El entorno de staging utiliza variables de entorno 100% sintéticas, garantizando que ninguna credencial de producción ni datos reales ingresen a la infraestructura de prueba.
 
 ```bash
 # 1. Copiar la plantilla oficial si no existe .env.staging
@@ -67,7 +67,7 @@ node scripts/validate-staging-env.mjs
   ✓ [VALID]   BETTER_AUTH_SECRET = stag***cure (length: 64)
   ✓ [VALID]   BETTER_AUTH_URL = http://localhost:3005
   ✓ [VALID]   NEXT_PUBLIC_API_URL = http://localhost:3005
-  ✓ [VALID]   NEXT_PUBLIC_APP_NAME = CareFlow HomeCare (Staging)
+  ✓ [VALID]   NEXT_PUBLIC_APP_NAME = Golden Starter (Staging)
   ✓ [VALID]   NEXT_PUBLIC_GEOFENCE_RADIUS_METERS = 75
 ✅ Staging environment validation SUCCESSFUL (9 variables verified, 0 secrets exposed, 100% fictitious & functional).
 ```
@@ -92,9 +92,9 @@ docker compose -f docker-compose.staging.yml ps
 **Salida esperada de `ps`:**
 
 ```text
-NAME                    IMAGE                           COMMAND                  SERVICE   CREATED          STATUS                    PORTS
-careflow_db_staging     postgres:16-alpine              "docker-entrypoint.s…"   db        10 seconds ago   Up 9 seconds (healthy)    127.0.0.1:5432->5432/tcp
-careflow_web_staging    careflow-homecare-web:staging   "node server.js"         web       9 seconds ago    Up 8 seconds (healthy)    0.0.0.0:3005->3005/tcp
+NAME                    IMAGE                   COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+starter_db_staging      postgres:18-alpine      "docker-entrypoint.s…"   db        10 seconds ago   Up 9 seconds (healthy)    127.0.0.1:5432->5432/tcp
+starter_web_staging     starter-web:staging     "node server.js"         web       9 seconds ago    Up 8 seconds (healthy)    0.0.0.0:3005->3005/tcp
 ```
 
 ---
@@ -103,10 +103,10 @@ careflow_web_staging    careflow-homecare-web:staging   "node server.js"        
 
 ```mermaid
 flowchart TD
-    Up[docker compose up -d] --> StartDB[Inicia careflow_db_staging]
-    StartDB --> CheckDB{Healthcheck DB:<br/>pg_isready -U staging_careflow_user}
+    Up[docker compose up -d] --> StartDB[Inicia starter_db_staging]
+    StartDB --> CheckDB{Healthcheck DB:<br/>pg_isready -U staging_user}
     CheckDB -- Incompleto / Arrancando --> WaitDB[Espera intervalo 5s] --> CheckDB
-    CheckDB -- healthy (exit 0) --> StartWeb[Inicia careflow_web_staging<br/>(depends_on: db healthy)]
+    CheckDB -- healthy (exit 0) --> StartWeb[Inicia starter_web_staging<br/>(depends_on: db healthy)]
     StartWeb --> Standalone[Node server.js bajo usuario no-root UID 1001]
     Standalone --> CheckWeb{Healthcheck Web:<br/>fetch /api/health}
     CheckWeb -- Esperando puerto 3005 --> WaitWeb[Espera intervalo 10s] --> CheckWeb
@@ -123,16 +123,16 @@ curl -i http://127.0.0.1:3005/api/health
 
 ```json
 {
-  "service": "careflow-web",
+  "service": "starter-web",
   "status": "ok",
-  "version": "0.1.0"
+  "version": "3.0.0"
 }
 ```
 
 #### Persistencia de PostgreSQL:
 
-- Los datos residen en el volumen Docker con nombre `careflow_staging_data`, mapeado a `/var/lib/postgresql/data`.
-- Para detener el servicio sin destruir los registros médicos y de auditoría:
+- Los datos residen en el volumen Docker con nombre `starter_staging_data`, mapeado a `/var/lib/postgresql/data`.
+- Para detener el servicio sin destruir los registros y auditoría:
   ```bash
   docker compose -f docker-compose.staging.yml down
   # NUNCA utilizar la bandera -v o --volumes en operaciones normales de staging
@@ -142,7 +142,7 @@ curl -i http://127.0.0.1:3005/api/health
 
 ## 3. Flujo de Migraciones Drizzle y Fixtures Ficticios
 
-El esquema relacional de CareFlow HomeCare se gestiona mediante Drizzle ORM y Drizzle Kit, asegurando trazabilidad formal de cambios mediante archivos SQL versionados en `drizzle/`.
+El esquema relacional de Golden Starter V3 se gestiona mediante Drizzle ORM y Drizzle Kit, asegurando trazabilidad formal de cambios mediante archivos SQL versionados en `drizzle/`.
 
 ### 3.1 Generación de Nuevas Migraciones de Esquema
 
@@ -155,30 +155,30 @@ npm run db:generate
 
 ### 3.2 Aplicación de Migraciones en la Base de Datos de Staging
 
-Con el contenedor `careflow_db_staging` activo y saludable:
+Con el contenedor `starter_db_staging` activo y saludable:
 
 ```bash
 # 1. Exportar la URL de conexión apuntando a PostgreSQL de staging
-export DATABASE_URL="postgresql://staging_careflow_user:staging_mock_secure_password_careflow_2026!@127.0.0.1:5432/careflow_staging"
+export DATABASE_URL="postgresql://staging_user:staging_secure_password_2026!@127.0.0.1:5432/starter_staging"
 
 # 2. Ejecutar la migración relacional
 npm run db:migrate
 ```
 
-### 3.3 Carga de Fixtures Sintéticos (Datos Clínicos de Prueba)
+### 3.3 Carga de Fixtures Sintéticos (Datos de Prueba)
 
 Para poblar la base de datos de staging con los escenarios de prueba certificados:
 
 ```bash
-# Ejecutar el script de inserción de fixtures (organización, usuarios por rol, pacientes y turnos)
+# Ejecutar el script de inserción de fixtures (organización, usuarios por rol)
 node -e '
 const postgres = require("postgres");
-const sql = postgres(process.env.DATABASE_URL || "postgresql://staging_careflow_user:staging_mock_secure_password_careflow_2026!@127.0.0.1:5432/careflow_staging");
+const sql = postgres(process.env.DATABASE_URL || "postgresql://staging_user:staging_secure_password_2026!@127.0.0.1:5432/starter_staging");
 
 async function seed() {
   console.log("Cargando fixtures sintéticos en staging...");
-  // La inserción preserva IDs sintéticos fijos (org-demo-001, usr-caregiver-4821, pat-ficticio-001)
-  console.log("✓ Fixtures cargados con éxito (100% datos sintéticos conformes a NOM-004/LFPDPPP)");
+  // La inserción preserva IDs sintéticos fijos (org-demo-001, usr-admin-001)
+  console.log("✓ Fixtures cargados con éxito (100% datos sintéticos)");
   await sql.end();
 }
 seed().catch(err => { console.error(err); process.exit(1); });
@@ -189,7 +189,7 @@ seed().catch(err => { console.error(err); process.exit(1); });
 
 ## 4. Operación de Compilaciones Móviles con EAS Build
 
-La aplicación móvil de enfermería (`apps/mobile`) está configurada en [`apps/mobile/eas.json`](../../apps/mobile/eas.json) para soportar tres flujos de entrega operacional:
+La aplicación móvil (`apps/mobile`) está configurada en [`apps/mobile/eas.json`](../../apps/mobile/eas.json) para soportar tres flujos de entrega operacional:
 
 ```mermaid
 flowchart LR
@@ -198,17 +198,17 @@ flowchart LR
     EAS -- preview --> PreviewAPK[APK Independiente para Pruebas de Campo]
     EAS -- production --> ProdBundle[Android AAB / iOS IPA para Tiendas Oficiales]
 
-    PreviewAPK --> FieldTest[Sideloading en Teléfonos Físicos de Enfermería]
+    PreviewAPK --> FieldTest[Sideloading en Teléfonos Físicos de Campo]
     ProdBundle --> Stores[Google Play Console / Apple App Store]
 ```
 
 ### 4.1 Perfiles Oficiales de EAS Build
 
-| Perfil            | Canal (`channel`) | Tipo de Binario              | Distribución | Propósito Operativo                                                                     |
-| :---------------- | :---------------- | :--------------------------- | :----------- | :-------------------------------------------------------------------------------------- |
-| **`development`** | local             | APK Android / Sim iOS        | `internal`   | Desarrollo interactivo con depuración activa de React Native.                           |
-| **`preview`**     | `staging`         | **APK Independiente**        | `internal`   | **Pruebas de campo de enfermería**. Se instala directo por USB/descarga sin Play Store. |
-| **`production`**  | `production`      | App Bundle (`.aab`) / `.ipa` | Tienda       | Entrega final certificada con auto-incremento de versión.                               |
+| Perfil            | Canal (`channel`) | Tipo de Binario              | Distribución | Propósito Operativo                                                                 |
+| :---------------- | :---------------- | :--------------------------- | :----------- | :---------------------------------------------------------------------------------- |
+| **`development`** | local             | APK Android / Sim iOS        | `internal`   | Desarrollo interactivo con depuración activa de React Native.                       |
+| **`preview`**     | `staging`         | **APK Independiente**        | `internal`   | **Pruebas de campo**. Se instala directo por USB/descarga sin Play Store.           |
+| **`production`**  | `production`      | App Bundle (`.aab`) / `.ipa` | Tienda       | Entrega final certificada con auto-incremento de versión.                           |
 
 ---
 
@@ -267,7 +267,7 @@ sequenceDiagram
     actor Thief as Dispositivo Extraviado (Móvil)
     participant Sync as Endpoint /api/sync
 
-    Admin->>API: POST /api/devices/{id}/revoke { reason: "Teléfono robado" }
+    Admin->>API: POST /api/devices/{id}/revoke { reason: "Teléfono reportado extraviado" }
     API->>Store: Marca device.status = 'revoked'
     API->>Store: Inserta DEVICE_REVOKED en audit_entries
     API-->>Admin: 200 OK (Dispositivo Revocado)
@@ -278,7 +278,7 @@ sequenceDiagram
     Sync->>Store: Desvía eventos a status = 'review_required' (Quarantine Outbox)
     Sync->>Store: Registra SYNC_EVENT_QUARANTINED en audit_entries
     Sync-->>Thief: 200 OK (Eventos retenidos en cuarentena)
-    Note over Sync,Admin: Ningún dato se inserta en expediente activo
+    Note over Sync,Admin: Ningún dato se inserta en almacenamiento activo
 ```
 
 #### Procedimiento de Ejecución Inmediata:
@@ -292,14 +292,14 @@ sequenceDiagram
      -H "x-user-id: usr-admin-global" \
      -H "x-user-role: admin_global" \
      -d '{
-       "revocationReason": "Dispositivo reportado como extraviado durante turno vespertino en Tijuana Centro",
+       "revocationReason": "Dispositivo reportado como extraviado en campo",
        "revokedBy": "usr-admin-global"
      }'
    ```
 2. **Aislamiento en Cuarentena (_Quarantine Outbox_):**
    - A partir de este instante, el módulo de dominio `src/domain/devices.ts` intercepta cualquier lote de sincronización emitido por el dispositivo.
    - Los eventos reciben automáticamente `status: "review_required"` y quedan congelados con el motivo `quarantineReason`.
-   - Ninguna nota, procedimiento o signo vital recibido de este dispositivo se publica en el expediente activo del paciente hasta que la Jefa de Enfermeras (`clinical_lead`) y el oficial de privacidad emitan un dictamen explícito de liberación.
+   - Ningún evento recibido de este dispositivo se publica en el almacén de datos activo hasta que el administrador de la organización (`org_admin` o `admin_global`) emita un dictamen explícito de liberación.
 3. **Purga Remota en el Cliente Móvil:**
    - La aplicación móvil, al recibir la notificación de revocación en la siguiente llamada a la red, ejecuta la purga de la base de datos local SQLite y la eliminación inmediata de tokens en SecureStore.
 
@@ -318,8 +318,8 @@ echo "Nuevo BETTER_AUTH_SECRET generado: ${NEW_AUTH_SECRET:0:8}***"
 NEW_DB_PASSWORD=$(openssl rand -hex 16)
 
 # Paso 3: Actualizar la contraseña en el motor PostgreSQL en ejecución
-docker exec -it careflow_db_staging psql -U staging_careflow_user -d careflow_staging -c \
-  "ALTER USER staging_careflow_user WITH PASSWORD '${NEW_DB_PASSWORD}';"
+docker exec -it starter_db_staging psql -U staging_user -d starter_staging -c \
+  "ALTER USER staging_user WITH PASSWORD '${NEW_DB_PASSWORD}';"
 
 # Paso 4: Actualizar el archivo .env.staging con las nuevas credenciales
 # (Reemplazar BETTER_AUTH_SECRET y actualizar POSTGRES_URL / DATABASE_URL con NEW_DB_PASSWORD)
@@ -357,7 +357,7 @@ docker compose -f docker-compose.staging.yml logs -f --tail=100 db
 | Contenedor `web` en estado `Restarting` o `unhealthy` | Falla de conexión a `db` o `DATABASE_URL` inválida | Revisar logs con `docker compose logs web`. Verificar que `db` esté `healthy`.                  |
 | Error `403 CROSS_ORG_ACCESS_DENIED` en API            | Cabecera `x-organization-id` ausente o discrepante | Asegurar que las peticiones cliente incluyan la cabecera correspondiente al tenant del recurso. |
 | Eventos de sincronización no visibles en expediente   | Dispositivo en estado `revoked` (Cuarentena)       | Inspeccionar `sync_events` filtrando por `status = review_required` y auditar `audit_entries`.  |
-| Check-in rechazado en app móvil                       | Dispositivo a > 50m o GPS degradado                | Utilizar el diálogo de **Excepción de Geocerca** justificando el motivo conforme a NOM-004.     |
+| Check-in rechazado en app móvil                       | Dispositivo a > 50m o GPS degradado                | Utilizar el diálogo de **Excepción de Geocerca** justificando el motivo correspondiente en el catálogo de excepciones. |
 
 ---
 

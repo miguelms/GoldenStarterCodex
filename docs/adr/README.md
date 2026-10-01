@@ -1,6 +1,6 @@
 # Registro de Decisiones de Arquitectura (ADRs)
 
-## GS Vera Clinic / CareFlow HomeCare
+## Golden Starter V3
 
 Este directorio alberga los **Registros de Decisiones de Arquitectura** (_Architectural Decision Records_ - ADR) del proyecto. Cada documento describe formalmente una decisión técnica estructural adoptada, su contexto de negocio, las alternativas evaluadas, y sus ventajas y compromisos.
 
@@ -11,7 +11,7 @@ Este directorio alberga los **Registros de Decisiones de Arquitectura** (_Archit
 | [`ADR-001`](ADR-001-direct-nextjs.md)                | **Adopción Directa de Next.js** (App Router, RSC, Route Handlers, TypeScript)                                                | ACEPTADO | 2026-09-21 | Frontend Web y Capa API              |
 | [`ADR-002`](ADR-002-postgresql-18.md)                | **PostgreSQL 18 como Motor Relacional Primario Estándar** (ACID estricto, JSONB nativo, extensiones enterprise, soporte LTS) | ACEPTADO | 2026-09-21 | Base de Datos y Persistencia         |
 | [`ADR-003`](ADR-003-better-auth.md)                  | **Better Auth para Autenticación Multi-Tenant Autónoma sin Vendor Lock-in**                                                  | ACEPTADO | 2026-09-21 | Seguridad, Autenticación y RBAC      |
-| [`ADR-004`](ADR-004-private-s3-storage.md)           | **Almacenamiento Privado S3 con URLs Firmadas Temporales para Archivos Protegidos**                                          | ACEPTADO | 2026-09-21 | Almacenamiento y Documentos Clínicos |
+| [`ADR-004`](ADR-004-private-s3-storage.md)           | **Almacenamiento Privado S3 con URLs Firmadas Temporales para Archivos Protegidos**                                          | ACEPTADO | 2026-09-21 | Almacenamiento y Archivos Protegidos |
 | [`ADR-005`](ADR-005-docker-compose-orchestration.md) | **Orquestación con Docker Compose para Staging y Producción en Servidores Existentes**                                       | ACEPTADO | 2026-09-21 | Infraestructura, SRE y Despliegues   |
 
 ---

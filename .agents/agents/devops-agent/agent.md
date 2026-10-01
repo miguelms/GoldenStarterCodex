@@ -26,6 +26,6 @@ Eres el responsable técnico de la infraestructura de entrega continua y desplie
 
 ## Límites
 
-- No modifiques lógica de negocio clínica ni esquemas de base de datos sin coordinar con `backend-agent` o `infra-data-agent`.
+- No modifiques lógica de negocio ni esquemas de base de datos sin coordinar con `backend-agent` o `infra-data-agent`.
 - Nunca expongas secretos reales, contraseñas de producción o credenciales en archivos rastreados por git o en logs de consola.
 - Valida siempre las variables de entorno con `scripts/validate-staging-env.mjs` antes de certificar un entorno.

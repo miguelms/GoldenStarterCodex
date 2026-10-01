@@ -46,17 +46,16 @@ export interface ResponsiveShellProps {
 }
 
 const DEFAULT_ORGS: OrganizationOption[] = [
-  { id: "org-demo-001", name: "GS Vera Clinic (CDMX)", code: "CDMX" },
-  { id: "org-demo-002", name: "GS Vera Clinic (Monterrey)", code: "MTY" },
-  { id: "org-demo-003", name: "GS Vera Clinic (Guadalajara)", code: "GDL" },
+  { id: "org-demo-001", name: "Organización Demo (Norte)", code: "NORTE" },
+  { id: "org-demo-002", name: "Organización Demo (Centro)", code: "CENTRO" },
+  { id: "org-demo-003", name: "Organización Demo (Sur)", code: "SUR" },
 ];
 
 const DEFAULT_NAV: NavigationItem[] = [
-  { label: "Agenda & Turnos", href: "/supervisor", active: true, icon: "📅" },
-  { label: "Órdenes de Trabajo", href: "/work-orders", icon: "📋", badge: "3" },
-  { label: "Pacientes", href: "/patients", icon: "👥" },
-  { label: "Signos Vitales", href: "/vitals", icon: "🩺" },
+  { label: "Panel Principal", href: "/", active: true, icon: "📊" },
+  { label: "Entidades / Registros", href: "/records", icon: "📁", badge: "3" },
   { label: "Sincronización Offline", href: "/sync", icon: "🔄" },
+  { label: "Auditoría de Eventos", href: "/audit", icon: "📜" },
   { label: "Configuración Tenant", href: "/settings", icon: "⚙" },
 ];
 
@@ -64,12 +63,11 @@ function getRoleBadgeVariant(role: string): BadgeVariant {
   switch (role) {
     case "admin_global":
       return "slate";
-    case "clinical_lead":
+    case "org_admin":
       return "teal";
-    case "supervisor":
+    case "manager":
       return "info";
-    case "nurse":
-    case "caregiver":
+    case "member":
       return "success";
     default:
       return "neutral";
@@ -80,16 +78,14 @@ function formatRoleName(role: string): string {
   switch (role) {
     case "admin_global":
       return "Admin Global";
-    case "clinical_lead":
-      return "Jefa de Enfermeras";
-    case "supervisor":
-      return "Supervisor";
-    case "coordinator":
-      return "Coordinador";
-    case "nurse":
-      return "Enfermera";
-    case "caregiver":
-      return "Cuidadora";
+    case "org_admin":
+      return "Admin Organización";
+    case "manager":
+      return "Manager";
+    case "member":
+      return "Miembro";
+    case "viewer":
+      return "Visualizador";
     default:
       return role;
   }
@@ -97,16 +93,16 @@ function formatRoleName(role: string): string {
 
 export function ResponsiveShell({
   children,
-  brandTitle = "GS Vera Clinic",
-  brandSubtitle = "Enterprise Healthcare Platform",
+  brandTitle = "Golden Starter",
+  brandSubtitle = "Enterprise Monorepo Platform",
   navigationItems = DEFAULT_NAV,
   organizations = DEFAULT_ORGS,
   currentOrganizationId = "org-demo-001",
   onOrganizationChange,
   user = {
-    name: "Dra. Elena Ramos",
-    email: "elena.ramos@veraclinic.com",
-    role: "clinical_lead",
+    name: "Admin Demo",
+    email: "admin@starter.local",
+    role: "admin_global",
   },
   onRoleChange,
   onLogout,
@@ -149,7 +145,7 @@ export function ResponsiveShell({
           {!sidebarCollapsed ? (
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0D9488] text-white font-bold text-sm shadow-sm">
-                VC
+                GS
               </div>
               <div className="truncate">
                 <div className="font-extrabold text-sm text-[#0B1C30] tracking-tight truncate">
@@ -162,7 +158,7 @@ export function ResponsiveShell({
             </div>
           ) : (
             <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#0D9488] text-white font-bold text-sm shadow-sm">
-              VC
+              GS
             </div>
           )}
 
@@ -217,7 +213,7 @@ export function ResponsiveShell({
                   <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] inline-block" /> Activo
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 font-mono">v1.0.0 · NOM-004</div>
+              <div className="text-[10px] text-slate-400 font-mono">v3.0.0 · Core Engine</div>
             </div>
           ) : (
             <div className="flex justify-center" title="v1.0.0 Activo">
@@ -245,7 +241,7 @@ export function ResponsiveShell({
             <div className="h-16 border-b border-[#E2E8F0] flex items-center justify-between px-4 bg-slate-50">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0D9488] text-white font-bold text-xs">
-                  VC
+                  GS
                 </div>
                 <div>
                   <div className="font-extrabold text-sm text-[#0B1C30]">{brandTitle}</div>
@@ -398,10 +394,10 @@ export function ResponsiveShell({
                   onChange={(e) => onRoleChange(e.target.value as Role)}
                   className="rounded-xl border border-[#E2E8F0] bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-[#0D9488]"
                 >
-                  <option value="clinical_lead">Jefa Enf.</option>
-                  <option value="supervisor">Supervisor</option>
                   <option value="admin_global">Admin Global</option>
-                  <option value="caregiver">Cuidadora</option>
+                  <option value="org_admin">Admin Org</option>
+                  <option value="manager">Manager</option>
+                  <option value="member">Miembro</option>
                 </select>
               </div>
             )}

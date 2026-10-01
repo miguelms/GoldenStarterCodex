@@ -1,4 +1,4 @@
-# Plan de calidad — CareFlow HomeCare
+# Plan de calidad — Golden Starter V3
 
 Owner: qa. SHA objetivo: pendiente. Plataformas: web, Android/iOS development builds.
 
@@ -48,4 +48,4 @@ Un cambio visual requiere una spec versionada con estado `APPROVED_BY_USER`, ref
 ## Veredicto
 
 Inicial: NOT_RUN. Estado actual: APPROVED (con excepción técnica de desarrollo v0.1 registrada).
-Bloqueos/riesgos y recuperación: 21 vulnerabilidades transitivas reportadas por `npm audit` en dependencias de desarrollo y test (`vitest`, `esbuild`, `@vitest/mocker`, `decode-uri-component`, `uuid`). Se registra la excepción técnica formal para el piloto local v0.1: no afectan el runtime de producción ni exponen endpoints, y el código de la aplicación utiliza exclusivamente datos clínicos ficticios. Todos los checks funcionales, de tipos, lint, unit, integración y visuales cumplen en PASS. Veredicto del starter v0.1: APPROVED.
+Bloqueos/riesgos y recuperación: 21 vulnerabilidades transitivas reportadas por `npm audit` en dependencias de desarrollo y test (`vitest`, `esbuild`, `@vitest/mocker`, `decode-uri-component`, `uuid`). Se registra la excepción técnica formal para el piloto local v0.1: no afectan el runtime de producción ni exponen endpoints, y el código de la aplicación utiliza exclusivamente datos de prueba sintéticos y ficticios. Todos los checks funcionales, de tipos, lint, unit, integración y visuales cumplen en PASS. Veredicto del starter v0.1: APPROVED.

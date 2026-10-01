@@ -13,7 +13,7 @@ Usa esta skill para desplegar y operar la aplicación en servidores virtuales (V
 
 - **Sistema Operativo Recomendado:** Ubuntu 24.04 LTS o Ubuntu 22.04 LTS (x86_64 o arm64).
 - **Dimensionamiento Mínimo:** 2 vCPU, 4 GB RAM, 40 GB SSD.
-- **Dominio Público:** Un dominio o subdominio apuntando con un registro DNS `A` a la dirección IP pública del servidor (ej. `app.veraclinic.com -> 198.51.100.24`).
+- **Dominio Público:** Un dominio o subdominio apuntando con un registro DNS `A` a la dirección IP pública del servidor (ej. `app.example.com -> 198.51.100.24`).
 
 ### 1.1 Preparación Inicial del Sistema Operativo
 Conéctate por SSH al servidor y ejecuta:
@@ -53,12 +53,12 @@ docker compose version
 
 ```bash
 # Directorio estándar de despliegue
-sudo mkdir -p /opt/vera-clinic
-sudo chown -R $USER:$USER /opt/vera-clinic
-cd /opt/vera-clinic
+sudo mkdir -p /opt/golden-starter
+sudo chown -R $USER:$USER /opt/golden-starter
+cd /opt/golden-starter
 
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/gs-vera-clinic.git .
+git clone https://github.com/tu-usuario/GoldenStarterV3.git .
 git checkout main
 ```
 
@@ -76,17 +76,17 @@ PORT=3005
 HOSTNAME=0.0.0.0
 
 # Base de datos local en contenedor
-POSTGRES_DB=vera_clinic_prod
-POSTGRES_USER=vera_prod_user
+POSTGRES_DB=starter_prod
+POSTGRES_USER=starter_prod_user
 POSTGRES_PASSWORD=GeneraUnaClaveMuySeguraDe32Caracteres!
-POSTGRES_URL=postgresql://vera_prod_user:GeneraUnaClaveMuySeguraDe32Caracteres!@db:5432/vera_clinic_prod
-DATABASE_URL=postgresql://vera_prod_user:GeneraUnaClaveMuySeguraDe32Caracteres!@db:5432/vera_clinic_prod
+POSTGRES_URL=postgresql://starter_prod_user:GeneraUnaClaveMuySeguraDe32Caracteres!@db:5432/starter_prod
+DATABASE_URL=postgresql://starter_prod_user:GeneraUnaClaveMuySeguraDe32Caracteres!@db:5432/starter_prod
 
 # Autenticación y URLs públicas
 BETTER_AUTH_SECRET=GeneraUnSecretoHexAleatorioConOpensslRandHex32
-BETTER_AUTH_URL=https://app.veraclinic.com
-NEXT_PUBLIC_API_URL=https://app.veraclinic.com
-NEXT_PUBLIC_APP_NAME="GS Vera Clinic"
+BETTER_AUTH_URL=https://app.example.com
+NEXT_PUBLIC_API_URL=https://app.example.com
+NEXT_PUBLIC_APP_NAME="Golden Starter"
 
 # Parámetros operativos
 NEXT_PUBLIC_GEOFENCE_RADIUS_METERS=50
@@ -107,10 +107,10 @@ Recomendamos **Caddy** como proxy inverso estándar por su gestión nativa y aut
 Crea el archivo `Caddyfile` en la raíz del proyecto:
 ```caddy
 {
-    email admin@veraclinic.com
+    email admin@example.com
 }
 
-app.veraclinic.com {
+app.example.com {
     encode gzip zstd
 
     # Seguridad HTTP Headers
@@ -136,9 +136,9 @@ app.veraclinic.com {
 Si prefieres Nginx, utiliza `certbot` para obtener el certificado:
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot certonly --standalone -d app.veraclinic.com --non-interactive --agree-tos -m admin@veraclinic.com
+sudo certbot certonly --standalone -d app.example.com --non-interactive --agree-tos -m admin@example.com
 ```
-Monta los certificados generados (`/etc/letsencrypt/live/app.veraclinic.com/`) en el contenedor o reverse proxy de Nginx.
+Monta los certificados generados (`/etc/letsencrypt/live/app.example.com/`) en el contenedor o reverse proxy de Nginx.
 
 ---
 
@@ -207,13 +207,13 @@ services:
 
 volumes:
   pgdata_prod:
-    name: vera_clinic_pgdata_prod
+    name: starter_pgdata_prod
   caddy_data:
   caddy_config:
 
 networks:
   app-net:
-    name: vera_clinic_network
+    name: starter_network
     driver: bridge
 ```
 
@@ -249,13 +249,13 @@ docker compose -f docker-compose.prod.yml logs -f --tail=100
 Ejecuta las pruebas de verificación externa:
 ```bash
 # Comprobar endpoint de salud
-curl -iv https://app.veraclinic.com/api/health
+curl -iv https://app.example.com/api/health
 
 # Comprobar que responde con HTTP 200 y JSON válido:
 # {"status":"ok","database":"connected", ...}
 
 # Comprobar grado de SSL y cabeceras de seguridad
-curl -I https://app.veraclinic.com
+curl -I https://app.example.com
 ```
 
 ---
@@ -264,7 +264,7 @@ curl -I https://app.veraclinic.com
 
 Para actualizar a una nueva versión del código en el servidor:
 ```bash
-cd /opt/vera-clinic
+cd /opt/golden-starter
 
 # 1. Descargar cambios
 git pull origin main
@@ -289,7 +289,7 @@ docker image prune -f
 ### Respaldo Automático Diario (Cron job)
 Agrega a `crontab -e`:
 ```bash
-0 3 * * * docker exec vera_clinic_prod_db pg_dump -U vera_prod_user vera_clinic_prod | gzip > /opt/backups/db_$(date +\%F).sql.gz
+0 3 * * * docker exec starter_prod_db pg_dump -U starter_prod_user starter_prod | gzip > /opt/backups/db_$(date +\%F).sql.gz
 ```
 
 ### Restauración en Caso de Contingencia
@@ -298,7 +298,7 @@ Agrega a `crontab -e`:
 docker compose -f docker-compose.prod.yml stop web
 
 # 2. Restaurar desde respaldo
-gunzip -c /opt/backups/db_2026-09-20.sql.gz | docker exec -i vera_clinic_prod_db psql -U vera_prod_user vera_clinic_prod
+gunzip -c /opt/backups/db_2026-09-20.sql.gz | docker exec -i starter_prod_db psql -U starter_prod_user starter_prod
 
 # 3. Reanudar servicio
 docker compose -f docker-compose.prod.yml start web

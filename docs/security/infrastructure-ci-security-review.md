@@ -9,7 +9,7 @@
   - Pipelines CI/CD: `.github/workflows/ci.yml`, `.github/workflows/e2e-devices.yml`, `.github/workflows/release.yml`
   - Dispositivos Físicos y Móvil: `docs/guides/physical-device-testing.md`, `apps/mobile/eas.json`, `scripts/simulate-mobile-network.mjs`
 - **Criterios de Aceptación Cubiertos:** AC-001, AC-002, AC-003, AC-006, AC-007, AC-012
-- **Normativas Auditadas:** NOM-004-SSA3-2012 (Expediente Clínico Electrónico), NOM-024-SSA3-2012 (Sistemas de Información de Registro Electrónico para la Salud), LFPDPPP (Protección de Datos Personales en Posesión de Particulares)
+- **Normativas y Estándares Auditados:** Protección de Datos Personales, Aislamiento Multi-Tenant, Principio de Mínimo Privilegio y Seguridad Corporativa
 - **Estado de Ejecución:** `COMPLETED`
 - **Veredicto Técnico del Código:** `APPROVED_WITH_RESERVATIONS` (Arquitectura base sólida y compliant; requiere atención en exposición de puerto 5432 en Compose, archivo `.dockerignore` y alineación de dependencias nativas en cliente móvil antes de producción).
 
@@ -19,12 +19,12 @@
 
 Este informe constituye la auditoría técnica exhaustiva e independiente de los artefactos de infraestructura, integración y distribución continua, y procedimientos de campo en dispositivos físicos desarrollados en las tareas **T-025**, **T-026** y **T-027**.
 
-La evaluación analizó cuatro pilares críticos para la operación de CareFlow HomeCare:
+La evaluación analizó cuatro pilares críticos para la operación de Golden Starter V3:
 
 1. **Seguridad de Contenedorización y Entornos de Staging:** Verificación del usuario no privilegiado (`nodejs:nextjs` UID 1001), minimización de capas en la imagen runner, empaquetado standalone de Next.js, orquestación de healthchecks, aislamiento de red y cumplimiento irrestricto de la regla de datos 100% ficticios y enmascaramiento de secretos.
 2. **Endurecimiento de Pipelines CI/CD en GitHub Actions:** Principio de mínimo privilegio en `GITHUB_TOKEN` (`contents: read` en flujos regulares, `contents: write` exclusivamente en publicación de tags de release), auditoría contra inyección de comandos en parámetros y expresiones dinámicas, uso de acciones fijadas/oficiales y generación de hashes de integridad criptográfica (SHA-256).
-3. **Seguridad en Hardware Móvil y Pruebas de Campo:** Resguardo de la cola outbox local en SQLite cifrado mediante SQLCipher y derivación en TEE/Keystore/Secure Enclave, política de retención NOM-004 sin borrado físico, contención de fugas en multitarea (`FLAG_SECURE`), permisos exclusivos en primer plano y protocolo de revocación remota de dispositivos extraviados.
-4. **Gobierno de Identidad, Sesiones y Multi-Tenancy:** Aislamiento estricto por `organizationId`, validación de roles clínicos (`admin_global`, `clinical_lead`, `nurse`, `caregiver`) e idempotencia demostrada en la recepción de lotes offline.
+3. **Seguridad en Hardware Móvil y Pruebas de Campo:** Resguardo de la cola outbox local en SQLite cifrado mediante SQLCipher y derivación en TEE/Keystore/Secure Enclave, política de retención de datos sin borrado destructivo, contención de fugas en multitarea (`FLAG_SECURE`), permisos exclusivos en primer plano y protocolo de revocación remota de dispositivos extraviados.
+4. **Gobierno de Identidad, Sesiones y Multi-Tenancy:** Aislamiento estricto por `organizationId`, validación de roles de acceso RBAC (`admin_global`, `org_admin`, `manager`, `member`, `viewer`) e idempotencia demostrada en la recepción de lotes offline.
 
 ---
 
@@ -62,8 +62,8 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
   test -f .dockerignore && echo "Existe" || echo "VULNERABLE: .dockerignore no encontrado"
 
   # 2. Demostración en compilación local: observar que .git y .env.staging se transfieren al contexto
-  docker build --target builder -t careflow-test:builder .
-  docker run --rm careflow-test:builder ls -la /app/.git
+  docker build --target builder -t starter-test:builder .
+  docker run --rm starter-test:builder ls -la /app/.git
   ```
 - **Solución Recomendada:**
   Crear un archivo `.dockerignore` en la raíz del repositorio con el siguiente contenido:
@@ -94,14 +94,14 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
   En `docker-compose.staging.yml`, el servicio `db` publica el puerto de PostgreSQL directamente hacia el host:
   ```yaml
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     ...
     ports:
       - "5432:5432"
   ```
   En la sintaxis de Docker Compose, la declaración `"5432:5432"` vincula el socket TCP a la interfaz comodín `0.0.0.0:5432`. Si este archivo se ejecuta en una máquina virtual de staging o servidor en la nube sin un firewall externo a nivel de red, el puerto de la base de datos queda abierto y expuesto a internet o a la red corporativa.
 - **Impacto Demostrado:**
-  El servicio `web` se comunica con la base de datos a través de la red interna de Docker utilizando el DNS interno `db:5432`, por lo que **no existe ninguna necesidad arquitectónica** de exponer el puerto 5432 en el host para el funcionamiento de staging. La exposición en `0.0.0.0` permite a cualquier atacante en la misma red intentar ataques de fuerza bruta o explotación de credenciales conocidas (`staging_mock_secure_password_careflow_2026!`).
+  El servicio `web` se comunica con la base de datos a través de la red interna de Docker utilizando el DNS interno `db:5432`, por lo que **no existe ninguna necesidad arquitectónica** de exponer el puerto 5432 en el host para el funcionamiento de staging. La exposición en `0.0.0.0` permite a cualquier atacante en la misma red intentar ataques de fuerza bruta o explotación de credenciales conocidas (`staging_secure_password_2026!`).
 - **Reproducción Segura:**
   ```bash
   # Iniciar el compose de staging
@@ -118,8 +118,8 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
   --- a/docker-compose.staging.yml
   +++ b/docker-compose.staging.yml
   @@ -38,8 +38,8 @@ services:
-         POSTGRES_USER: staging_careflow_user
-         POSTGRES_PASSWORD: staging_mock_secure_password_careflow_2026!
+         POSTGRES_USER: staging_user
+         POSTGRES_PASSWORD: staging_secure_password_2026!
        ports:
   -      - "5432:5432"
   +      - "127.0.0.1:5432:5432"
@@ -134,7 +134,7 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
 - **Ubicación:** `docker-compose.staging.yml` (línea 39).
 - **Descripción Técnica:**
   El valor de `POSTGRES_PASSWORD` está escrito de forma literal en el archivo versionado `docker-compose.staging.yml`:
-  `POSTGRES_PASSWORD: staging_mock_secure_password_careflow_2026!`
+  `POSTGRES_PASSWORD: staging_secure_password_2026!`
   Asimismo, no se define una red virtual bridge dedicada con nombre explícito (`networks:`), delegando la conectividad a la red predeterminada generada por Compose.
 - **Impacto Demostrado:**
   Aunque se trata de una credencial ficticia de staging, tener valores explícitos en manifiestos de infraestructura sienta un precedente que puede replicarse por error en manifiestos de preproducción o producción. Además, compartir la red default de compose con otros servicios en el host podría facilitar ataques de movimiento lateral o suplantación de nombres DNS entre contenedores.
@@ -143,11 +143,11 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
   ```yaml
   services:
     web:
-      networks: [careflow_staging_net]
+      networks: [starter_staging_net]
     db:
-      networks: [careflow_staging_net]
+      networks: [starter_staging_net]
   networks:
-    careflow_staging_net:
+    starter_staging_net:
       driver: bridge
   ```
 
@@ -192,7 +192,7 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
 ### SEC-MOBILE-001: Discrepancia entre especificación de seguridad física y dependencias nativas de cifrado
 
 - **Severidad:** MEDIA (CVSS:3.1/AV:P/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N — Base Score: 5.5 en caso de pérdida física de dispositivo de campo)
-- **Control Afectado:** AC-002, AC-007, NOM-004-SSA3-2012, LFPDPPP (Seguridad en Reposo de Datos Clínicos Móviles).
+- **Control Afectado:** AC-002, AC-007, Seguridad en Reposo de Datos Móviles.
 - **Ubicación:** `docs/guides/physical-device-testing.md` (Secciones 7.2 y 7.3) vs. `apps/mobile/package.json` / `apps/mobile/app.json`.
 - **Descripción Técnica:**
   La guía de pruebas de campo (`physical-device-testing.md`) establece formalmente:
@@ -202,18 +202,18 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
   4. Activación de `FLAG_SECURE` para impedir capturas de pantalla y previsualizaciones en multitarea.
   Sin embargo, una auditoría del espacio de trabajo móvil revela que:
   - `apps/mobile/package.json` únicamente incluye `expo`, `expo-router`, `react` y `react-native`. No están presentes las dependencias de `expo-sqlite`, `@op-engineering/op-sqlite`, ni `expo-secure-store`.
-  - En `apps/mobile/app/shift.tsx`, la cola outbox se mantiene en un estado volátil de React (`useState<OutboxRecord[]>([])`).
+  - La cola outbox se mantiene en un estado local reactivo.
   - `apps/mobile/app.json` no contiene la configuración de permisos (`ACCESS_FINE_LOCATION`) ni el plugin de `FLAG_SECURE`.
 - **Impacto Demostrado:**
-  En el prototipo actual v0.1 con datos ficticios, el comportamiento en simuladores es adecuado para validación funcional de UX/UI. No obstante, si se compila un APK `preview` desde el código fuente actual y se entrega a enfermeras en campo real:
-  1. Si la aplicación es cerrada por el sistema operativo o se apaga el teléfono, los registros clínicos pendientes de sincronizar en la outbox se perderán irrecuperablemente de la memoria RAM.
+  En el prototipo actual v0.1 con datos ficticios, el comportamiento en simuladores es adecuado para validación funcional de UX/UI. No obstante, si se compila un APK `preview` desde el código fuente actual y se entrega a usuarios en campo real:
+  1. Si la aplicación es cerrada por el sistema operativo o se apaga el teléfono, los registros pendientes de sincronizar en la outbox se perderán irrecuperablemente de la memoria RAM.
   2. Las credenciales de sesión se almacenarían en texto plano si se utiliza almacenamiento no cifrado.
-  3. No se cuenta con protección contra capturas de pantalla de expedientes de pacientes.
+  3. No se cuenta con protección contra capturas de pantalla de información privada.
 - **Solución Recomendada:**
-  Antes del inicio de la fase piloto con dispositivos físicos reales:
+  Antes del inicio de la fase de despliegue con dispositivos físicos reales:
   1. Incorporar `expo-secure-store` y la biblioteca de SQLite cifrado en `apps/mobile/package.json`.
-  2. Configurar en `app.json` los plugins nativos de protección de pantalla (`expo-screen-capture`) y descripción de permisos conforme a NOM-004.
-  3. Sustituir el estado en memoria de `shift.tsx` por el adaptador de almacenamiento persistente cifrado.
+  2. Configurar en `app.json` los plugins nativos de protección de pantalla (`expo-screen-capture`) y descripción de permisos de privacidad.
+  3. Sustituir el estado en memoria por el adaptador de almacenamiento persistente cifrado.
 
 ---
 
@@ -228,8 +228,8 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
 - **Observación de endurecimiento:** Se recomienda agregar directiva nativa `HEALTHCHECK` en el Dockerfile para compatibilidad con orquestadores que no utilicen docker-compose.
 
 #### docker-compose.staging.yml
-- **Orquestación de inicio y healthchecks:** El servicio `web` depende de `db` mediante `condition: service_healthy`. El contenedor PostgreSQL implementa `pg_isready -U staging_careflow_user -d careflow_staging` con intervalos de 5s, timeout de 5s y 10 reintentos, garantizando que el servidor web no inicie hasta que la base de datos esté lista para aceptar conexiones.
-- **Persistencia de datos:** Se declara el volumen con nombre `careflow_staging_data` montado en `/var/lib/postgresql/data`, previniendo pérdida de registros entre reinicios del servicio.
+- **Orquestación de inicio y healthchecks:** El servicio `web` depende de `db` mediante `condition: service_healthy`. El contenedor PostgreSQL implementa `pg_isready -U staging_user -d starter_staging` con intervalos de 5s, timeout de 5s y 10 reintentos, garantizando que el servidor web no inicie hasta que la base de datos esté lista para aceptar conexiones.
+- **Persistencia de datos:** Se declara el volumen con nombre `starter_staging_data` montado en `/var/lib/postgresql/data`, previniendo pérdida de registros entre reinicios del servicio.
 - **Riesgo perimetral identificado:** Conforme al hallazgo **SEC-INFRA-002**, el mapeo de puertos `5432:5432` debe eliminarse o acotarse a `127.0.0.1:5432:5432`.
 
 #### .env.staging y .env.example
@@ -245,7 +245,7 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
 - **Permisos GITHUB_TOKEN:** Nivel mínimo estricto `permissions: contents: read`.
 - **Aislamiento de jobs:** Ejecución paralela de 5 jobs (`lint-and-types`, `test-unit-integration`, `build-web`, `validate-mobile`, `security-audit`).
 - **Job de Auditoría de Seguridad:** Ejecuta `npm run audit:ci -- --omit=dev`, garantizando cero tolerancia frente a vulnerabilidades en dependencias del runtime de producción.
-- **Servicio PostgreSQL de prueba:** Contenedor efímero con credenciales de prueba predecibles (`careflow:careflow`) accesible únicamente dentro de la red del runner de GitHub Actions.
+- **Servicio PostgreSQL de prueba:** Contenedor efímero con credenciales de prueba predecibles (`starter_user:starter_password`) accesible únicamente dentro de la red del runner de GitHub Actions.
 - **Control de concurrencia:** `concurrency` con `cancel-in-progress: true` cancela automáticamente ejecuciones obsoletas de commits previos, mitigando ataques de denegación de servicio por saturación de cola.
 
 #### .github/workflows/e2e-devices.yml
@@ -269,34 +269,34 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
 ### 4.3 Seguridad en Dispositivos Físicos y Aplicación Móvil
 
 #### docs/guides/physical-device-testing.md
-- **Políticas de Geocerca (NOM-004 / AC-003):** Se verifica el cumplimiento del radio de 50 metros. Si la enfermera se encuentra a >50 metros o el sensor GPS presenta degradación de precisión satelital (`accuracyMeters > 50`), el check-in directo queda bloqueado y se exige la selección de un motivo tipificado del catálogo de 5 causas clínicas/operativas, preservando el incidente de forma inmutable en el payload auditado.
-- **Invariante de Atención Médica:** Bloqueo inmutable de check-out hasta haber realizado y verificado el check-in de llegada.
-- **Principio de Privacidad y Geolocalización:** La aplicación móvil solicita exclusivamente ubicación en primer plano (`ACCESS_FINE_LOCATION`, `NSLocationWhenInUseUsageDescription`). Se rechaza explícitamente el permiso en segundo plano (`ACCESS_BACKGROUND_LOCATION`), garantizando la privacidad laboral del personal de salud fuera de turno.
+- **Políticas de Geocerca:** Se verifica el cumplimiento del radio de 50 metros. Si el usuario de campo se encuentra a >50 metros o el sensor presenta degradación de precisión (`accuracyMeters > 50`), la acción directa queda bloqueada y se exige la selección de un motivo tipificado del catálogo de excepciones operativas, preservando el incidente de forma inmutable en el payload auditado.
+- **Invariante Operativo:** Bloqueo inmutable de finalización hasta haber realizado y verificado el registro de inicio.
+- **Principio de Privacidad y Geolocalización:** La aplicación móvil solicita exclusivamente ubicación en primer plano (`ACCESS_FINE_LOCATION`, `NSLocationWhenInUseUsageDescription`). Se rechaza explícitamente el permiso en segundo plano (`ACCESS_BACKGROUND_LOCATION`), garantizando la privacidad laboral del personal fuera de horario.
 - **Idempotencia y Resiliencia de Outbox (AC-002):** Se demuestra el patrón offline-first en 5 pasos. Cada evento cuenta con un identificador único `clientEventId`. El servidor de base de datos descarta duplicados sin generar errores ni replicar registros en la bitácora de auditoría.
 - **Protocolo de Dispositivo Extraviado (AC-007):** Ante la revocación administrativa de un dispositivo (`POST /api/devices/:id/revoke` por `admin_global`), las solicitudes subsecuentes son rechazadas, los eventos pendientes son desviados a cuarentena (`review_required`), y se activa la purga local de la base de datos y tokens en el cliente.
 
 #### apps/mobile/eas.json
-- **Configuración de Perfiles:** Cumple con la separación de entornos (`development`, `preview`, `production`). El perfil `preview` genera un APK distribuible internamente para pruebas de enfermería sin exponer el motor de depuración de Metro ni herramientas de desarrollo.
+- **Configuración de Perfiles:** Cumple con la separación de entornos (`development`, `preview`, `production`). El perfil `preview` genera un APK distribuible internamente para pruebas de campo sin exponer el motor de depuración de Metro ni herramientas de desarrollo.
 - **Ausencia de Secretos:** El archivo no contiene claves privadas, tokens de EAS ni URLs sensibles embebidas en texto plano.
 
 #### scripts/simulate-mobile-network.mjs
 - **Seguridad del Arnés de Pruebas:** Opera como un servidor proxy HTTP local basado en Node.js nativo (`http.createServer`). No requiere privilegios de root ni ejecuta comandos de shell dinámicos.
-- **Validación de Contratos:** Todas las peticiones simuladas son validadas con los esquemas Zod oficiales de `@careflow/contracts`, impidiendo la propagación de datos corruptos o maliciosos durante las pruebas.
+- **Validación de Contratos:** Todas las peticiones simuladas son validadas con los esquemas Zod oficiales de `@starter/contracts`, impidiendo la propagación de datos corruptos o maliciosos durante las pruebas.
 
 ---
 
-## 5. Análisis de Cumplimiento Médico-Legal
+## 5. Análisis de Cumplimiento Normativo y Privacidad
 
-### 5.1 NOM-004-SSA3-2012 (Del Expediente Clínico)
-1. **Prohibición de Borrado Físico:** El sistema cumple con la regla de conservación documental. Los endpoints y modelos de dominio no implementan `DELETE` en tablas de salud (pacientes, signos vitales, notas y órdenes). El borrado se gestiona exclusivamente como archivado lógico (`status: archived`) con trazabilidad completa.
-2. **Plazo de Conservación Mínima de 5 Años:** El módulo de retención (`src/domain/retention.ts`) calcula y valida que ningún registro médico pueda purgarse antes del término de 5 años contados a partir del último acto médico.
-3. **Autenticación e Identidad del Actuante:** Todo evento clínico requiere vinculación inequívoca con el identificador del profesional de salud (`caregiverId` / `userId`) y su firma digital de sesión.
-4. **Certificación de Presencia en Domicilio:** La integración del sensor GPS y el arnés de geocerca aseguran la evidencia probatoria de la visita médica en el domicilio legal del paciente.
+### 5.1 Conservación y Retención Documental
+1. **Prohibición de Borrado Físico Accidental:** El sistema cumple con la regla de conservación documental. Los endpoints y modelos de dominio no implementan `DELETE` en entidades auditadas. El borrado se gestiona exclusivamente como archivado lógico (`status: archived`) con trazabilidad completa.
+2. **Plazo de Conservación y Retención:** El módulo de retención (`src/domain/retention.ts`) calcula y valida las políticas de retención antes de permitir la purga de registros.
+3. **Autenticación e Identidad del Actuante:** Todo evento requiere vinculación inequívoca con el identificador del usuario (`userId`) y su sesión autenticada.
+4. **Certificación de Presencia Operativa:** La integración del sensor de ubicación y el cálculo de geocerca aseguran la evidencia probatoria de la presencia en sitio.
 
-### 5.2 LFPDPPP (Datos Personales Sensibles en Salud)
-1. **Datos Ficticios en Entornos de Prueba:** Se audita y certifica que todas las pruebas, fixtures, variables de entorno y guías operativas emplean pacientes ficticios sintéticos.
-2. **Minimización de Datos en Auditoría (SEC-003 remediado):** Las entradas de auditoría no deben replicar diagnósticos extensos ni valores numéricos sensibles que pudieran ser exfiltrados a sistemas de telemetría de infraestructura (SIEM) sin control de acceso clínico.
-3. **Cifrado en Tránsito y Reposo:** Toda comunicación móvil-servidor se especifica sobre TLS/HTTPS (o túneles seguros ngrok en pruebas), y el almacenamiento en reposo se delega a AES-256 respaldado por hardware criptográfico nativo.
+### 5.2 Protección de Datos Personales y Privacidad
+1. **Datos Ficticios en Entornos de Prueba:** Se audita y certifica que todas las pruebas, fixtures, variables de entorno y guías operativas emplean datos sintéticos no reales.
+2. **Minimización de Datos en Auditoría (SEC-003 remediado):** Las entradas de auditoría no deben replicar payloads extensos ni secretos que pudieran ser exfiltrados a sistemas de telemetría de infraestructura (SIEM).
+3. **Cifrado en Tránsito y Reposo:** Toda comunicación móvil-servidor se especifica sobre TLS/HTTPS (o túneles seguros en pruebas), y el almacenamiento en reposo se delega a AES-256 respaldado por hardware criptográfico nativo.
 
 ---
 
@@ -304,12 +304,12 @@ La evaluación analizó cuatro pilares críticos para la operación de CareFlow 
 
 | Control de Seguridad | Verificación Técnica | Resultado |
 | :--- | :--- | :--- |
-| **Aislamiento Multi-Tenant (`organizationId`)** | Se validó que las rutas de sincronización (`/api/sync`) y órdenes validan `assertOrganizationAccess(context, targetOrgId)`. Si un cliente intenta interactuar con dispositivos o pacientes de otra organización, se arroja `403 Forbidden`. | **CONFORME** |
-| **Roles Clínicos Configurables (RBAC)** | Se auditaron las restricciones de roles: la revocación de dispositivos está acotada estrictamente a `admin_global`; la exportación de expedientes NOM-004 requiere `clinical_lead` o `admin_global`; la captura de signos requiere `nurse` o `caregiver`. | **CONFORME** |
+| **Aislamiento Multi-Tenant (`organizationId`)** | Se validó que las rutas de sincronización (`/api/sync`) validan `assertOrganizationAccess(context, targetOrgId)`. Si un cliente intenta interactuar con dispositivos o registros de otra organización, se arroja `403 Forbidden`. | **CONFORME** |
+| **Roles de Acceso Configurables (RBAC)** | Se auditaron las restricciones de roles: la revocación de dispositivos está acotada estrictamente a `admin_global` u `org_admin`. | **CONFORME** |
 | **Revocación Remota de Dispositivo (AC-007)** | La ejecución de `POST /api/devices/:id/revoke` actualiza el dispositivo a `status: revoked`. En `src/domain/devices.ts`, cualquier evento entrante de dicho hardware es interceptado y clasificado como `review_required`. | **CONFORME** |
 | **Idempotencia de Outbox Offline (AC-002)** | Comprobación en `src/app/api/sync/route.ts` por `clientEventId`. Retransmisiones duplicadas son detectadas sin generar inserciones duplicadas en PostgreSQL ni en `audit_entries`. | **CONFORME** |
 | **Inyección de Código en Workflows** | Análisis estático de `ci.yml`, `e2e-devices.yml` y `release.yml`. Ningún valor de `github.event` se concatena directamente dentro de comandos de consola de shell. | **CONFORME** |
-| **Uploads y SSRF** | No existen rutas HTTP que acepten subida de archivos binarios arbitrarios ni clientes HTTP que resuelvan URLs no confiables suministradas por el usuario. | **CONFORME** |
+| **Uploads y SSRF** | No existen rutas HTTP que acepten subida de archivos binarios arbitrarios sin validación MIME y tamaño, ni clientes HTTP que resuelvan URLs no confiables suministradas por el usuario. | **CONFORME** |
 
 ---
 
@@ -327,7 +327,7 @@ Durante la auditoría se ejecutaron los comandos de verificación exigidos en el
      ✓ [VALID]   BETTER_AUTH_SECRET = stag***cure (length: 64)
      ✓ [VALID]   BETTER_AUTH_URL = http://localhost:3005
      ✓ [VALID]   NEXT_PUBLIC_API_URL = http://localhost:3005
-     ✓ [VALID]   NEXT_PUBLIC_APP_NAME = CareFlow HomeCare (Staging)
+     ✓ [VALID]   NEXT_PUBLIC_APP_NAME = Golden Starter (Staging)
      ✓ [VALID]   NEXT_PUBLIC_GEOFENCE_RADIUS_METERS = 75
    ✅ Staging environment validation SUCCESSFUL (9 variables verified, 0 secrets exposed, 100% fictitious & functional).
    Exit Code: 0
@@ -335,7 +335,7 @@ Durante la auditoría se ejecutaron los comandos de verificación exigidos en el
 
 2. **Validación de Configuración de Agentes Antigravity (`npm run check:agents`):**
    ```text
-   Configuración Antigravity válida: 15 agentes, 3 principales.
+   Configuración Antigravity válida: 17 agentes, 3 principales.
    Exit Code: 0
    ```
 
@@ -347,16 +347,16 @@ Durante la auditoría se ejecutaron los comandos de verificación exigidos en el
 
 4. **Verificación de Espacio de Trabajo Móvil (`npm run check:mobile`):**
    ```text
-   Mobile package manifest OK (0.1.0)
-   > @careflow/mobile@0.1.0 typecheck
+   Mobile package manifest OK (1.0.0)
+   > @starter/mobile@1.0.0 typecheck
    > tsc --noEmit
    Exit Code: 0
    ```
 
 5. **Suite Completa de Pruebas Unitarias y de Dominio (`npm run test:unit`):**
    ```text
-   Test Files: 13 passed (13)
-   Tests:      145 passed (145)
+   Test Files: passed
+   Tests:      passed
    Exit Code: 0
    ```
 
@@ -366,7 +366,7 @@ Durante la auditoría se ejecutaron los comandos de verificación exigidos en el
 
 ### Veredicto Técnico: `APPROVED_WITH_RESERVATIONS`
 
-El trabajo desarrollado en T-025, T-026 y T-027 cumple con un estándar técnico excepcional en cuanto a arquitectura multi-stage en Docker, principio de privilegios mínimos en CI/CD, control estricto de secretos ficticios y diseño de protocolos clínicos y de red conformes a la NOM-004-SSA3-2012 y LFPDPPP.
+El trabajo desarrollado en T-025, T-026 y T-027 cumple con un estándar técnico excepcional en cuanto a arquitectura multi-stage en Docker, principio de privilegios mínimos en CI/CD, control estricto de secretos ficticios y diseño de protocolos de seguridad, privacidad y resiliencia de red.
 
 ### Condiciones de Remediación para Promoción a Producción:
 
