@@ -1,96 +1,52 @@
-# Sesión live Q&A con el agente PM
+# Sesiones de descubrimiento de producto
 
-## Objetivo
+## Propósito
 
-Cerrar decisiones de producto con una conversación interactiva antes de que backend, mobile o infraestructura conviertan supuestos en código. El usuario puede hacer preguntas, corregir el contexto y rechazar una recomendación.
+Registrar las decisiones de producto que se aclaran en la conversación principal de Codex antes de planear o implementar una funcionalidad.
 
-## Cuándo activarla
+## Flujo Codex
 
-- PRD nuevo o cambio con decisiones de negocio, legales, de privacidad, permisos o costos.
-- Respuestas escritas que necesitan repreguntas o contienen contradicciones.
-- Antes de marcar `product-manager` como DONE y antes de pasar a `change-planner`.
+1. Invoca `$live-product-qa` cuando una funcionalidad nueva o un cambio de alcance requiera decisiones del usuario.
+2. La conversación principal conduce el Q&A, una pregunta bloqueante por turno. Distingue decisiones confirmadas, supuestos, recomendaciones, preguntas y bloqueos.
+3. Antes de delegar, presenta un resumen conciso de las decisiones al usuario y espera su confirmación.
+4. Después de la confirmación, delega al perfil de proyecto `.codex/agents/product-manager.toml` la redacción del registro y la spec en borrador.
+5. Presenta al usuario el resumen y las rutas de los archivos. La spec comienza en `DRAFT`; solo el usuario puede aprobarla como `APPROVED_BY_USER`.
 
-## Preparación
+El subagente no conduce el Q&A ni decide requisitos. Su sandbox permite escribir en el checkout, así que su instrucción limita las modificaciones a la documentación indicada; Codex no ofrece un allowlist de rutas por agente.
 
-1. Crear un archivo `docs/live-sessions/YYYY-MM-DD-<tema>.md` desde esta plantilla.
-2. Registrar repo, base SHA, versión del kit, participantes y fuentes autorizadas.
-3. Cargar solamente PRD, preguntas, stack y decisiones relevantes; no cargar secretos ni historias completas sin necesidad.
-4. El agente PM enumera preguntas bloqueantes, decisiones ya respondidas y supuestos reversibles.
+## Rutas de salida
 
-## Protocolo de conversación
+- Registro de sesión: `docs/live-sessions/YYYY-MM-DD-<tema>.md`.
+- Requisitos de la funcionalidad: `specs/FEAT-###-<slug>.md`, creado desde `specs/templates/feature-spec.template.md`.
+- Actualiza `PRD.md` únicamente si una decisión confirmada cambia un requisito del producto general.
 
-1. El PM hace una sola pregunta bloqueante por turno y explica qué cambia si se elige cada opción.
-2. El usuario puede responder, pedir ejemplos, cuestionar la recomendación o hacer una pregunta propia.
-3. El PM clasifica cada intercambio como `DECISION`, `ASSUMPTION`, `RECOMMENDATION`, `BLOCKER` o `QUESTION`.
-4. El PM no inventa reglas de negocio, obligaciones legales ni permisos; los deja pendientes y solicita al responsable adecuado.
-5. Al detectar contradicción con una respuesta previa, pausa la decisión, muestra ambos textos y pide resolución explícita.
-6. Cada decisión registra responsable, fecha, evidencia, impacto, archivos afectados y si requiere ADR.
-7. Al final, el PM produce resumen, decisiones aceptadas, preguntas abiertas, cambios propuestos a PRD/AC/TASKS y un veredicto `READY`, `BLOCKED` o `NEEDS_REVIEW`.
-
-## Mejoras incorporadas
-
-- Conversación bidireccional en lugar de cuestionario de una sola respuesta.
-- Preguntas priorizadas por impacto: bloqueante, importante u opcional.
-- Revisión de contradicciones entre PRD, respuestas y stack.
-- Distinción obligatoria entre decisión confirmada y supuesto reversible.
-- Registro de transcript y decisiones trazado al SHA.
-- Reanudación de una sesión sin perder contexto ni repetir decisiones cerradas.
-- Confirmación final del usuario antes de cambiar requisitos sensibles.
-- Enlaces directos entre respuesta, requisito, AC, tarea y ADR.
-- Resumen de preguntas que deben pasar a áreas de dominio, legal, privacidad o seguridad.
-- Prueba de calidad del propio agente: no marcar `READY` si quedan blockers.
-
-## Salidas mínimas
-
-- Transcript o resumen de la conversación sin secretos.
-- `PRD.md` actualizado.
-- `docs/questions-v0.1.md` actualizado.
-- `TASKS.md` con el estado de T-002/T-010.
-- ADRs para decisiones arquitectónicas.
-- Resultado estructurado conforme a `docs/contrato-resultados.md`.
-
-## Plantilla de sesión
-
-Copiar lo siguiente a un archivo fechado:
+## Plantilla del registro
 
 ```markdown
-# Sesión live Q&A — <tema>
+# Sesión de descubrimiento — <tema>
 
 - Session ID: <id>
 - Fecha/hora/zona: <timestamp>
 - Repo y base SHA: <repo> / <sha>
-- Participantes: usuario, product-manager, <dominio/legal/etc.>
-- Fuentes cargadas: <archivos>
-- Estado inicial: OPEN
+- Participantes: usuario, Codex, product_manager
+- Fuentes consultadas: <rutas>
+- Estado: DRAFT
 
-## Decisiones ya respondidas
+## Decisiones confirmadas
 
-| ID    | Pregunta   | Respuesta   | Responsable | Evidencia | Estado    |
-| ----- | ---------- | ----------- | ----------- | --------- | --------- |
-| Q-001 | <pregunta> | <respuesta> | <persona>   | <fuente>  | CONFIRMED |
+| ID | Pregunta | Decisión | Responsable | Evidencia |
+| --- | --- | --- | --- | --- |
+| Q-001 | <pregunta> | <respuesta confirmada> | <persona> | <fuente/turno> |
 
-## Conversación
+## Supuestos, preguntas y bloqueos
 
-### Turno 1 — <actor>
-
-- Tipo: QUESTION / DECISION / ASSUMPTION / BLOCKER / RECOMMENDATION
-- Mensaje: <texto>
-- Respuesta: <texto>
-- Impacto: <archivos, AC, tareas>
-
-## Contradicciones y bloqueos
-
-<ninguno o lista>
+<lista o ninguno>
 
 ## Cierre
 
-- Decisiones confirmadas: <lista>
-- Preguntas abiertas: <lista>
-- Archivos a actualizar: <lista>
+- Spec relacionada: <ruta>
 - Veredicto: READY / BLOCKED / NEEDS_REVIEW
-- Próximo agente: <id>
+- Próximo paso: <acción>
 ```
 
-## Regla de aprobación
-
-La sesión no aprueba por sí sola el producto en su totalidad. `READY` solo significa que el alcance está suficientemente definido para planificación; la aprobación regulatoria, de negocio, de privacidad y de seguridad sigue siendo independiente.
+`READY` significa que el alcance está suficientemente claro para revisar una spec; no significa que la spec esté aprobada para implementación.

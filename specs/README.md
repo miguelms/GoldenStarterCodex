@@ -23,4 +23,4 @@ Este directorio aloja todas las especificaciones formales de requerimientos ante
    cp specs/templates/feature-spec.template.md specs/FEAT-001-mi-funcionalidad.md
    ```
 2. Completa los criterios de aceptación y los escenarios de prueba.
-3. Invoca a los agentes de Antigravity (`orchestrator-agent`, `backend-agent`, etc.) para que implementen el código respetando estrictamente el alcance definido.
+3. Delega el trabajo al perfil especialista apropiado de `.codex/agents/` y conserva los criterios de aceptación de esta spec como límite de implementación.

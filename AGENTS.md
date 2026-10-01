@@ -1,42 +1,29 @@
-# Instrucciones del proyecto Golden Starter V3
+# GoldenStarter Codex — instrucciones del proyecto
 
-> Base canónica para derivar nuevas aplicaciones Web & Mobile con gobernanza estricta, arquitectura modular y catálogo de agentes Antigravity.
+## Fuentes del proyecto
 
-## Fuente de verdad
+- Stack y versiones: `STACK.md`.
+- Requisitos generales: `PRD.md`.
+- Arquitectura y seguridad: `ARCHITECTURE.md`.
+- Especificaciones activas: `specs/`.
+- Ownership y perfiles: `docs/agent-registry.md` y `.codex/agents/`.
+- Checks y evidencia: `docs/QUALITY.md` y `docs/contrato-resultados.md`.
 
-- Stack: `STACK.md`; respetar versiones exactas y `npm/package-lock`.
-- Producto: `PRD.md`; especificaciones activas en `specs/` conforme a SDD (Spec-Driven Development).
-- Arquitectura: `ARCHITECTURE.md`.
-- Registro y responsabilidades de agentes: `docs/agent-registry.md`.
-- Plan de calidad y comandos: `docs/QUALITY.md`.
-- Sesiones de producto / diseño: `docs/live-sessions/README.md` y `docs/design-sessions/README.md`.
+Consulta solo lo necesario para la tarea actual.
 
-Leer solo lo estrictamente necesario para el cambio asignado. No sobrecargar el contexto con módulos no relacionados.
+## Flujo de trabajo
 
-## Metodología: Spec-Driven Development (SDD)
+- La conversación principal de Codex coordina el trabajo según este archivo; no existe un perfil TOML `orchestrator` duplicado. Mantén con el usuario las decisiones de producto y diseño.
+- Para alcance o reglas de negocio sin resolver, usa `$live-product-qa`; después de que el usuario confirme decisiones, delega la spec `DRAFT` a `product_manager`. No implementes cambios de producto sin spec aprobada y criterios verificables.
+- Para interfaz nueva o cambios visuales, usa `$live-design-review`; delega artefactos al perfil `ui_ux_designer`. Requiere aprobación visual por cada plataforma antes de que `frontend` o `mobile` implemente.
+- Para cambios entre módulos o cuando se solicite planificación técnica, delega `change_planner` después de aprobar la spec. Elige implementadores y revisores según `docs/agent-registry.md`; perfiles especializados contienen sus instrucciones completas.
+- Si el flujo o el ownership no está claro, usa primero `repo_explorer` en solo lectura. Entrega a cada subagente objetivo, criterios, rutas permitidas, base/referencia, checks y evidencia esperada. Evita escritores concurrentes en archivos compartidos.
+- Usa `test_engineer` para cobertura, `debugger_regression` para reproducir fallos antes del fix, `qa` para revisión independiente de cambios integrados y `security` para auditorías. Usa `docs`, `platform_release`, `devops` y `sre` para sus áreas registradas.
+- Para cambios de comportamiento, aplica SDD y TDD (Red → Green → Refactor) por criterio. Ejecuta solo checks aplicables de `docs/QUALITY.md`; informa resultados reales y no marques `PASS` sin evidencia.
 
-1. **Especificación Primero:** Ningún agente escribe código de producción sin una especificación aprobada en `specs/` con criterios de aceptación cuantificables (Scorecard).
-2. **Descomposición Trazable:** `change-planner-agent` descompone la spec en tareas atómicas con ownership definido.
-3. **Contratos Puros:** Todo cambio en la API o estructuras compartidas se define primero en `packages/contracts/src/index.ts` con Zod runtime validation antes de tocar backend o frontend.
-4. **Separación de Responsabilidades:**
-   - Backend es dueño de `src/server/**` y `src/app/api/**/route.ts`.
-   - Frontend es dueño de `src/app/**` (excepto api) y componentes web.
-   - Mobile es dueño de `apps/mobile/**`.
-   - Infra/Data es dueño de `src/db/**` y migraciones Drizzle.
+## Seguridad y operaciones
 
-## Verificación y Calidad
-
-- Ejecutar los checks del plan de calidad asociados a cada cambio (`npm run test:unit`, `npm run lint`, `npm run typecheck`).
-- Registrar exit code y evidencia real. Prohibido reportar PASS sin ejecución demostrada.
-- QA revisa de manera independiente contra el Scorecard de la especificación sin modificar código ni relajar tests.
-
-## Límites de Seguridad
-
-- Multi-tenant obligatorio: todo modelo y consulta filtra por `organizationId`.
-- Cero secretos o tokens en código, logs o artefactos. Usar redactor automático de `src/lib/error-logger.ts`.
-- Usar datos ficticios en seeds y pruebas. No conectar bases de datos de producción fuera de flujos controlados.
-
-## Formato de Entrega
-
-Todo agente devuelve su reporte estructurado conforme a `docs/agent-result.schema.json` indicando:
-`task`, `agent`, `status`, `files_changed`, `checks`, `blockers` y `next_action`.
+- Conserva cambios preexistentes del usuario; no uses `git restore`, `git reset` ni `git stash` para limpiar el checkout sin instrucción explícita.
+- Usa datos sintéticos para pruebas; no expongas secretos ni datos sensibles en código, logs o artifacts.
+- No conectes a producción ni publiques, despliegues, restaures datos o cambies servicios externos sin autorización explícita para la acción y el entorno. Un CI exitoso, perfil de release o runbook no autoriza por sí solo un despliegue.
+- `COMPLETED` no significa `RELEASED`; documenta bloqueos, `NOT_RUN` y límites según `docs/contrato-resultados.md`.

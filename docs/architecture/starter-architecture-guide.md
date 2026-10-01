@@ -6,7 +6,7 @@
 - **Fecha de Certificación:** 2026-09-30
 - **Base SHA Integrada:** `main`
 - **Estado:** CANÓNICO (Aprobado para Gobernanza y Operaciones)
-- **Autor y Mantenedores:** `docs-agent` en coordinación con `orchestrator-agent`, `sre-agent` y `devops-agent`
+- **Mantenimiento:** El owner del starter y los perfiles especialistas de Codex según `docs/agent-registry.md`
 - **Referencias Base:** [`golden-starter.manifest.json`](../../golden-starter.manifest.json), [`STACK.md`](../../STACK.md), [`ARCHITECTURE.md`](../../ARCHITECTURE.md), [`docs/adr/README.md`](../adr/README.md), [`docs/operations/enterprise-runbook.md`](../operations/enterprise-runbook.md)
 
 ---
@@ -37,7 +37,8 @@ golden-starter-v3/
 │   ├── architecture/           # Guías de arquitectura y gobernanza del starter
 │   └── operations/             # Runbooks operativos SRE y staging
 ├── scripts/                    # Utilidades de verificación, simulación y extracción
-└── .agents/                    # Catálogo local de 17 agentes Antigravity y habilidades SRE
+├── .agents/                    # Skills reutilizables del proyecto
+└── .codex/agents/              # Perfiles especialistas nativos de Codex
 ```
 
 ### 1.2 Pila Tecnológica Canónica
@@ -323,75 +324,11 @@ sequenceDiagram
 
 ---
 
-### 2.6 Catálogo y Coreografía de los 17 Agentes Locales Antigravity
+### 2.6 Perfiles especialistas y skills de Codex
 
-El desarrollo, mantenimiento y gobernanza del proyecto está orquestado por un ecosistema de **17 agentes inteligentes locales** de Google Antigravity, configurados de manera no intrusiva en `.agents/agents/` sin requerir instalación global ni modificar `~/.gemini/config/agents`.
+La conversación principal de Codex coordina el trabajo y delega tareas cuando aportan valor. Las reglas compartidas viven en `AGENTS.md`; los perfiles de subagente nativos están en `.codex/agents/*.toml`; las skills describen flujos reutilizables en `.agents/skills/`. La definición vigente de responsabilidades y handoffs está en [`docs/agent-registry.md`](../agent-registry.md), y el ciclo de trabajo se explica en [`SDD/agent-harness.md`](../../SDD/agent-harness.md).
 
-```mermaid
-flowchart TD
-    subgraph Principales["Agentes Principales (Main)"]
-        Orch[orchestrator-agent<br/>Coordinación, Delegación, Gates]
-        PM[product-manager-agent<br/>Q&A Interactivo, PRD, Reglas]
-        Design[ui-ux-designer-agent<br/>Diseño Stitch, UI Specs]
-    end
-
-    subgraph Especialistas["Especialistas de Implementación y Análisis"]
-        Repo[repo-explorer-agent<br/>Mapeo de Repo]
-        Plan[change-planner-agent<br/>Planes de Impacto]
-        Back[backend-agent<br/>API, Dominio, Contratos]
-        Front[frontend-agent<br/>Next.js 16 Web]
-        Mob[mobile-agent<br/>Expo 57 React Native]
-        Infra[infra-data-agent<br/>Drizzle, Postgres, Docker]
-    end
-
-    subgraph InfraOperaciones["Infraestructura, SRE y Despliegues"]
-        DevOps[devops-agent<br/>Docker, NGINX Host, CI/CD]
-        SRE[sre-agent<br/>Confiabilidad, Resiliencia, Runbook]
-    end
-
-    subgraph CalidadSeguridad["Aseguramiento, Seguridad y Release"]
-        Test[test-engineer-agent<br/>Vitest, Playwright, Simulación]
-        Debug[debugger-regression-agent<br/>Repro, Fallas, Regresión]
-        Sec[security-agent<br/>Auditoría Seguridad, RBAC]
-        Docs[docs-agent<br/>Docs Canónicos, Runbooks, ADRs]
-        Rel[platform-release-agent<br/>CI/CD, EAS, Starter Extract]
-        QA[qa-agent<br/>Gate de Cierre Independiente]
-    end
-
-    PM -->|Requisitos y Aceptación| Orch
-    Design -->|Handoff de Pantallas| Orch
-    Orch -->|Delega Tareas| Especialistas
-    Orch -->|Coordina Infraestructura| InfraOperaciones
-    Especialistas -->|Código e Implementación| Test
-    InfraOperaciones -->|Ambientes y Confiabilidad| SRE
-    Test -->|Evidencias de Pruebas| Sec
-    Sec -->|Veredicto de Seguridad| Rel
-    Rel -->|Empaquetado y Pipelines| Docs
-    Docs -->|Manuales y Runbooks| QA
-    QA -->|Veredicto Final de Release| Orch
-```
-
-#### Catálogo Oficial de Agentes:
-
-|   #    | Nombre del Agente           | Rol Operativo                                                                           | Política de Shell      | Herramientas Asignadas                                                               | Habilidades (Skills)           |
-| :----: | :-------------------------- | :-------------------------------------------------------------------------------------- | :--------------------- | :----------------------------------------------------------------------------------- | :----------------------------- |
-| **1**  | `orchestrator-agent`        | Coordinación general del flujo, DAG de tareas, integración y aplicación de gates.       | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`, `invoke_subagent` | —                              |
-| **2**  | `product-manager-agent`     | Conduce sesiones live de producto, traduce decisiones a PRD sin supuestos no autorizados.| `off` (Solo docs)      | `view_file`, `grep_search`, `replace_file_content`                                   | `skills/live-product-qa`       |
-| **3**  | `ui-ux-designer-agent`      | Diseña interfaces web y mobile con tokens de diseño; gestiona aprobaciones con Stitch.  | `off` (Solo specs)     | `view_file`, `grep_search`, `replace_file_content`                                   | `skills/live-design-review`    |
-| **4**  | `repo-explorer-agent`       | Explora y mapea estructura de archivos, módulos y dependencias de forma pasiva.         | `off` (Lectura)        | `view_file`, `grep_search`                                                           | —                              |
-| **5**  | `change-planner-agent`      | Genera planes de cambio atómicos, secuenciales y con estimación de impacto.             | `off` (Solo artifacts) | `view_file`, `grep_search`, `replace_file_content`                                   | —                              |
-| **6**  | `frontend-agent`            | Desarrolla la aplicación web Next.js 16 con App Router, React 19 y Tailwind CSS 4.      | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **7**  | `mobile-agent`              | Desarrolla la app nativa Expo 57 / React Native, navegación y sincronización offline.   | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **8**  | `backend-agent`             | Implementa contratos Zod, Route Handlers, servicios de dominio y control RBAC.          | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **9**  | `infra-data-agent`          | Gestiona esquemas Drizzle, PostgreSQL, migraciones, Dockerfile y docker-compose.        | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **10** | `test-engineer-agent`       | Construye y ejecuta suites Vitest, Playwright y arneses de red simulada.                | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **11** | `debugger-regression-agent` | Reproduce bugs, aísla causa raíz y escribe pruebas de regresión automatizadas.          | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **12** | `security-agent`            | Audita cumplimiento de privacidad, control de secretos, RBAC, CI y hardening.          | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **13** | `docs-agent`                | Produce documentación canónica, runbooks de operación y guías de arquitectura.          | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **14** | `platform-release-agent`    | Administra dependencias compartidas, pipelines de CI/CD, EAS y empaquetado del starter. | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
-| **15** | `qa-agent`                  | Actúa como tribunal de cierre independiente, auditando evidencia sin modificar código.  | `off` (Solo lectura)   | `view_file`, `grep_search`                                                           | —                              |
-| **16** | `devops-agent`              | Diseña empaquetado Docker, Compose, proxy inverso NGINX host y pipelines CI/CD.         | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | `skills/production-deployment` |
-| **17** | `sre-agent`                 | Responsable de confiabilidad, monitoreo de salud, mitigación de saturación y runbooks.  | `sandbox`              | `view_file`, `grep_search`, `replace_file_content`, `run_command`                    | —                              |
+Cada perfil limita su rol, herramientas, permisos y alcance de salida. El TOML de cada perfil es la fuente canónica; esta guía no duplica el catálogo ni intenta definir políticas de otra herramienta.
 
 #### Protocolo de Comunicación y Handoff (Envelope v1):
 

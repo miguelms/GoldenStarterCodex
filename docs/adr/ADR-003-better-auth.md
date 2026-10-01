@@ -2,7 +2,7 @@
 
 - **Estado:** ACEPTADO
 - **Fecha:** 2026-09-21
-- **Decisores:** `orchestrator-agent`, `backend-agent`, `security-agent`, `docs-agent`
+- **Perfiles de revisión:** `backend`, `security`, `docs`
 - **Consultados:** `frontend-agent`, `mobile-agent`, `platform-release-agent`
 - **Referencias:** [`STACK.md`](../../STACK.md), [`src/server/auth.ts`](../../src/server/auth.ts), [`docs/architecture/starter-architecture-guide.md`](../architecture/starter-architecture-guide.md), [`docs/operations/enterprise-runbook.md`](../operations/enterprise-runbook.md)
 

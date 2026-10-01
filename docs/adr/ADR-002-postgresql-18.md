@@ -2,7 +2,7 @@
 
 - **Estado:** ACEPTADO
 - **Fecha:** 2026-09-21
-- **Decisores:** `orchestrator-agent`, `infra-data-agent`, `backend-agent`, `sre-agent`, `docs-agent`
+- **Perfiles de revisión:** `infra_data`, `backend`, `sre`, `docs`
 - **Consultados:** `security-agent`, `platform-release-agent`
 - **Referencias:** [`STACK.md`](../../STACK.md), [`docker-compose.yml`](../../docker-compose.yml), [`src/db/schema.ts`](../../src/db/schema.ts), [`docs/operations/enterprise-runbook.md`](../operations/enterprise-runbook.md)
 

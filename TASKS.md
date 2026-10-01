@@ -1,6 +1,6 @@
 # Tareas del Proyecto — Golden Starter V3
 
-> Bitácora y seguimiento de tareas gobernada por `orchestrator-agent`.
+> Bitácora de tareas coordinada por la conversación principal de Codex conforme a `AGENTS.md`. Los especialistas se cargan desde `.codex/agents/` cuando corresponde.
 
 ## Fase 0: Baseline Golden Starter V2 (Completada)
 

@@ -32,7 +32,6 @@ jobs:
           npm run typecheck
           npm run lint
           npm run check:mobile
-          npm run check:agents
           npm run test:unit
         env:
           EXPO_NO_TELEMETRY: "1"

@@ -1,35 +1,48 @@
-# Registro de agentes — Golden Starter V3
+# Registro de perfiles y skills de Codex
 
-Instancia: Antigravity project scope, 2026-09-20. Manifiestos: `.agents/agents/<name>/agent.md`.
+Este registro describe la configuración nativa de Codex de este repositorio. Los perfiles de subagente viven en `.codex/agents/*.toml`; las skills del proyecto siguen el formato Agent Skills y viven en `.agents/skills/<skill>/SKILL.md`.
 
-| ID                  | Activar cuando                     | Escritura prevista                 | Tools                               | Skill cargado      | Integración  |
-| ------------------- | ---------------------------------- | ---------------------------------- | ----------------------------------- | ------------------ | ------------ |
-| orchestrator        | toda integración                   | TASKS y artifacts globales         | archivos, shell sandbox, subagentes | —                  | orchestrator |
-| product-manager     | requisitos ambiguos o sesión Q&A   | PRD, specs, sesiones               | archivos sin shell                  | live-product-qa    | product      |
-| repo-explorer       | repo existente o flujo desconocido | ninguna                            | lectura                             | —                  | orchestrator |
-| change-planner      | impacto entre módulos              | artifacts/change-plans             | archivos sin shell                  | —                  | orchestrator |
-| ui-ux-designer      | UI o flujo relevante               | specs y sesiones de diseño         | archivos sin shell                  | live-design-review | design       |
-| frontend            | interfaz Next.js                   | src/app, components y estilos      | archivos, shell sandbox             | —                  | frontend     |
-| mobile              | Android/iOS                        | apps/mobile                        | archivos, shell sandbox             | —                  | mobile       |
-| backend             | API y contratos                    | server, route handlers, contracts  | archivos, shell sandbox             | —                  | backend      |
-| infra-data          | schema o migración                 | DB y Drizzle                       | archivos, shell sandbox             | —                  | data         |
-| test-engineer       | faltan pruebas                     | tests, E2E y fixtures              | archivos, shell sandbox             | —                  | QA           |
-| debugger-regression | bug concreto                       | debug artifacts y test autorizado  | archivos, shell sandbox             | —                  | QA           |
-| qa                  | cambio integrado                   | ninguna                            | lectura                             | —                  | QA           |
-| security            | auth, datos o release              | reportes de seguridad              | archivos, shell sandbox             | —                  | security     |
-| docs                | cambió comportamiento u operación  | documentación                      | archivos, shell sandbox             | —                  | docs         |
-| platform-release    | deps, CI o entrega                 | package, lock, CI y release config | archivos, shell sandbox             | —                  | release      |
-| devops              | despliegues, Docker y servidores   | Docker, Compose, Caddy/Nginx, CI/CD| archivos, shell sandbox             | production-deployment| devops     |
-| sre                 | confiabilidad, salud y resiliencia | monitoreo, incidentes, runbook     | archivos, shell sandbox             | —                  | sre          |
+## Límite entre instrucciones, skills y subagentes
 
-## Política efectiva
+- `AGENTS.md` contiene instrucciones breves y permanentes del repositorio para la conversación principal.
+- Las skills contienen procedimientos reutilizables que Codex carga cuando se invocan.
+- Los perfiles TOML definen roles que Codex puede delegar como subagentes; no sustituyen la conversación principal.
+- Los subagentes heredan las herramientas disponibles para la tarea principal. `sandbox_mode` acota el permiso de ejecución, pero el perfil no ofrece un allowlist por agente para las herramientas integradas.
 
-`orchestrator-agent`, `product-manager-agent` y `ui-ux-designer-agent` son seleccionables como agente principal; todos pueden ser invocados como subagentes. Solo el orquestador recibe `invoke_subagent`. `qa-agent` y `repo-explorer-agent` son lectores estrictos sin shell. Los perfiles escritores usan `commandExecutionPolicy: sandbox`; el sandbox real del runtime prevalece sobre el ownership descrito en Markdown.
+## Coordinación del trabajo
 
-Solo se referencian skills que existen dentro del proyecto: `.agents/skills/live-product-qa`, `.agents/skills/live-design-review` y `.agents/skills/production-deployment`. `business-analyst`, `voice-ai` y `legacy-migration` permanecen fuera de esta instancia hasta que el alcance los necesite.
+La conversación principal de Codex coordina las tareas según `AGENTS.md`, consulta `TASKS.md`, delega trabajo acotado a los perfiles especialistas de este catálogo, integra sus cambios y registra resultados conforme a `docs/contrato-resultados.md`. Los perfiles TOML definen especialistas; no sustituyen las instrucciones del repositorio ni la conversación principal.
 
-## Concurrencia e integración
+## Catálogo de perfiles Codex
 
-Durante el piloto se ejecuta un escritor por ruta compartida. Hay un único owner para `TASKS.md`, `package.json`, lockfile y resultados globales. Los escritores paralelos requieren branch/workspace aislado y handoff con base SHA. QA revisa el cambio integrado y no corrige implementación.
+Cada archivo TOML contiene las instrucciones completas del rol. Este registro resume responsabilidades, permisos, entregas y momentos apropiados para delegar.
 
-El manifiesto se valida con `npm run check:agents`; los contratos de resultado se validan por separado. La aparición real de los perfiles se comprueba en Antigravity IDE/Desktop con `/agents`.
+| Perfil | Archivo | Cuándo usarlo | Permiso | Entrega |
+| --- | --- | --- | --- | --- |
+| `product_manager` | `.codex/agents/product-manager.toml` | Después de que el usuario confirme el resumen de decisiones de producto | `workspace-write`; las instrucciones limitan su tarea a los documentos indicados, pero el permiso técnico cubre el checkout | Registro de sesión y spec en estado `DRAFT` |
+| `change_planner` | `.codex/agents/change-planner.toml` | Después de aprobar la spec, para cambios entre módulos o cuando el usuario solicite un plan | `workspace-write`; las instrucciones limitan su tarea al plan, pero el permiso técnico cubre el checkout | Plan trazable en `artifacts/change-plans/` |
+| `backend` | `.codex/agents/backend.toml` | Después de aprobar la spec y el plan cuando aplique, para tareas de backend delegadas con alcance claro | `workspace-write`; las instrucciones acotan archivos y acciones, pero el permiso técnico cubre el checkout | Cambios y pruebas trazables a criterios de aceptación (SDD), evidencia de TDD y checks |
+| `frontend` | `.codex/agents/frontend.toml` | Después de aprobar la spec y el plan cuando aplique, para tareas web con alcance claro; cambios visuales requieren además spec visual y referencias Stitch aprobadas | `workspace-write`; las instrucciones acotan archivos y acciones, pero el permiso técnico cubre el checkout | Cambios y pruebas web trazables a criterios de aceptación (SDD), evidencia de TDD y, cuando aplique, evidencia visual |
+| `ui_ux_designer` | `.codex/agents/ui-ux-designer.toml` | Después de que el usuario confirme decisiones de diseño, para investigar referencias Stitch/Figma y redactar artefactos visuales | `workspace-write`; las instrucciones limitan cambios locales a documentación, pero el permiso técnico cubre el checkout | Sesión y spec de diseño en borrador; consulta MCP configurados y no modifica recursos externos |
+| `mobile` | `.codex/agents/mobile.toml` | Después de aprobar la spec y el plan cuando aplique, para tareas Expo/React Native con criterios claros | `workspace-write`; las instrucciones acotan cambios móviles, pero el permiso técnico cubre el checkout | Cambios y pruebas trazables a criterios (SDD/TDD), con resultados y evidencia por plataforma |
+| `infra_data` | `.codex/agents/infra-data.toml` | Después de aprobar la spec y el plan cuando aplique, para cambios de esquema/migración con alcance de datos claro | `workspace-write`; las instrucciones acotan rutas y prohíben acceso remoto, pero el permiso técnico cubre el checkout | Schema, migración y pruebas de integración trazables a criterios (SDD/TDD), con compatibilidad y recuperación documentadas |
+| `repo_explorer` | `.codex/agents/repo-explorer.toml` | Antes de planear cuando el repositorio, flujo o ownership sea desconocido | `read-only` | Mapa del flujo, archivos, riesgos, incertidumbres y especialista siguiente; sin cambios ni ejecución de scripts |
+| `test_engineer` | `.codex/agents/test-engineer.toml` | Para añadir cobertura de criterios aprobados o ampliar suites por una tarea explícita | `workspace-write`; instrucciones limitan escrituras a pruebas/fixtures | Pruebas y fixtures trazables a criterios, con resultados y límites |
+| `debugger_regression` | `.codex/agents/debugger-regression.toml` | Para reproducir un bug antes de que su owner implemente un fix | `workspace-write`; no cambia código y escribe artifacts de diagnóstico; edita una prueba solo si se autoriza | Reproducción determinista, evidencia y prueba regresiva autorizada |
+| `qa` | `.codex/agents/qa.toml` | Después de integrar implementación y reunir artifacts de los checks | `read-only` | Veredicto `APPROVED`, `REJECTED` o `BLOCKED` contra spec y evidencia; sin comandos ni cambios |
+| `security` | `.codex/agents/security.toml` | Para auditar auth, datos, dependencias o superficie de ataque de un cambio acotado | `workspace-write`; reportes limitados a `docs/security/**` o ruta asignada | Hallazgos sustentados, impacto, remediación y límites de auditoría |
+| `docs` | `.codex/agents/docs.toml` | Después de cambios implementados que requieran documentación técnica u operativa | `workspace-write`; instrucciones limitan cambios a documentos asignados | Documentación alineada con código, contratos y evidencia |
+| `platform_release` | `.codex/agents/platform-release.toml` | Para toolchain, scripts, dependencias, CI, workflows y configuración EAS/release | `workspace-write`; ownership excluye Docker/Compose y exige autorización para publicar | Toolchain/workflows reproducibles y checks por referencia; no despliega producción |
+| `devops` | `.codex/agents/devops.toml` | Para Docker, Compose, proxy e infraestructura operativa | `workspace-write`; prohíbe acciones en servidores salvo autorización explícita | Configuración o plan operativo compatible con runbooks; sin despliegue implícito |
+| `sre` | `.codex/agents/sre.toml` | Para confiabilidad, observabilidad, capacidad, recuperación y runbooks | `workspace-write`; no opera producción sin autorización expresa | Riesgos, runbooks, evidencia de resiliencia y recuperación por entorno |
+
+## Skills
+
+| Skill | Ruta | Uso |
+| --- | --- | --- |
+| `live-product-qa` | `.agents/skills/live-product-qa/SKILL.md` | Conduce el Q&A con el usuario en la conversación principal y define cuándo delegar la redacción documental |
+| `live-design-review` | `.agents/skills/live-design-review/SKILL.md` | Conduce el Q&A de diseño en la conversación principal y organiza investigación MCP y redacción de la spec visual |
+
+## Flujo de producto
+
+La conversación principal habla con el usuario y confirma decisiones de producto y diseño. Después delega al perfil `product_manager` la redacción de `docs/live-sessions/` y `specs/`, y al perfil `ui_ux_designer` la redacción de `docs/design-sessions/` y `docs/design-specs/`; ninguno resuelve decisiones por el usuario ni puede aprobar sus propios documentos. Para diseño, la conversación principal reutiliza las referencias confirmadas en sesiones anteriores del producto o área, y registra nuevas referencias en la sesión actual. `ui_ux_designer` consulta los MCP configurados para revisar referencias relevantes y no modifica fuentes externas. Para cambios entre módulos o solicitudes explícitas de plan, la conversación principal delega la planificación técnica al perfil `change_planner`, que redacta `artifacts/change-plans/` sin modificar código ni pruebas. Si el flujo o ownership es desconocido, `repo_explorer` primero lo mapea en modo de solo lectura. Con la spec aprobada y el plan aprobado cuando aplique, los perfiles de implementación `backend`, `frontend`, `mobile` e `infra_data` cambian solo sus áreas delegadas mediante TDD; `infra_data` coordina con `backend` si cambian consultas y valida migraciones solo en PostgreSQL local. `test_engineer` añade pruebas sin implementar producto; `debugger_regression` reproduce fallos antes del fix; después de integrar, `qa` evalúa diff y evidencia en modo de solo lectura y `security` audita cambios sensibles. `docs` actualiza manuales desde el comportamiento final. `platform_release` posee toolchain, dependencias, workflows y EAS; `devops` posee Docker/Compose/proxy; `sre` posee confiabilidad y runbooks. Las operaciones productivas y publicaciones requieren autorización expresa; CI o un runbook no equivalen a autorización para desplegar. `frontend` y `mobile` requieren aprobación visual para cada plataforma afectada.

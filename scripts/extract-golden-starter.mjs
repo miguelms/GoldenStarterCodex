@@ -9,7 +9,7 @@
  * Capacidades:
  * - Excluye: .git, node_modules, .next, .expo, dist, logs, .DS_Store, locks temporales, secrets locales.
  * - Conserva: Código fuente, contratos, pruebas, migraciones, scripts, agentes, docs y fixtures ficticios.
- * - Valida integridad contra golden-starter.manifest.json y los 15 agentes Antigravity.
+ * - Valida integridad contra golden-starter.manifest.json y registra los perfiles locales de Codex.
  * - Calcula checksum SHA256 determinista del árbol del starter.
  * - Soporta modo '--dry-run' sin alterar el disco.
  */
@@ -145,7 +145,7 @@ function categorizeFile(relPath) {
   if (relPath.startsWith("tests/")) return "tests";
   if (relPath.startsWith("drizzle/")) return "migrations";
   if (relPath.startsWith("scripts/")) return "scripts";
-  if (relPath.startsWith(".agents/")) return "agents";
+  if (relPath.startsWith(".agents/") || relPath.startsWith(".codex/agents/")) return "agents";
   if (
     relPath.startsWith("docs/") ||
     relPath.startsWith("specs/") ||
@@ -181,41 +181,6 @@ function validateManifest(manifestPath) {
   for (const cap of requiredCaps) {
     if (!capIds.has(cap)) {
       errors.push(`Falta capacidad certificada requerida: ${cap}`);
-    }
-  }
-
-  // Validar catálogo de 15 agentes Antigravity
-  const agents = manifest.agent_catalog?.agents || [];
-  if (agents.length !== 15) {
-    errors.push(`Catálogo debe contener 15 agentes locales, encontrados: ${agents.length}`);
-  }
-
-  for (const agent of agents) {
-    const agentDir = join(projectRoot, ".agents", "agents", agent.name);
-    const agentMd = join(agentDir, "agent.md");
-    if (!existsSync(agentMd)) {
-      errors.push(`Agente declarado no existe en disco: ${agent.name} (${agentMd})`);
-    }
-    if (!["sandbox", "off"].includes(agent.commandExecutionPolicy)) {
-      errors.push(`Política de sandbox inválida para ${agent.name}: ${agent.commandExecutionPolicy}`);
-    }
-  }
-
-  // Validar 8 quality gates obligatorios
-  const requiredGates = [
-    "typecheck",
-    "lint",
-    "unit",
-    "integration",
-    "build:web",
-    "check:mobile",
-    "check:agents",
-    "audit:ci",
-  ];
-  const gateNames = new Set((manifest.quality_gates || []).map((g) => g.gate));
-  for (const gate of requiredGates) {
-    if (!gateNames.has(gate)) {
-      errors.push(`Falta quality gate obligatorio: ${gate}`);
     }
   }
 
@@ -258,6 +223,21 @@ Opciones:
 
   // 1. Validar manifiesto canónico
   const manifest = validateManifest(manifestPath);
+  const packageJson = JSON.parse(readFileSync(join(projectRoot, "package.json"), "utf8"));
+  const codexAgentsDir = join(projectRoot, ".codex", "agents");
+  const codexAgentCount = existsSync(codexAgentsDir)
+    ? readdirSync(codexAgentsDir).filter((file) => file.endsWith(".toml")).length
+    : 0;
+  const qualityGateNames = [
+    "typecheck",
+    "lint",
+    "test:unit",
+    "test:integration",
+    "build:web",
+    "test:e2e:web",
+    "check:mobile",
+    "audit:ci",
+  ].filter((name) => packageJson.scripts?.[name]);
 
   // 2. Escanear archivos preservados
   const files = scanDirectory(projectRoot).sort();
@@ -356,11 +336,8 @@ Opciones:
       id: c.id,
       name: c.name,
     })),
-    agents_catalog: {
-      total: manifest.agent_catalog.agents.length,
-      platform: manifest.agent_catalog.platform,
-    },
-    quality_gates: manifest.quality_gates.map((q) => q.gate),
+    codex_agent_profiles: codexAgentCount,
+    quality_gates: qualityGateNames,
     sanitization: {
       status: "VERIFIED_CLEAN",
       secrets_detected: 0,
@@ -399,7 +376,7 @@ Opciones:
 
   // Impresión visual estructurada para consola/CI
   console.log("================================================================================");
-  console.log("       GOLDEN STARTER V3 — MOTOR DE EXTRACCIÓN Y SANITIZACIÓN                    ");
+  console.log("       GOLDEN STARTER CODEX — MOTOR DE EXTRACCIÓN Y SANITIZACIÓN                ");
   console.log("================================================================================");
   console.log(`Starter:           ${manifest.name} (v${manifest.version})`);
   console.log(`Base Ref:          ${manifest.base_ref}`);
@@ -411,13 +388,10 @@ Opciones:
     console.log(`  [OK] ${cap.id.padEnd(8)}: ${cap.name}`);
   }
   console.log("--------------------------------------------------------------------------------");
-  console.log(`Catálogo de Agentes Antigravity (${manifest.agent_catalog.agents.length} agentes verificados):`);
-  const mainAgents = manifest.agent_catalog.agents.filter((a) => a.mainAgent).map((a) => a.name);
-  console.log(`  - Agentes Principales: ${mainAgents.join(", ")}`);
-  console.log(`  - Políticas Sandbox:   11 en 'sandbox', 4 en 'off' (lectores/diseño/pm)`);
+  console.log(`Perfiles especialistas Codex: ${codexAgentCount}`);
   console.log("--------------------------------------------------------------------------------");
-  console.log(`Quality Gates Obligatorios (${manifest.quality_gates.length} gates registrados):`);
-  console.log(`  ${manifest.quality_gates.map((g) => g.gate).join(", ")}`);
+  console.log(`Checks configurados (${qualityGateNames.length}):`);
+  console.log(`  ${qualityGateNames.join(", ")}`);
   console.log("--------------------------------------------------------------------------------");
   console.log("Métricas del Árbol Sanitizado:");
   console.log(`  Total Archivos:    ${files.length}`);

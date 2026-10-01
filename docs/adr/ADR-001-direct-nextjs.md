@@ -2,7 +2,7 @@
 
 - **Estado:** ACEPTADO
 - **Fecha:** 2026-09-21
-- **Decisores:** `orchestrator-agent`, `platform-release-agent`, `backend-agent`, `frontend-agent`, `docs-agent`
+- **Perfiles de revisión:** `platform_release`, `backend`, `frontend`, `docs`
 - **Consultados:** `sre-agent`, `security-agent`
 - **Referencias:** [`STACK.md`](../../STACK.md), [`golden-starter.manifest.json`](../../golden-starter.manifest.json), [`docs/architecture/starter-architecture-guide.md`](../architecture/starter-architecture-guide.md)
 

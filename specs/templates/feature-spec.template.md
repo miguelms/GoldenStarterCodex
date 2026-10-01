@@ -1,7 +1,7 @@
 # [FEATURE-ID]: [Nombre de la Funcionalidad]
 
 > Estado: `DRAFT | APPROVED_BY_USER | IN_PROGRESS | VERIFIED | RELEASED`  
-> Owner: `product-manager-agent`  
+> Owner: `product_manager` (Codex subagent)
 > Metodología: Spec-Driven Development (SDD)
 
 ---

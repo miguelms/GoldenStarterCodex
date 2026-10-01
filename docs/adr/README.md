@@ -19,5 +19,5 @@ Este directorio alberga los **Registros de Decisiones de Arquitectura** (_Archit
 ### Gobernanza de Decisiones
 
 1. **Inmutabilidad Histórica:** Los ADRs aceptados no se modifican retroactivamente. Si una decisión cambia, se publica un nuevo ADR que reemplaza o enmienda el anterior (`SUPERSEDED_BY`).
-2. **Coordinación:** Toda decisión de arquitectura debe coordinarse con `orchestrator-agent`, el agente de dominio respectivo (`infra-data-agent`, `backend-agent`, `frontend-agent`, `security-agent`, `sre-agent`) y documentarse formalmente por `docs-agent`.
+2. **Coordinación:** El owner decide las cuestiones de producto y arquitectura. La conversación principal de Codex coordina el análisis; puede delegar la revisión técnica al perfil especialista correspondiente y registrar la decisión en un ADR.
 3. **Fuente de Tecnologías:** Las versiones exactas de las librerías se rigen exclusivamente por [`STACK.md`](../../STACK.md).

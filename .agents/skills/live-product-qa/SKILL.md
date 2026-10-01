@@ -1,31 +1,24 @@
 ---
 name: live-product-qa
-description: Facilita una sesión interactiva de preguntas y respuestas entre el usuario y el agente PM, registra decisiones y evita convertir supuestos de negocio, legales o de privacidad en requisitos sin aprobación.
+description: Aclara requisitos con una sesión interactiva antes de redactar o cambiar el PRD o una spec; úsala cuando haya decisiones pendientes sobre alcance, reglas de negocio, privacidad, permisos o costos.
 ---
 
-# Live product Q&A
+# Q&A de producto
 
-Usa esta skill cuando un PRD tenga preguntas abiertas, respuestas contradictorias o decisiones que el usuario debe explorar conversando.
+Usa este flujo en la conversación principal de Codex. El diálogo con el usuario ocurre aquí; el subagente `product_manager` consolida las decisiones confirmadas en documentos del proyecto.
 
 ## Procedimiento
 
-1. Lee `PRD.md`, `docs/questions-v0.1.md`, `STACK.md` y `TASKS.md` solo en el alcance necesario.
-2. Abre o reanuda un registro en `docs/live-sessions/` con repo, base SHA, participantes y fuentes.
-3. Separa preguntas bloqueantes, importantes y opcionales.
-4. Haz una pregunta bloqueante por turno. Permite preguntas del usuario y responde con alternativas, impacto y evidencia.
-5. Etiqueta cada intercambio como `DECISION`, `ASSUMPTION`, `RECOMMENDATION`, `BLOCKER` o `QUESTION`.
-6. Nunca inventes reglas de negocio críticas, requisitos legales, consentimiento, retención ni permisos nativos. Marca `BLOCKER` y deriva al responsable.
-7. Revisa contradicciones con respuestas previas antes de aceptar una decisión.
-8. Actualiza PRD, preguntas, tareas y ADRs solamente con decisiones confirmadas.
-9. Devuelve `READY`, `BLOCKED` o `NEEDS_REVIEW` y un resumen trazable al SHA.
+1. Lee solo las partes relevantes de `PRD.md`, `STACK.md`, `TASKS.md`, `docs/questions-v0.1.md`, las specs activas y los registros de decisiones relacionados. No cargues historial ajeno a la tarea ni secretos.
+2. Identifica las decisiones que bloquean una spec útil. Haz una pregunta bloqueante por turno. Explica el efecto práctico de cada opción y da un ejemplo cuando ayude.
+3. Clasifica cada respuesta o punto pendiente como `DECISION`, `ASSUMPTION`, `RECOMMENDATION`, `BLOCKER` o `QUESTION`. Separa las decisiones confirmadas por el usuario de tu análisis.
+4. Busca contradicciones con requisitos existentes y respuestas previas. Si hay conflicto, muestra ambos puntos y pide al usuario que lo resuelva.
+5. No inventes reglas de negocio, obligaciones legales, decisiones de privacidad, consentimiento, retención ni permisos. Registra como bloqueos las decisiones críticas que sigan abiertas.
+6. No modifiques archivos mientras exploras los requisitos. Al terminar las preguntas, presenta al usuario un resumen conciso de las decisiones y pide que lo confirme.
+7. Después de la confirmación, delega una tarea documental acotada a `product_manager` y pásale las decisiones confirmadas, las fuentes relevantes, el ID de la funcionalidad y el SHA base. No le pidas que converse con el usuario ni que tome decisiones.
+8. El subagente redacta el registro en `docs/live-sessions/YYYY-MM-DD-<tema>.md` y la spec en `specs/FEAT-###-<slug>.md`. Debe dejar la spec en `DRAFT` y señalar bloqueos en vez de suponer.
+9. Presenta las rutas creadas, un resumen y las preguntas pendientes. Cambia el estado de la spec a `APPROVED_BY_USER` solo después de que el usuario la apruebe. Actualiza `PRD.md` solo si una decisión confirmada cambia un requisito general del producto.
 
-## Límites
+## Respuesta de cierre
 
-- No implementes código del producto durante la sesión.
-- No cambies el proveedor, el stack o el alcance sensible por conveniencia del agente.
-- No marques `READY` si queda una decisión bloqueante sin responsable.
-- No incluyas secretos ni datos sensibles reales en el transcript.
-
-## Resultado mínimo
-
-El resultado debe incluir `session_id`, `evaluated_ref`, `decisions`, `open_questions`, `blockers`, `files_to_update`, `verdict` y `next_action`, además del contrato general del proyecto.
+Resume las decisiones confirmadas, los supuestos, las preguntas o bloqueos pendientes, los archivos creados o actualizados, el estado de la spec y el siguiente paso. El usuario no debe reconstruir el resultado leyendo toda la conversación.

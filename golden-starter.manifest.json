@@ -3,7 +3,7 @@
   "name": "golden-starter-v3",
   "displayName": "Golden Starter V3",
   "version": "3.0.0",
-  "description": "Manifiesto canónico de Golden Starter V3 — Monorepo Web & Mobile multi-tenant, arquitectura desacoplada, Spec-Driven Development (SDD) y catálogo de agentes Antigravity",
+  "description": "Manifiesto canónico de Golden Starter Codex — Monorepo Web & Mobile multi-tenant, arquitectura desacoplada y Spec-Driven Development (SDD)",
   "base_ref": "v3.0.0-canonical",
   "architecture": {
     "framework": "Monorepo Next.js 16 (App Router) + Expo 57 (React Native) + Drizzle ORM + PostgreSQL 18 + Better-Auth + Zod contracts",

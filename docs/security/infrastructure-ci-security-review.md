@@ -333,19 +333,13 @@ Durante la auditoría se ejecutaron los comandos de verificación exigidos en el
    Exit Code: 0
    ```
 
-2. **Validación de Configuración de Agentes Antigravity (`npm run check:agents`):**
-   ```text
-   Configuración Antigravity válida: 17 agentes, 3 principales.
-   Exit Code: 0
-   ```
-
-3. **Verificación de Tipado Estático TypeScript (`npm run typecheck`):**
+2. **Verificación de Tipado Estático TypeScript (`npm run typecheck`):**
    ```text
    > tsc --noEmit
    Exit Code: 0
    ```
 
-4. **Verificación de Espacio de Trabajo Móvil (`npm run check:mobile`):**
+3. **Verificación de Espacio de Trabajo Móvil (`npm run check:mobile`):**
    ```text
    Mobile package manifest OK (1.0.0)
    > @starter/mobile@1.0.0 typecheck
@@ -353,7 +347,7 @@ Durante la auditoría se ejecutaron los comandos de verificación exigidos en el
    Exit Code: 0
    ```
 
-5. **Suite Completa de Pruebas Unitarias y de Dominio (`npm run test:unit`):**
+4. **Suite Completa de Pruebas Unitarias y de Dominio (`npm run test:unit`):**
    ```text
    Test Files: passed
    Tests:      passed

@@ -91,19 +91,8 @@ Orquestada mediante Docker Compose en `internal-network`:
 4. **Observabilidad y Seguridad de Logs:**
    - Redactor automático de expresiones regulares (`src/lib/error-logger.ts`) que reemplaza credenciales, passwords, tokens y llaves por `[REDACTED]` antes de escribir en disco o en la tabla `error_logs`.
 
-## 5. Catálogo y Límites de Agentes
+## 5. Coordinación y Perfiles Especialistas de Codex
 
-| Agente | Alcance de Modificación | Rol Principal |
-| :--- | :--- | :--- |
-| `orchestrator-agent` | Orquestación, `TASKS.md`, integración | Conduce el flujo SDD y asegura gates |
-| `product-manager-agent` | `PRD.md`, `specs/`, sesiones Q&A | Define requisitos y criterios de aceptación |
-| `change-planner-agent` | `artifacts/change-plans/` | Descompone specs en tareas ejecutables |
-| `backend-agent` | `src/server/**`, `src/app/api/**` | Implementa Route Handlers y lógica de backend |
-| `frontend-agent` | `src/app/**` (no api), `src/components/**` | Construye páginas, formularios y layouts |
-| `mobile-agent` | `apps/mobile/**` | Desarrolla pantallas React Native y cola outbox |
-| `infra-data-agent` | `src/db/**`, `drizzle/**` | Diseña esquemas PostgreSQL y migraciones |
-| `test-engineer-agent`| `tests/**` | Escribe suites unitarias, integración y E2E |
-| `qa-agent` | Solo lectura (auditoría) | Valida scorecards de specs de forma independiente |
-| `security-agent` | Solo lectura (auditoría) | Revisa multi-tenant, sanitización y secretos |
-| `devops-agent` | `docker-compose*`, `Dockerfile`, CI/CD | Empaqueta, gestiona contenedores y despliegues |
-| `sre-agent` | Monitoreo, backups, runbooks | Mantiene resiliencia y planes de contingencia |
+La conversación principal de Codex coordina el diálogo con el owner, aplica las instrucciones de `AGENTS.md`, conserva el hilo SDD/TDD e integra el trabajo delegado. No existe un perfil `orchestrator` en `.codex/agents/`; esa responsabilidad pertenece a la conversación principal.
+
+Los perfiles especialistas delimitan tareas delegadas. Sus nombres, permisos, ownership, entregas y puntos de handoff se mantienen en el [registro de agentes](docs/agent-registry.md), y sus instrucciones canónicas viven en `.codex/agents/*.toml`. Los flujos reutilizables se documentan en `.agents/skills/`.

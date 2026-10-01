@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Validar que el starter puede servir como esqueleto sólido, modular y limpio para cualquier nueva aplicación web y móvil, garantizando aislamiento multi-tenant, persistencia relacional con PostgreSQL 18, autenticación con Better-Auth, sincronización outbox offline y orquestación con 17 agentes especializados Antigravity.
+Validar que el starter puede servir como esqueleto sólido, modular y limpio para cualquier nueva aplicación web y móvil, garantizando aislamiento multi-tenant, persistencia relacional con PostgreSQL 18, autenticación con Better-Auth, sincronización outbox offline y perfiles especialistas de Codex.
 
 ## Principios del Starter
 

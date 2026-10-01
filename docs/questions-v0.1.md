@@ -26,4 +26,4 @@ Estas preguntas y respuestas establecen los invariantes y reglas fundamentales i
 5. **¿Qué matriz de validación y herramientas de prueba aseguran la calidad?**
    - **Unit / Integración:** Vitest con contratos TypeScript compartidos (`@starter/contracts`).
    - **Móvil E2E:** Maestro con flujos deterministas y simulador de red móvil adverso (`scripts/simulate-mobile-network.mjs`).
-   - **Criterio de Validación:** Cero regresiones, 100% tipado estricto (`tsc --noEmit`), y verificación automatizada de roles y skills (`npm run check:agents`).
+   - **Criterio de Validación:** Cero regresiones, tipado estricto (`tsc --noEmit`) y revisión de las instrucciones de agentes y skills aplicables.

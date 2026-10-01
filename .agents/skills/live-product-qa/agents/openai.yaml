@@ -1,0 +1,7 @@
+interface:
+  display_name: "Q&A de producto"
+  short_description: "Aclara requisitos y registra decisiones confirmadas"
+  default_prompt: "Usa $live-product-qa para aclarar conmigo los requisitos de esta funcionalidad."
+
+policy:
+  allow_implicit_invocation: false

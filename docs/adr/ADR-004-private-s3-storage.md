@@ -2,7 +2,7 @@
 
 - **Estado:** ACEPTADO
 - **Fecha:** 2026-09-21
-- **Decisores:** `orchestrator-agent`, `security-agent`, `backend-agent`, `sre-agent`, `docs-agent`
+- **Perfiles de revisión:** `security`, `backend`, `sre`, `docs`
 - **Consultados:** `infra-data-agent`, `frontend-agent`, `mobile-agent`
 - **Referencias:** [`STACK.md`](../../STACK.md), [`ARCHITECTURE.md`](../../ARCHITECTURE.md), [`docs/architecture/starter-architecture-guide.md`](../architecture/starter-architecture-guide.md), [`docs/security/work-orders-security-review.md`](../security/work-orders-security-review.md)
 

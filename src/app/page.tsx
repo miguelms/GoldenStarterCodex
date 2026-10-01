@@ -116,7 +116,7 @@ export default function HomePage() {
                 <h2 className="text-lg font-bold">Topología Docker Compose &amp; Agentes</h2>
               </div>
               <p className="text-xs text-slate-500">
-                Entorno reproducible con red interna aislada y soporte de 17 especialistas Antigravity
+                Entorno reproducible con red interna aislada y perfiles especialistas de Codex
               </p>
             </div>
             <Badge variant="outline" className="text-emerald-600 border-emerald-300">

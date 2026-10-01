@@ -39,9 +39,6 @@ jobs:
       - name: Check code formatting
         run: npm run format:check
 
-      - name: Validate Antigravity agents configuration
-        run: npm run check:agents
-
   test-unit-integration:
     name: Unit & Integration Tests
     runs-on: ubuntu-latest

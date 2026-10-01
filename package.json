@@ -19,7 +19,6 @@
     "build:web": "next build --webpack",
     "test:e2e:web": "playwright test",
     "check:mobile": "node scripts/check-mobile.mjs && npm --workspace @starter/mobile run typecheck",
-    "check:agents": "node scripts/validate-antigravity-agents.mjs",
     "audit:ci": "npm audit --audit-level=high",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",

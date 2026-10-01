@@ -58,7 +58,7 @@ sudo chown -R $USER:$USER /opt/golden-starter
 cd /opt/golden-starter
 
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/GoldenStarterV3.git .
+git clone https://github.com/tu-usuario/mi-aplicacion.git .
 git checkout main
 ```
 

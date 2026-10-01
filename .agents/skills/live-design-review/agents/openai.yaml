@@ -1,0 +1,4 @@
+interface:
+  display_name: "Live design review"
+  short_description: "Diseño revisable con referencias de Stitch y Figma"
+  default_prompt: "Usa $live-design-review para aclarar el alcance visual y preparar una spec de diseño revisable."
