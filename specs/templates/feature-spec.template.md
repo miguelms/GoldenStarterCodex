@@ -17,11 +17,13 @@
 ## 2. Especificación de Comportamiento (Given / When / Then)
 
 ### Escenario 1: Flujo Exitoso Principal
+
 - **Given:** [Precondición del sistema o estado de datos inicial]
 - **When:** [Acción ejecutada por el usuario o evento recibido]
 - **Then:** [Resultado esperado, mutación de estado y respuesta devuelta]
 
 ### Escenario 2: Límite / Validación / Error
+
 - **Given:** [Contexto con datos inválidos o estado no autorizado]
 - **When:** [Se intenta ejecutar la acción]
 - **Then:** [El sistema rechaza con código de error específico y mensaje tipado]
@@ -41,18 +43,19 @@
 
 ## 4. Scorecard de Criterios de Aceptación (Verificación Automática)
 
-*Todo criterio debe ser verificable mediante pruebas automáticas ejecutables.*
+_Todo criterio debe ser verificable mediante pruebas automáticas ejecutables._
 
-| ID Criterio | Descripción Verificable | Tipo de Test | Archivo de Prueba | Estado |
-| :--- | :--- | :--- | :--- | :--- |
-| **AC-001** | [Criterio 1: ej. Retorna 200 y estructura válida] | Unit / Integration | `tests/unit/...` | [ ] PENDING |
-| **AC-002** | [Criterio 2: ej. Aislamiento por organizationId] | Security / Unit | `tests/unit/...` | [ ] PENDING |
-| **AC-003** | [Criterio 3: ej. Manejo offline / idempotencia] | Integration | `tests/integration/...` | [ ] PENDING |
+| ID Criterio | Descripción Verificable                           | Tipo de Test       | Archivo de Prueba       | Estado      |
+| :---------- | :------------------------------------------------ | :----------------- | :---------------------- | :---------- |
+| **AC-001**  | [Criterio 1: ej. Retorna 200 y estructura válida] | Unit / Integration | `tests/unit/...`        | [ ] PENDING |
+| **AC-002**  | [Criterio 2: ej. Aislamiento por organizationId]  | Security / Unit    | `tests/unit/...`        | [ ] PENDING |
+| **AC-003**  | [Criterio 3: ej. Manejo offline / idempotencia]   | Integration        | `tests/integration/...` | [ ] PENDING |
 
 ---
 
 ## 5. Fuera de Alcance (Límites Estrictos para Evitar Drift)
 
-*Lista explícita de lo que los agentes NO deben implementar en esta iteración:*
+_Lista explícita de lo que los agentes NO deben implementar en esta iteración:_
+
 - [ ] [Ejemplo: Notificaciones push automáticas]
 - [ ] [Ejemplo: Migración masiva de registros históricos]

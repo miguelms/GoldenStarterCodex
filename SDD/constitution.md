@@ -12,15 +12,15 @@ Esta ficha reúne las decisiones duraderas que orientan el trabajo futuro. El vi
 
 ## Stack y límites técnicos
 
-- **Qué debe contener:** runtimes, frameworks, paquetes, bases de datos, versiones, comandos de calidad y dependencias aprobadas.
-- **Fuente actual:** [`../STACK.md`](../STACK.md).
-- **Estado:** **Adoptado**. Si el stack cambia, actualiza `STACK.md`; no mantengas una copia aquí.
+- **Qué debe contener:** la constitución exige que cada aplicación declare una fuente técnica versionada, sus límites y sus gates.
+- **Fuente actual:** [GoldenStarterWebIA](https://github.com/miguelms/GoldenStarterWebIA) y el `composition.yaml`/`lock.yaml` de la aplicación consumidora.
+- **Estado:** **Separado**. GoldenStarterCodex no fija runtimes, frameworks, paquetes ni comandos del stack.
 
 ## Arquitectura y decisiones
 
 - **Qué debe contener:** límites entre componentes, flujos de datos, seguridad, decisiones con tradeoffs y sus consecuencias.
-- **Fuentes actuales:** [`../ARCHITECTURE.md`](../ARCHITECTURE.md), [`../docs/adr/`](../docs/adr/) y [`../docs/architecture/`](../docs/architecture/).
-- **Estado:** **Adoptado**, distribuido entre arquitectura y ADRs. Actualiza ADRs cuando una decisión nueva afecte límites o tradeoffs.
+- **Fuente técnica:** [`GoldenStarterWebIA/docs/repository-contract.md`](https://github.com/miguelms/GoldenStarterWebIA/blob/main/docs/repository-contract.md) y la documentación de arquitectura/ADR que mantenga el repositorio técnico seleccionado por la aplicación.
+- **Estado:** **Adoptado**, con la arquitectura técnica fuera de este repositorio. Actualiza la fuente técnica y registra aquí cualquier decisión de gobernanza que cambie sus límites o tradeoffs.
 
 ## Roadmap
 
@@ -46,4 +46,4 @@ Esta ficha reúne las decisiones duraderas que orientan el trabajo futuro. El vi
 
 ## Política de cambio
 
-Una modificación a misión, stack, arquitectura, límites de seguridad o despliegue requiere actualizar su fuente canónica y revisar las specs afectadas. Una feature puede proponer ese cambio, pero no sustituye la aprobación del dueño del proyecto.
+Una modificación a misión, contrato de composición, límites de seguridad o proceso de gobernanza requiere actualizar su fuente canónica y revisar las specs afectadas. Un cambio de stack se documenta y publica en su repositorio técnico, pero no modifica esta gobernanza por accidente.

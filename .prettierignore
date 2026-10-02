@@ -1,0 +1,2 @@
+# Generated axe reports retain the scanner's JSON structure.
+artifacts/results/FEAT-002/axe-*.json

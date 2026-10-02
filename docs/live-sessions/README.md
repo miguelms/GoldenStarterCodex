@@ -34,9 +34,9 @@ El subagente no conduce el Q&A ni decide requisitos. Su sandbox permite escribir
 
 ## Decisiones confirmadas
 
-| ID | Pregunta | Decisión | Responsable | Evidencia |
-| --- | --- | --- | --- | --- |
-| Q-001 | <pregunta> | <respuesta confirmada> | <persona> | <fuente/turno> |
+| ID    | Pregunta   | Decisión               | Responsable | Evidencia      |
+| ----- | ---------- | ---------------------- | ----------- | -------------- |
+| Q-001 | <pregunta> | <respuesta confirmada> | <persona>   | <fuente/turno> |
 
 ## Supuestos, preguntas y bloqueos
 

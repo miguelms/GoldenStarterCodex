@@ -1,6 +1,6 @@
 # Módulo SDD — Spec-Driven Development
 
-> Metodología oficial de desarrollo guiado por especificaciones para **Golden Starter V3**.
+> Metodología oficial de desarrollo guiado por especificaciones para **GoldenStarterCodex**.
 
 Este directorio aloja todas las especificaciones formales de requerimientos antes de escribir código.
 
@@ -9,10 +9,10 @@ Este directorio aloja todas las especificaciones formales de requerimientos ante
 ## 📁 Contenido del Directorio
 
 - **`templates/feature-spec.template.md`**: Plantilla oficial para redactar nuevas especificaciones con:
-  - Casos de uso (*User Story*).
+  - Casos de uso (_User Story_).
   - Escenarios ejecutables en formato **Given / When / Then**.
   - Scorecard de Criterios de Aceptación con ID único (`AC-001`, `AC-002`, etc.) mapeados a pruebas automáticas.
-  - Límites de alcance (*Out of Scope*) para evitar desvíos (*agent drift*).
+  - Límites de alcance (_Out of Scope_) para evitar desvíos (_agent drift_).
 
 ---
 

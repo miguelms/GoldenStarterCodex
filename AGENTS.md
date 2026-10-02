@@ -2,9 +2,8 @@
 
 ## Fuentes del proyecto
 
-- Stack y versiones: `STACK.md`.
-- Requisitos generales: `PRD.md`.
-- Arquitectura y seguridad: `ARCHITECTURE.md`.
+- Gobernanza y propósito: `PRD.md`, `SDD/` y `docs/golden-project-plan.md`.
+- Stack técnico externo: [GoldenStarterWebIA](https://github.com/miguelms/GoldenStarterWebIA), fijado por la aplicación consumidora en `.golden/composition.yaml` y `.golden/lock.yaml`.
 - Especificaciones activas: `specs/`.
 - Ownership y perfiles: `docs/agent-registry.md` y `.codex/agents/`.
 - Checks y evidencia: `docs/QUALITY.md` y `docs/contrato-resultados.md`.

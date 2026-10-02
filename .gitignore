@@ -9,9 +9,11 @@ android/
 .env
 .env.*
 !.env.example
-artifacts/results/*.txt
+artifacts/results/**/*.txt
 playwright-report/
 test-results/
+artifacts/results/**/browser-results/
+artifacts/results/**/theme-browser-results/
 *.log
 .DS_Store
 storage/

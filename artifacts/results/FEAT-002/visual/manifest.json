@@ -1,0 +1,219 @@
+{
+  "capturedAtUtc": "2026-10-02T05:37:44.310Z",
+  "browserVersion": "153.0.8010.12",
+  "url": "http://127.0.0.1:3104/?view=ui3",
+  "kind": "visual proposal fixture; not production component QA",
+  "records": [
+    {
+      "name": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "theme": "light",
+      "file": "ui3-desktop-light.png",
+      "metrics": {
+        "documentWidth": 1280,
+        "tinyText": [],
+        "smallTouch": [],
+        "theme": "light"
+      }
+    },
+    {
+      "name": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "theme": "dark",
+      "file": "ui3-desktop-dark.png",
+      "metrics": {
+        "documentWidth": 1280,
+        "tinyText": [],
+        "smallTouch": [],
+        "theme": "dark"
+      }
+    },
+    {
+      "name": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "file": "ui3-mobile-light.png",
+      "metrics": {
+        "documentWidth": 390,
+        "tinyText": [],
+        "smallTouch": [],
+        "theme": "light"
+      }
+    },
+    {
+      "name": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "dark",
+      "file": "ui3-mobile-dark.png",
+      "metrics": {
+        "documentWidth": 390,
+        "tinyText": [],
+        "smallTouch": [],
+        "theme": "dark"
+      }
+    },
+    {
+      "name": "narrow",
+      "viewport": {
+        "width": 320,
+        "height": 700
+      },
+      "theme": "light",
+      "file": "ui3-narrow-light.png",
+      "metrics": {
+        "documentWidth": 320,
+        "tinyText": [],
+        "smallTouch": [],
+        "theme": "light"
+      }
+    },
+    {
+      "name": "narrow",
+      "viewport": {
+        "width": 320,
+        "height": 700
+      },
+      "theme": "dark",
+      "file": "ui3-narrow-dark.png",
+      "metrics": {
+        "documentWidth": 320,
+        "tinyText": [],
+        "smallTouch": [],
+        "theme": "dark"
+      }
+    }
+  ],
+  "reducedMotion": {
+    "animationDuration": "1e-05s",
+    "transitionDuration": "1e-05s"
+  },
+  "overlayPreviews": {
+    "kind": "static design mock; no modal interaction",
+    "records": [
+      {
+        "name": "desktop",
+        "theme": "light",
+        "kind": "dialog",
+        "file": "ui3-desktop-light-dialog.png",
+        "metrics": {
+          "width": 480,
+          "height": 319,
+          "top": 240,
+          "bottom": 560,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(249, 247, 241)"
+        }
+      },
+      {
+        "name": "desktop",
+        "theme": "light",
+        "kind": "alertdialog",
+        "file": "ui3-desktop-light-alertdialog.png",
+        "metrics": {
+          "width": 480,
+          "height": 226,
+          "top": 287,
+          "bottom": 513,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(249, 247, 241)"
+        }
+      },
+      {
+        "name": "desktop",
+        "theme": "dark",
+        "kind": "dialog",
+        "file": "ui3-desktop-dark-dialog.png",
+        "metrics": {
+          "width": 480,
+          "height": 319,
+          "top": 240,
+          "bottom": 560,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(42, 44, 39)"
+        }
+      },
+      {
+        "name": "desktop",
+        "theme": "dark",
+        "kind": "alertdialog",
+        "file": "ui3-desktop-dark-alertdialog.png",
+        "metrics": {
+          "width": 480,
+          "height": 226,
+          "top": 287,
+          "bottom": 513,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(42, 44, 39)"
+        }
+      },
+      {
+        "name": "mobile",
+        "theme": "light",
+        "kind": "dialog",
+        "file": "ui3-mobile-light-dialog.png",
+        "metrics": {
+          "width": 358,
+          "height": 324,
+          "top": 260,
+          "bottom": 584,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(249, 247, 241)"
+        }
+      },
+      {
+        "name": "mobile",
+        "theme": "light",
+        "kind": "alertdialog",
+        "file": "ui3-mobile-light-alertdialog.png",
+        "metrics": {
+          "width": 358,
+          "height": 231,
+          "top": 307,
+          "bottom": 537,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(249, 247, 241)"
+        }
+      },
+      {
+        "name": "mobile",
+        "theme": "dark",
+        "kind": "dialog",
+        "file": "ui3-mobile-dark-dialog.png",
+        "metrics": {
+          "width": 358,
+          "height": 324,
+          "top": 260,
+          "bottom": 584,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(42, 44, 39)"
+        }
+      },
+      {
+        "name": "mobile",
+        "theme": "dark",
+        "kind": "alertdialog",
+        "file": "ui3-mobile-dark-alertdialog.png",
+        "metrics": {
+          "width": 358,
+          "height": 231,
+          "top": 307,
+          "bottom": 537,
+          "border": "rgb(133, 129, 118)",
+          "background": "rgb(42, 44, 39)"
+        }
+      }
+    ]
+  }
+}

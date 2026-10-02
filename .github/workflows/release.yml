@@ -1,79 +1,41 @@
-name: Release
+name: Governance Release
 
 on:
   push:
-    tags:
-      - "v*"
+    tags: ["v*"]
 
 permissions:
   contents: write
 
 jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+
   package-and-release:
-    name: Package Starter & Publish Release
+    needs: validate
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run verification checks before packaging
+      - name: Require tag on the published branch
         run: |
-          npm run typecheck
-          npm run lint
-          npm run check:mobile
-          npm run test:unit
-        env:
-          EXPO_NO_TELEMETRY: "1"
-
-      - name: Validate web standalone build
-        run: npm run build:web
-        env:
-          NEXT_PRIVATE_STANDALONE: "true"
-
-      - name: Package starter distribution archives
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/codex/agent-separation; then
+            echo "Governance release tag must point to codex/agent-separation." >&2
+            exit 1
+          fi
+      - name: Package governance archive
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          PACKAGE_NAME="golden-starter-v${VERSION}"
+          version="${GITHUB_REF_NAME#v}"
+          name="golden-starter-codex-governance-${version}"
           mkdir -p release-artifacts
-
-          # Package git archive in tar.gz and zip formats
-          git archive --format=tar.gz --prefix="${PACKAGE_NAME}/" HEAD -o "release-artifacts/${PACKAGE_NAME}.tar.gz"
-          git archive --format=zip --prefix="${PACKAGE_NAME}/" HEAD -o "release-artifacts/${PACKAGE_NAME}.zip"
-
-          # Generate SHA256 checksums
-          cd release-artifacts
-          sha256sum "${PACKAGE_NAME}.tar.gz" "${PACKAGE_NAME}.zip" > SHA256SUMS.txt
-          cat SHA256SUMS.txt
-          cd ..
-
-      - name: Upload distribution artifacts
-        uses: actions/upload-artifact@v4
+          git archive --format=tar.gz --prefix="${name}/" HEAD -o "release-artifacts/${name}.tar.gz"
+          git archive --format=zip --prefix="${name}/" HEAD -o "release-artifacts/${name}.zip"
+          sha256sum release-artifacts/* > release-artifacts/SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
         with:
-          name: release-distribution-artifacts
-          path: release-artifacts/
-          retention-days: 30
-
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Golden Starter V3 ${{ github.ref_name }}
-          files: |
-            release-artifacts/*.tar.gz
-            release-artifacts/*.zip
-            release-artifacts/SHA256SUMS.txt
+          name: GoldenStarterCodex governance ${{ github.ref_name }}
+          files: release-artifacts/*
           generate_release_notes: true
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

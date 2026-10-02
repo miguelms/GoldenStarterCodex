@@ -16,7 +16,9 @@ Usa esta skill para desplegar y operar la aplicación en servidores virtuales (V
 - **Dominio Público:** Un dominio o subdominio apuntando con un registro DNS `A` a la dirección IP pública del servidor (ej. `app.example.com -> 198.51.100.24`).
 
 ### 1.1 Preparación Inicial del Sistema Operativo
+
 Conéctate por SSH al servidor y ejecuta:
+
 ```bash
 # Actualizar paquetes
 sudo apt update && sudo apt upgrade -y
@@ -33,6 +35,7 @@ sudo ufw status verbose
 ```
 
 ### 1.2 Instalación Oficial de Docker y Docker Compose v2
+
 ```bash
 # Instalar Docker Engine oficial
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -63,13 +66,16 @@ git checkout main
 ```
 
 ### 2.1 Configuración de Variables de Entorno de Producción
+
 Copia la plantilla y define los valores secretos reales del entorno:
+
 ```bash
 cp .env.staging .env.production
 chmod 600 .env.production
 ```
 
 Edita `.env.production`:
+
 ```env
 NODE_ENV=production
 PORT=3005
@@ -93,6 +99,7 @@ NEXT_PUBLIC_GEOFENCE_RADIUS_METERS=50
 ```
 
 > **Generación rápida de secretos seguros en consola:**
+>
 > ```bash
 > openssl rand -hex 32
 > ```
@@ -104,7 +111,9 @@ NEXT_PUBLIC_GEOFENCE_RADIUS_METERS=50
 Recomendamos **Caddy** como proxy inverso estándar por su gestión nativa y automatizada de certificados Let's Encrypt (renovación sin intervención, HTTP/2 y HTTP/3 nativos). Si tu organización exige Nginx, consulta la sección 3.2.
 
 ### 3.1 Opción A: Caddy (Recomendada)
+
 Crea el archivo `Caddyfile` en la raíz del proyecto:
+
 ```caddy
 {
     email admin@example.com
@@ -133,11 +142,14 @@ app.example.com {
 ```
 
 ### 3.2 Opción B: Nginx + Certbot (Alternativa Corporativa)
+
 Si prefieres Nginx, utiliza `certbot` para obtener el certificado:
+
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
 sudo certbot certonly --standalone -d app.example.com --non-interactive --agree-tos -m admin@example.com
 ```
+
 Monta los certificados generados (`/etc/letsencrypt/live/app.example.com/`) en el contenedor o reverse proxy de Nginx.
 
 ---
@@ -145,6 +157,7 @@ Monta los certificados generados (`/etc/letsencrypt/live/app.example.com/`) en e
 ## 4. Orquestación con Docker Compose de Producción
 
 Crea `docker-compose.prod.yml`:
+
 ```yaml
 services:
   caddy:
@@ -177,7 +190,13 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3005/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3005/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -247,6 +266,7 @@ docker compose -f docker-compose.prod.yml logs -f --tail=100
 ## 6. Verificación de Salud Post-Despliegue
 
 Ejecuta las pruebas de verificación externa:
+
 ```bash
 # Comprobar endpoint de salud
 curl -iv https://app.example.com/api/health
@@ -263,6 +283,7 @@ curl -I https://app.example.com
 ## 7. Procedimiento de Actualización sin Caída (Zero-Downtime Rolling Update)
 
 Para actualizar a una nueva versión del código en el servidor:
+
 ```bash
 cd /opt/golden-starter
 
@@ -287,12 +308,15 @@ docker image prune -f
 ## 8. Procedimiento de Respaldo y Restauración de Base de Datos
 
 ### Respaldo Automático Diario (Cron job)
+
 Agrega a `crontab -e`:
+
 ```bash
 0 3 * * * docker exec starter_prod_db pg_dump -U starter_prod_user starter_prod | gzip > /opt/backups/db_$(date +\%F).sql.gz
 ```
 
 ### Restauración en Caso de Contingencia
+
 ```bash
 # 1. Detener tráfico web
 docker compose -f docker-compose.prod.yml stop web

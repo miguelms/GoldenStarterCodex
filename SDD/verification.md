@@ -9,8 +9,8 @@ La verificación demuestra que la implementación satisface la spec y los AC. El
 - Reglas y comandos: [`../docs/QUALITY.md`](../docs/QUALITY.md).
 - Instrucciones SDD/TDD de Codex: [`../AGENTS.md`](../AGENTS.md).
 - AC y prueba asociada: [`../specs/templates/feature-spec.template.md`](../specs/templates/feature-spec.template.md).
-- Suites: `../tests/unit/`, `../tests/integration/`, `../tests/e2e/`.
-- Evidencia: `../artifacts/results/` y contrato `../docs/contrato-resultados.md`.
+- Suites: las suites del repositorio técnico seleccionado por la aplicación, actualmente [GoldenStarterWebIA](https://github.com/miguelms/GoldenStarterWebIA).
+- Evidencia de gobernanza: `../artifacts/results/` y contrato `../docs/contrato-resultados.md`. La evidencia de ejecución del stack se conserva en el repositorio técnico o se enlaza desde la sesión/resultado correspondiente.
 
 **Estado:** **Adoptado como estándar documental; parcial por feature**. `QUALITY.md` describe checks del starter y `AGENTS.md` exige TDD para cambios de comportamiento. Cada spec/plan aún debe mapear sus AC a checks concretos.
 
@@ -18,14 +18,14 @@ La verificación demuestra que la implementación satisface la spec y los AC. El
 
 Para cada AC registra:
 
-| Campo | Contenido esperado |
-| --- | --- |
-| AC | ID y criterio cubierto |
-| Prueba | Archivo/suite o inspección humana aplicable |
-| Comando/entorno | Comando real, cwd, versiones, servicios y plataforma |
-| Resultado | `PASS`, `FAIL`, `NOT_RUN`, `NOT_APPLICABLE` con justificación cuando aplique |
-| Evidencia | Log, reporte, URL/identificador de CI o pasos reproducibles |
-| Límites | Qué no valida ese resultado |
+| Campo           | Contenido esperado                                                           |
+| --------------- | ---------------------------------------------------------------------------- |
+| AC              | ID y criterio cubierto                                                       |
+| Prueba          | Archivo/suite o inspección humana aplicable                                  |
+| Comando/entorno | Comando real, cwd, versiones, servicios y plataforma                         |
+| Resultado       | `PASS`, `FAIL`, `NOT_RUN`, `NOT_APPLICABLE` con justificación cuando aplique |
+| Evidencia       | Log, reporte, URL/identificador de CI o pasos reproducibles                  |
+| Límites         | Qué no valida ese resultado                                                  |
 
 ## Política
 

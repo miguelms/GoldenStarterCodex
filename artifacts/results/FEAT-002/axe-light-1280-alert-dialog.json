@@ -1,0 +1,17 @@
+{
+  "theme": "light",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "state": "alert-dialog",
+  "engine": {
+    "name": "axe-core",
+    "version": "4.13.0"
+  },
+  "knownBaseUiFocusGuardException": {
+    "count": 0,
+    "issue": "https://github.com/mui/base-ui/issues/4845"
+  },
+  "violations": []
+}

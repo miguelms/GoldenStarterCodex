@@ -4,14 +4,14 @@ El video distingue `AGENTS.md` para reglas del repositorio y skills para captura
 
 ## Dónde vive hoy cada responsabilidad
 
-| Responsabilidad | Fuente actual | Estado |
-| --- | --- | --- |
-| Reglas de repo: flujo, seguridad, TDD y cómo delegar | [`../AGENTS.md`](../AGENTS.md) | **Adoptado** |
-| Flujos repetibles Q&A de producto/diseño | `../.agents/skills/live-product-qa/SKILL.md`, `../.agents/skills/live-design-review/SKILL.md` | **Adoptado** |
-| Perfiles especialistas nativos Codex | `../.codex/agents/*.toml` | **Adoptado en configuración; revisión/aceptación del catálogo sigue su propio estado** |
-| Ownership, cuándo delegar y handoffs | [`../docs/agent-registry.md`](../docs/agent-registry.md) | **Adoptado** |
-| Contrato/evidencia de handoff | [`../docs/contrato-resultados.md`](../docs/contrato-resultados.md), schema y ejemplo `../docs/agent-result.*` | **Adoptado** |
-| Perfiles especialistas Codex | `../.codex/agents/*.toml` | **Adoptado.** |
+| Responsabilidad                                      | Fuente actual                                                                                                 | Estado                                                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Reglas de repo: flujo, seguridad, TDD y cómo delegar | [`../AGENTS.md`](../AGENTS.md)                                                                                | **Adoptado**                                                                           |
+| Flujos repetibles Q&A de producto/diseño             | `../.agents/skills/live-product-qa/SKILL.md`, `../.agents/skills/live-design-review/SKILL.md`                 | **Adoptado**                                                                           |
+| Perfiles especialistas nativos Codex                 | `../.codex/agents/*.toml`                                                                                     | **Adoptado en configuración; revisión/aceptación del catálogo sigue su propio estado** |
+| Ownership, cuándo delegar y handoffs                 | [`../docs/agent-registry.md`](../docs/agent-registry.md)                                                      | **Adoptado**                                                                           |
+| Contrato/evidencia de handoff                        | [`../docs/contrato-resultados.md`](../docs/contrato-resultados.md), schema y ejemplo `../docs/agent-result.*` | **Adoptado**                                                                           |
+| Perfiles especialistas Codex                         | `../.codex/agents/*.toml`                                                                                     | **Adoptado.**                                                                          |
 
 Las reglas del agente no deben duplicarse en cada spec. Una spec contiene el contexto y criterios de la feature; `AGENTS.md` y los perfiles definen cómo trabaja el harness.
 

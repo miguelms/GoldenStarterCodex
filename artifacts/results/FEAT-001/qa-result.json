@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "task_id": "FEAT-001",
+  "run_id": "2026-10-01-temporary-node-forge-risk-acceptance",
+  "evaluated_ref": "snapshot-sha256:0e3dbc7b0d6860a93868a89a2ba3cf18a649f0d77953645991cb188f9ea74d1a",
+  "status": "PASS",
+  "verdict": "PASS",
+  "summary": "FEAT-001 verificada: checks funcionales, visuales y VoiceOver manual PASS; ambos audits pasan con una excepción temporal y acotada para GHSA-86w9-cpqp-85rv.",
+  "blockers": [],
+  "next_action": "Revisar la excepción antes del 2026-10-31; cuando haya una versión corregida compatible, actualizar Expo/node-forge, quitar la excepción y volver a ejecutar ambos audits.",
+  "agent_id": "root (seguimiento de política)",
+  "files_changed": [],
+  "deliverables": [
+    "artifacts/results/FEAT-001/qa-review.md",
+    "artifacts/results/FEAT-001/manual-assistive.md",
+    "artifacts/results/FEAT-001/audit-production-after-waiver.txt",
+    "artifacts/results/FEAT-001/audit-full-after-waiver.txt",
+    "docs/security/FEAT-001-node-forge-risk-acceptance.md",
+    "security/npm-audit-exceptions.json"
+  ],
+  "checks": [
+    {
+      "id": "unit",
+      "required": true,
+      "status": "PASS",
+      "method": "Lectura independiente de evidencia del integrador / inspección de capturas",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/unit-final.txt",
+      "reason": "65 tests en 10 archivos."
+    },
+    {
+      "id": "browser-contract",
+      "required": true,
+      "status": "PASS",
+      "method": "Lectura independiente de evidencia del integrador / inspección de capturas",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/browser-fixture-feedback-followup.txt",
+      "reason": "19 browser tests pass."
+    },
+    {
+      "id": "visual",
+      "required": true,
+      "status": "PASS",
+      "method": "Lectura independiente de evidencia del integrador / inspección de capturas",
+      "exit_code": null,
+      "artifact": "artifacts/results/FEAT-001/browser-evidence.md",
+      "reason": "Inspección visual desktop/móvil y pase manual de VoiceOver confirmado."
+    },
+    {
+      "id": "format-global",
+      "required": true,
+      "status": "PASS",
+      "method": "Lectura independiente de evidencia del integrador / inspección de capturas",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/format-final.txt",
+      "reason": "Prettier global pasa después de corrección de formato."
+    },
+    {
+      "id": "audit",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run audit:ci -- --omit=dev y npm run audit:ci con excepción acotada",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/audit-full-after-waiver.txt",
+      "reason": "Ambos audits PASS: 4 registros high aceptados solo para GHSA-86w9-cpqp-85rv; cero high/critical sin aceptar."
+    },
+    {
+      "id": "manual-assistive",
+      "required": true,
+      "status": "PASS",
+      "method": "Prueba manual local con VoiceOver confirmada por el usuario",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/manual-assistive.md",
+      "reason": "Pase confirmado por el usuario; sin defectos reportados."
+    },
+    {
+      "id": "audit-exception-policy",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run test:audit-policy",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/audit-policy-tests.txt",
+      "reason": "5/5: whitelist exacta; otro advisory, cambio de versión/ruta y expiración bloquean."
+    }
+  ]
+}

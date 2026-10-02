@@ -1,0 +1,245 @@
+{
+  "base": "ae67fc729d871ac4a771bfb93880f81931c67d67",
+  "files": [
+    {
+      "path": ".agents/skills/production-deployment/SKILL.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "apps/mobile/app/index.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "apps/mobile/constants/tokens.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "apps/mobile/tsconfig.json",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "backend-ai/README.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/agent-registry.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/golden-project-plan.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/guides/how-to-use-and-extend-gsv3.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/guides/physical-device-testing.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/live-sessions/README.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/operations/staging-deployment-runbook.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/QUALITY.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/questions-v0.1.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "docs/security/infrastructure-ci-security-review.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "drizzle.config.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "drizzle/meta/_journal.json",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "drizzle/meta/0000_snapshot.json",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "golden-starter.manifest.json",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "packages/contracts/src/index.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "PRD.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "README.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "scripts/extract-golden-starter.mjs",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "scripts/validate-staging-env.mjs",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "SDD/agent-harness.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "SDD/change-log.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "SDD/README.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "SDD/roadmap.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "SDD/verification.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "specs/README.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "specs/templates/feature-spec.template.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/api/ai/images/process/route.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/api/ai/tasks/[taskId]/route.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/api/ai/voice/transcribe/route.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/api/devices/[id]/revoke/route.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/api/sync/route.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/api/upload/route.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/app/page.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/shared/README.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/ui/badge.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/ui/button.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/ui/card.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/ui/input.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/ui/label.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/ui/skeleton.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/components/ui/textarea.tsx",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/db/index.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/db/schema.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/lib/error-logger.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/lib/request-validation.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/lib/server-env.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/lib/storage.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/server/ai-satellite-client.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/server/auth.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "src/server/store.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "TASKS.md",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "tests/unit/ai-satellite-client.test.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "tests/unit/generic-components.test.ts",
+      "baseline_exit_code": 1
+    },
+    {
+      "path": "tests/unit/lost-device.test.ts",
+      "baseline_exit_code": 1
+    }
+  ]
+}

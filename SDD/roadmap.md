@@ -7,7 +7,7 @@
 
 ## Propósito y éxito esperado
 
-GoldenStarterCodex debe ofrecer una base reutilizable de stack, componentes, calidad y flujo SDD/TDD que Codex pueda seguir de forma consistente. Un proyecto creado desde el starter debe conservar sus decisiones de proyecto, y cada feature debe poder rastrearse desde intención y criterios de aceptación hasta plan, código, pruebas y revisión.
+GoldenStarterCodex debe ofrecer una base reutilizable de gobernanza, agentes, skills y flujo SDD/TDD que Codex pueda seguir de forma consistente. El stack técnico se selecciona desde un repositorio versionado como GoldenStarterWebIA. Un proyecto creado desde la composición debe conservar sus decisiones de proyecto, y cada feature debe poder rastrearse desde intención y criterios de aceptación hasta plan, código, pruebas y revisión.
 
 El roadmap se revisa después de pilotos y cambios de alcance. Las ideas de `README.md` (OAuth, streaming, rate limiting, exportación, notificaciones) siguen siendo **propuestas no priorizadas** hasta que el owner las incorpore aquí.
 
@@ -18,6 +18,7 @@ El roadmap se revisa después de pilotos y cambios de alcance. Las ideas de `REA
 **Estado:** `IN_PROGRESS`
 
 **Alcance:**
+
 - Revisar perfiles especialistas y skills de Codex.
 - Mantener el harness de Codex nativo y separado de la edición Antigravity del starter.
 - Consolidar el contrato operativo SDD/TDD, checks, resultados y revisión.
@@ -30,6 +31,7 @@ El roadmap se revisa después de pilotos y cambios de alcance. Las ideas de `REA
 **Estado:** `PLANNED` — inicia después de cerrar R0 y confirmar el repositorio GitHub canónico de GoldenStarterCodex.
 
 **Alcance:**
+
 - Revisar este mapa y confirmar `constitution.md` y `roadmap.md`.
 - Completar una feature acotada de GoldenStarterCodex desde spec hasta revisión de diff.
 - Probar que cada AC remite a prueba/evidencia y que el plan queda separado de la implementación.
@@ -42,6 +44,7 @@ El roadmap se revisa después de pilotos y cambios de alcance. Las ideas de `REA
 **Estado:** `PLANNED`
 
 **Alcance:**
+
 - Confirmar el repo GitHub local/remoto de CCentral y la identidad de su entorno.
 - Crear o validar su contexto de proyecto: misión, stack real, arquitectura, despliegue manual de producción y proyecto Stitch que el owner confirme.
 - Adoptar de GoldenStarter los componentes elegidos (incluidos Shadcn y el grid común) y CI solo con checks que no desplieguen producción.
@@ -54,6 +57,7 @@ El roadmap se revisa después de pilotos y cambios de alcance. Las ideas de `REA
 **Estado:** `PLANNED`
 
 **Alcance:**
+
 - Revisar resultados de CCentral y otros pilotos.
 - Separar mejoras generalizables del starter de requisitos exclusivos de CCentral.
 - Priorizar cambios de stack, grid, Shadcn, CI, SDD/TDD y perfiles reutilizables para la futura versión del starter.

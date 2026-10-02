@@ -1,0 +1,60 @@
+{
+  "theme": "light",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "state": "menu",
+  "engine": {
+    "name": "axe-core",
+    "version": "4.13.0"
+  },
+  "knownBaseUiFocusGuardException": {
+    "count": 6,
+    "issue": "https://github.com/mui/base-ui/issues/4845"
+  },
+  "violations": [
+    {
+      "id": "aria-hidden-focus",
+      "impact": "serious",
+      "nodes": [
+        {
+          "target": [
+            ".row > span[data-base-ui-focus-guard=\"\"][aria-hidden=\"true\"]:nth-child(1)"
+          ],
+          "summary": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
+        },
+        {
+          "target": [
+            ".row > span[data-base-ui-focus-guard=\"\"][aria-hidden=\"true\"]:nth-child(3)"
+          ],
+          "summary": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
+        },
+        {
+          "target": [
+            "span[data-type=\"outside\"][data-base-ui-focus-guard=\"\"][aria-hidden=\"true\"]:nth-child(4)"
+          ],
+          "summary": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
+        },
+        {
+          "target": [
+            "span[data-type=\"outside\"][data-base-ui-focus-guard=\"\"][aria-hidden=\"true\"]:nth-child(6)"
+          ],
+          "summary": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
+        },
+        {
+          "target": [
+            "span[data-type=\"inside\"][data-base-ui-focus-guard=\"\"][aria-hidden=\"true\"]:nth-child(1)"
+          ],
+          "summary": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
+        },
+        {
+          "target": [
+            "span[data-type=\"inside\"][data-base-ui-focus-guard=\"\"][aria-hidden=\"true\"]:nth-child(3)"
+          ],
+          "summary": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
+        }
+      ]
+    }
+  ]
+}

@@ -1,144 +1,25 @@
-name: CI
+name: Governance CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/agent-separation]
   pull_request:
-    branches: [main]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main, codex/agent-separation]
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
-  lint-and-types:
-    name: Lint & Types
+  validate-governance:
+    name: Validate Codex governance
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: "24"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run TypeScript typecheck
-        run: npm run typecheck
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Check code formatting
-        run: npm run format:check
-
-  test-unit-integration:
-    name: Unit & Integration Tests
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:18-alpine
-        env:
-          POSTGRES_USER: starter_user
-          POSTGRES_PASSWORD: starter_password
-          POSTGRES_DB: starter_test
-        ports:
-          - 55432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run unit tests
-        run: npm run test:unit
-
-      - name: Run integration tests
-        run: npm run test:integration
-        env:
-          DATABASE_URL: postgres://starter_user:starter_password@localhost:55432/starter_test
-          NODE_ENV: test
-
-  build-web:
-    name: Build Web (Standalone Next.js 16)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Next.js 16 standalone web
-        run: npm run build:web
-        env:
-          NEXT_PRIVATE_STANDALONE: "true"
-
-  validate-mobile:
-    name: Validate Mobile Package & Types
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate Expo manifest and TypeScript
-        run: npm run check:mobile
-        env:
-          EXPO_NO_TELEMETRY: "1"
-
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Audit production dependencies (zero tolerance)
-        run: npm run audit:ci -- --omit=dev
-
-      - name: Audit development tooling (manage exceptions per docs/QUALITY.md)
-        run: |
-          npm run audit:ci || echo "::notice::Development tooling audit warnings tolerated per docs/QUALITY.md exception (v0.1 pilot)"
+          python-version: "3.13"
+      - name: Validate profiles, skills and repository boundaries
+        run: python3 scripts/validate-codex-governance.py
+      - name: Check formatting
+        run: npx --yes prettier@3.4.2 --check .

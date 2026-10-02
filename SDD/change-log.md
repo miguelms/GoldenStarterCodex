@@ -16,6 +16,7 @@ Si el proyecto lo requiere, registrar por merge:
 
 ```markdown
 ### YYYY-MM-DD — <resultado para usuarios>
+
 - Feature/spec: <ID y enlace>
 - PR/merge: <enlace/commit>
 - Verificación: <resumen y evidencia>

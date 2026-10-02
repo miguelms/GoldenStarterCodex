@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "task_id": "FEAT-001",
+  "run_id": "2026-10-01-temporary-node-forge-risk-acceptance",
+  "evaluated_ref": "snapshot-sha256:0e3dbc7b0d6860a93868a89a2ba3cf18a649f0d77953645991cb188f9ea74d1a",
+  "status": "PASS",
+  "verdict": "PASS",
+  "summary": "FEAT-001 verificada: checks funcionales, visuales y VoiceOver manual PASS; ambos audits pasan con una excepción temporal y acotada para GHSA-86w9-cpqp-85rv.",
+  "blockers": [],
+  "next_action": "Revisar la excepción antes del 2026-10-31; cuando haya una versión corregida compatible, actualizar Expo/node-forge, quitar la excepción y volver a ejecutar ambos audits.",
+  "agent_id": "root",
+  "files_changed": [
+    ".gitignore",
+    "artifacts/change-plans/FEAT-001-data-grid-sorting.md",
+    "docs/design-sessions/2026-10-01-feat-001-data-grid.md",
+    "docs/design-specs/feat-001-data-grid-v1.md",
+    "docs/live-sessions/2026-10-01-data-grid-sorting.md",
+    "package-lock.json",
+    "package.json",
+    "playwright.config.ts",
+    "playwright.data-grid.config.ts",
+    "specs/FEAT-001-data-grid-sorting.md",
+    "src/components/shared/README.md",
+    "src/components/shared/data-grid/data-grid-query.ts",
+    "src/components/shared/data-grid/generic-crud-data-grid.tsx",
+    "src/components/shared/index.ts",
+    "tests/e2e/data-grid-contract.spec.ts",
+    "tests/fixtures/data-grid/index.html",
+    "tests/fixtures/data-grid/main.tsx",
+    "tests/fixtures/data-grid/style.css",
+    "tests/unit/data-grid-sorting.test.ts",
+    "tsconfig.data-grid-fixture.json",
+    "vite.data-grid.config.ts",
+    ".github/workflows/ci.yml",
+    "docs/QUALITY.md",
+    "docs/security/FEAT-001-node-forge-risk-acceptance.md",
+    "scripts/audit-with-allowlist.mjs",
+    "scripts/audit-with-allowlist.test.mjs",
+    "scripts/lib/npm-audit-policy.mjs",
+    "security/npm-audit-exceptions.json"
+  ],
+  "deliverables": [
+    "artifacts/results/FEAT-001/verification.md",
+    "artifacts/results/FEAT-001/snapshot.json",
+    "artifacts/results/FEAT-001/qa-review.md",
+    "artifacts/results/FEAT-001/manual-assistive.md",
+    "artifacts/results/FEAT-001/audit-production-after-waiver.txt",
+    "artifacts/results/FEAT-001/audit-full-after-waiver.txt",
+    "docs/security/FEAT-001-node-forge-risk-acceptance.md",
+    "security/npm-audit-exceptions.json"
+  ],
+  "checks": [
+    {
+      "id": "unit",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run test:unit",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/unit-final.txt",
+      "reason": "65 tests en 10 archivos"
+    },
+    {
+      "id": "browser-contract",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run test:e2e:data-grid -- --workers=1",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/browser-fixture-feedback-followup.txt",
+      "reason": "19 tests"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run typecheck",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/typecheck-final.txt",
+      "reason": null
+    },
+    {
+      "id": "fixture-typecheck",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run typecheck:data-grid-fixture",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/browser-fixture-feedback-followup.txt",
+      "reason": null
+    },
+    {
+      "id": "lint",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run lint",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/lint-final.txt",
+      "reason": null
+    },
+    {
+      "id": "web-build",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run build:web",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/build-final.txt",
+      "reason": "Sin ruta fixture"
+    },
+    {
+      "id": "web-e2e",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run test:e2e:web",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/e2e-web-final.txt",
+      "reason": "1 test health"
+    },
+    {
+      "id": "format-feature",
+      "required": true,
+      "status": "PASS",
+      "method": "Prettier check sobre archivos cambiados/nuevos",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/format-final.txt",
+      "reason": null
+    },
+    {
+      "id": "diff",
+      "required": true,
+      "status": "PASS",
+      "method": "git diff --check",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/diff-check.txt",
+      "reason": null
+    },
+    {
+      "id": "visual",
+      "required": true,
+      "status": "PASS",
+      "method": "Inspección de capturas por root/test_engineer/qa",
+      "exit_code": null,
+      "artifact": "artifacts/results/FEAT-001/browser-evidence.md",
+      "reason": "Inspección visual desktop/móvil y pase manual de VoiceOver confirmado."
+    },
+    {
+      "id": "format-global",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run format:check",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/format-final.txt",
+      "reason": "All matched files use Prettier code style"
+    },
+    {
+      "id": "audit",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run audit:ci -- --omit=dev y npm run audit:ci con excepción acotada",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/audit-full-after-waiver.txt",
+      "reason": "Ambos audits PASS: 4 registros high aceptados solo para GHSA-86w9-cpqp-85rv; cero high/critical sin aceptar."
+    },
+    {
+      "id": "manual-assistive",
+      "required": true,
+      "status": "PASS",
+      "method": "Prueba manual local con VoiceOver confirmada por el usuario",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/manual-assistive.md",
+      "reason": "Pase confirmado por el usuario; sin defectos reportados."
+    },
+    {
+      "id": "audit-exception-policy",
+      "required": true,
+      "status": "PASS",
+      "method": "npm run test:audit-policy",
+      "exit_code": 0,
+      "artifact": "artifacts/results/FEAT-001/audit-policy-tests.txt",
+      "reason": "5/5: whitelist exacta; otro advisory, cambio de versión/ruta y expiración bloquean."
+    }
+  ]
+}
