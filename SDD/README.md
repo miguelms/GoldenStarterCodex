@@ -4,15 +4,15 @@ GoldenStarterCodex conserva el método Spec-Driven Development y su ciclo TDD pa
 
 ## Mapa de artefactos
 
-| Artefacto | Ubicación | Propietario |
-| --- | --- | --- |
-| Constitución y límites | `constitution.md`, `PRD.md`, `AGENTS.md` | GoldenStarterCodex |
-| Roadmap de gobernanza | `roadmap.md`, `docs/golden-project-plan.md` | GoldenStarterCodex |
-| Specs | `specs/` | Aplicación, usando templates Codex |
-| Planes | `artifacts/change-plans/` | Aplicación/Codex |
-| Evidencia | `artifacts/results/` | Aplicación/Codex |
-| Handoffs y resultados | `agent-harness.md`, `docs/contrato-resultados.md` | GoldenStarterCodex |
-| Stack y comandos | Repositorio técnico declarado por `.golden/composition.yaml` | Stack seleccionado |
+| Artefacto              | Ubicación                                                    | Propietario                        |
+| ---------------------- | ------------------------------------------------------------ | ---------------------------------- |
+| Constitución y límites | `constitution.md`, `PRD.md`, `AGENTS.md`                     | GoldenStarterCodex                 |
+| Roadmap de gobernanza  | `roadmap.md`, `docs/golden-project-plan.md`                  | GoldenStarterCodex                 |
+| Specs                  | `specs/`                                                     | Aplicación, usando templates Codex |
+| Planes                 | `artifacts/change-plans/`                                    | Aplicación/Codex                   |
+| Evidencia              | `artifacts/results/`                                         | Aplicación/Codex                   |
+| Handoffs y resultados  | `agent-harness.md`, `docs/contrato-resultados.md`            | GoldenStarterCodex                 |
+| Stack y comandos       | Repositorio técnico declarado por `.golden/composition.yaml` | Stack seleccionado                 |
 
 ## Composición
 

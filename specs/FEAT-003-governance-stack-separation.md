@@ -12,14 +12,14 @@ GoldenStarterCodex conserva custom agents, subagents, skills, política MCP, SDD
 
 ## Criterios de aceptación
 
-| ID | Criterio | Evidencia |
-| --- | --- | --- |
-| AC-001 | Codex no contiene `src/`, `apps/`, `backend-ai/`, `packages/`, `drizzle/`, `package.json` ni dependencias Node del stack | `scripts/validate-codex-governance.py` |
-| AC-002 | Codex conserva perfiles TOML, Agent Skills, SDD/TDD, specs y evidencia | inventario del repo y validación de gobernanza |
-| AC-003 | WebIA contiene el stack, sus dependencias, pruebas, CI y release técnico | `README.md`, `docs/repository-contract.md`, `package.json` |
-| AC-004 | Ningún workflow de Codex ejecuta comandos técnicos del stack | `.github/workflows/ci.yml` |
-| AC-005 | El runbook define composición, lockfile, ownership y actualizaciones independientes | `docs/guides/composing-with-goldenstarterwebia.md` |
-| AC-006 | La separación no modifica CCentral ni mezcla Antigravity con Codex | verificación de repositorios |
+| ID     | Criterio                                                                                                                 | Evidencia                                                  |
+| ------ | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| AC-001 | Codex no contiene `src/`, `apps/`, `backend-ai/`, `packages/`, `drizzle/`, `package.json` ni dependencias Node del stack | `scripts/validate-codex-governance.py`                     |
+| AC-002 | Codex conserva perfiles TOML, Agent Skills, SDD/TDD, specs y evidencia                                                   | inventario del repo y validación de gobernanza             |
+| AC-003 | WebIA contiene el stack, sus dependencias, pruebas, CI y release técnico                                                 | `README.md`, `docs/repository-contract.md`, `package.json` |
+| AC-004 | Ningún workflow de Codex ejecuta comandos técnicos del stack                                                             | `.github/workflows/ci.yml`                                 |
+| AC-005 | El runbook define composición, lockfile, ownership y actualizaciones independientes                                      | `docs/guides/composing-with-goldenstarterwebia.md`         |
+| AC-006 | La separación no modifica CCentral ni mezcla Antigravity con Codex                                                       | verificación de repositorios                               |
 
 ## Fuera de alcance
 

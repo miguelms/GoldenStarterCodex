@@ -66,7 +66,11 @@
       "severity": "moderate",
       "isDirect": false,
       "via": ["@expo/config-plugins"],
-      "effects": ["@expo/local-build-cache-provider", "@expo/metro-config", "expo"],
+      "effects": [
+        "@expo/local-build-cache-provider",
+        "@expo/metro-config",
+        "expo"
+      ],
       "range": "<=0.0.1-canary-20240418-8d74597 || >=3.3.23-alpha.0",
       "nodes": ["node_modules/@expo/config"],
       "fixAvailable": {
@@ -80,7 +84,12 @@
       "severity": "moderate",
       "isDirect": false,
       "via": ["xcode"],
-      "effects": ["@expo/config", "@expo/inline-modules", "@expo/prebuild-config", "expo"],
+      "effects": [
+        "@expo/config",
+        "@expo/inline-modules",
+        "@expo/prebuild-config",
+        "expo"
+      ],
       "range": "*",
       "nodes": ["node_modules/@expo/config-plugins"],
       "fixAvailable": {
@@ -124,7 +133,9 @@
       "via": ["@expo/config"],
       "effects": ["expo"],
       "range": "<=0.0.1-canary-20240418-8d74597 || >=0.1.49-alpha.0",
-      "nodes": ["apps/mobile/node_modules/expo/node_modules/@expo/metro-config"],
+      "nodes": [
+        "apps/mobile/node_modules/expo/node_modules/@expo/metro-config"
+      ],
       "fixAvailable": {
         "name": "expo",
         "version": "44.0.6",

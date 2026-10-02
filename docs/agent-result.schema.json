@@ -78,7 +78,15 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "required", "status", "method", "exit_code", "artifact", "reason"],
+        "required": [
+          "id",
+          "required",
+          "status",
+          "method",
+          "exit_code",
+          "artifact",
+          "reason"
+        ],
         "properties": {
           "id": {
             "type": "string",
